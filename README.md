@@ -1,3 +1,8 @@
+Contents
+   # Setting Up a Serverless Angular Project
+   # Branch Management Guidelines
+   # Structure
+
 # Setting Up a Serverless Angular Project
 
 This guide will help you set up a serverless application with an Angular frontend and a serverless backend hosted on AWS using AWS Lambda and DynamoDB.
@@ -155,9 +160,63 @@ After deploying the frontend to S3 and setting up the backend on AWS, you can ac
 
 Following these steps will help you set up and deploy a serverless Angular application with a backend hosted on AWS. If you encounter any issues, refer to the additional resources provided for detailed documentation.
 
+# Branch Management Guidelines
+## Purpose
+Branch management helps maintain code quality, facilitate parallel development, and streamline the integration process in GitHub repositories.
+
+## Main Branches
+main : The primary branch where production-ready code resides. (All presentations should be done from here)
+develop: A branch for integration of features, where code is merged before going into main.
+
+## Feature Branches
+Branch Naming: Use descriptive names like feature/new-login-system or bugfix/fix-404-error.
+Creation: Branch off from develop for new features or bug fixes.
+Lifetime: Delete after merging if no longer needed.
+
+## Workflow
+Create a Branch: 
+For new features or bugs, branch from develop.
+Example: git checkout -b feature/new-feature develop
+Work on Your Branch:
+Make commits with clear messages.
+Push your branch to GitHub.
+Open a Pull Request:
+From your feature branch to develop.
+Include a description of changes, related issues, and screenshots if applicable.
+Code Review:
+Peers review the code before merging.
+Address comments and feedback.
+Merge to develop:
+After approval, merge your branch into develop.
+Use merge commits or squash commits as per project convention.
+Update main:
+Periodically merge develop into main for release.
+
+## Rules
+Do not commit directly to main or develop.
+Use Pull Requests for all changes going into develop or main.
+Keep branches short-lived to avoid divergence.
 
 
+# Structure
+## Frontend (Angular):
+- Components: These are the building blocks of the UI. Each component in Angular represents a part of the user interface and interacts with the user. For instance, a form component might collect user data.
+- Services: Angular services are used to share code across components. Here, you'd have a service that handles HTTP requests to the backend. This service would use Angular's HttpClient to send and receive data from the API.
 
+## Backend (AWS Lambda & DynamoDB):
+- API Gateway: This AWS service acts as the entry point for API requests from the Angular application. It routes HTTP requests to the appropriate Lambda function.
+- AWS Lambda Functions: These are serverless compute services that run your backend code in response to HTTP requests from the API Gateway. Each Lambda function can correspond to different operations like CRUD (Create, Read, Update, Delete) on data. The functions are typically written in Node.js, Python, or another supported runtime.
+- Example: A Lambda function might handle a POST request to create a new item in DynamoDB, or a GET request to retrieve data.
+- Amazon DynamoDB: Used as the database for storing and retrieving data. Lambda functions interact with DynamoDB to perform database operations:
+   - Create: New entries are added when the user submits data via a form in the Angular app.
+   - Read: Data is fetched to populate views or lists in the frontend.
+   - Update/Delete: Modifications or deletions are made based on user actions.
 
-
-
+## Integration Flow:
+- User Interaction: A user interacts with an Angular component (e.g., submits a form).
+- Service Call: The component uses an Angular service to make an HTTP request.
+- API Gateway: The request goes through API Gateway, which routes it to the correct Lambda function.
+- Lambda Function: This function processes the request, potentially interacting with DynamoDB.
+- DynamoDB: Reads from or writes to the database.
+- Response: The Lambda function sends back a response via API Gateway to the Angular application.
+- Data Handling: The Angular service receives this data and updates the component's view accordingly.
