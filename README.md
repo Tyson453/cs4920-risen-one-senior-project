@@ -13,6 +13,7 @@ Before you start, ensure you have the following:
 
 - **AWS Account**: Create an account on [AWS](https://aws.amazon.com/) if you don’t have one.
 - **AWS CLI**: Install and configure the AWS Command Line Interface with your account details. Instructions can be found [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html).
+- **AWS CLI CONFIGURE**: set the region for AWS CLI to us-east-1.
 - **Node.js and npm**: Install Node.js and npm from [here](https://nodejs.org/).
 - **Angular CLI**: Install the Angular Command Line Interface. Instructions are available [here](https://angular.dev/tools/cli).
 
@@ -48,9 +49,10 @@ Navigate to the backend folder.
 
 ### Step 2: Install Serverless Framework
 
-Install the Serverless Framework, which will help you manage the serverless backend.
+Install the Serverless Framework Version 3.38.0, which will help you manage the serverless backend.
+IMPORTANT: do not use version ^4. this will complicate the process and requre integration with Serverless website
 
-- Command: `npm install -g serverless`
+- Command: `npm install -g serverless@3.38.0`
 
 ### Step 3: Install Project Dependencies
 
