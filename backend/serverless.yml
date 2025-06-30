@@ -1,4 +1,5 @@
 service: senior-project-template
+frameworkVersion: '3'
 
 provider:
   name: aws
