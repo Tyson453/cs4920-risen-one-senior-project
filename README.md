@@ -81,8 +81,10 @@ Follow these steps to configure the login functionality:
 1. **Create the DynamoDB Table**:
    - The table is created with the name `users` and it has `username` as the primary key. This is defined in the `resources` section of the `serverless.yml` file.
 
-2. **Add Users to the Table**:
-   - Sample users are added to the DynamoDB table with predefined usernames and passwords. This ensures that you have users to test the login functionality.
+2. **Import Base Data**:
+   - After deployment, call the import-data endpoint to populate the DynamoDB tables with sample users, projects, and daily reports. This can be done using a tool like Postman or curl:
+   - Command: `curl -X POST https://your-api-gateway-url/import-data`
+   - This will create sample data including users (John Doe, Jane Smith, Bob Johnson), projects (Project 22, Project Alpha), and daily status reports for testing the application.
 
 3. **Lambda Function for Login**:
    - The Lambda function defined in `src/handlers/login.js` handles the login requests. It checks if the provided username and password match an existing user in the DynamoDB table.

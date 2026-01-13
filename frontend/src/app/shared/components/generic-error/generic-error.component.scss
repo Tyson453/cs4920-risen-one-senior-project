@@ -1,0 +1,50 @@
+
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
+mat-card-header {
+  justify-content: space-around;
+}
+
+.error-card {
+  max-width: 30vw;
+  margin: auto auto;
+  background-color: #ffffff;
+  text-align: center;
+  color: #333333;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  box-shadow: none;
+}
+
+.error-card-header {
+  font-weight: bold;
+}
+
+.action-buffer {
+    margin: 3px 0px 0px 0px;
+    justify-content: center;
+}
+
+p {
+    color: black;
+    align-self: flex-end;
+}
+
+.cancel {
+    height: 2rem;
+    background-color: #eee;
+    color: #000;
+    border-radius: 25px;
+    width: 6em;
+    font-size: 0.9rem;
+    font-weight: 350;
+    font-family:'Montserrat', 'sans-serif';
+    justify-content: center;
+    align-content: center;
+    display: grid;
+  
+    :hover {
+      background-color: #d2d2d2;
+      color: #000;
+      cursor: pointer;
+    }
+  }

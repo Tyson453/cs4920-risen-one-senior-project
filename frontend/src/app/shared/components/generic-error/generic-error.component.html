@@ -1,0 +1,11 @@
+<mat-card appearance="outlined" class="error-card">
+  <mat-card-header>
+    <mat-card-title class="error-card-header" data-testid="title">{{ data.messageHeader }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <p data-testid="body">{{ data.messageBody }}</p>
+  </mat-card-content>
+  <div mat-dialog-actions class="action-bottom-container action-buffer">
+    <button class="cancel" mat-button (click)="dismiss()">Dismiss</button>
+  </div>
+</mat-card>

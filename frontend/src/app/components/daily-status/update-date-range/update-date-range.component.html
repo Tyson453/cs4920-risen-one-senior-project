@@ -1,0 +1,39 @@
+<div class="container">
+  <mat-dialog-content>
+    <h2>
+      Update Date Range
+    </h2>
+    <p>
+      Select start and end dates for DSU search. 
+    </p>
+    <div fxLayout="column" fxLayoutAlign="left">
+      <mat-form-field class="users-right-buffer users-form-size small-input" appearance="outline">
+        <mat-label>Date Range Start</mat-label>
+        <div class="date-container">
+          <input matInput [matDatepicker]="picker" [(ngModel)]="startRange" data-testid="start_range"/>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </div>
+        <mat-hint>MM/DD/YYYY</mat-hint>
+      </mat-form-field>
+      <mat-form-field class="users-right-buffer users-form-size small-input" appearance="outline">
+        <mat-label>Date Range End</mat-label>
+        <div class="date-container">
+          <input matInput [matDatepicker]="picker1" [(ngModel)]="endRange" data-testid="end_range"/>
+          <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+          <mat-datepicker #picker1></mat-datepicker>
+        </div>
+        <mat-hint>MM/DD/YYYY</mat-hint>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button cdkFocusInitial mat-raised-button matDialogClose data-testid="cancel">Cancel</button>
+    <button mat-raised-button color="primary" (click)="submitForm()" [disabled]="!dateRangeValid()">
+      Submit
+    </button>
+    <button mat-raised-button (click)="exportRange()" [disabled]="!dateRangeValid()" *ngIf="data.showExport">
+      Custom Range
+    </button>
+  </mat-dialog-actions>
+</div>

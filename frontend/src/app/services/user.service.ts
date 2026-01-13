@@ -22,6 +22,20 @@ export class UserApiService {
 
     return new Promise((resolve) => { resolve(user) });
   }
+  public getUsers() {
+    //TODO change this to get user data from the backend
+    const users = [{
+      uuid: 'XXX',
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      assignments: [
+        "468879bf-8e44-4c95-8321-edd2b8fb0108"
+      ],
+      birthday: "",
+    }]
+
+    return new Promise((resolve) => { resolve(users) });
+  }
 
   public getProjects() {
     //TODO change this to get project data from the backend

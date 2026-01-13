@@ -1,0 +1,17 @@
+<h1 class="bold title" mat-dialog-title data-testid="title">{{ data.title }}</h1>
+<div mat-dialog-content>
+  <div>
+    <p>{{ data.body }}</p>
+  </div>
+</div>
+
+<div mat-dialog-actions class="action-bottom-container action-buffer" fxLayout='row' fxLayout.lt-md="column"
+  fxLayoutAlign="beginning center">
+  <button fxFlex="20" mat-raised-button class="submit" color="primary" (click)="save()" cdkFocusInitial
+    data-testid="submit" *ngIf="!data.signoff">Save Draft</button>
+    <button fxFlex="30" mat-raised-button class="submit" color="primary" (click)="save()" cdkFocusInitial
+      data-testid="submit" *ngIf="data.signoff">Save/Sign Off</button>
+  <button fxFlex="40" mat-raised-button class="submit" color="warn" (click)="confirm()" data-testid="submit">
+    Leave Without Saving</button>
+  <button fxFlex="20" class="cancel" mat-raised-button (click)="dismiss()" data-testid="dismiss">Cancel</button>
+</div>

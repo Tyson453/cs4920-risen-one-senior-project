@@ -1,0 +1,81 @@
+<div class="container" *ngIf="user">
+    <!--REPORT POP UP MAT TABLE-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <h2 mat-dialog-title>{{user.name}}'s Report ({{report.date}})</h2>
+    <mat-dialog-content>
+        <table id="reportPDF" #reportPDF style="width: 100%" *ngIf="!mobileView">
+            <tr fxLayout="row" fxLayout.lt-md="column">
+                <!--TABLE LABELS-->
+                <td
+                    style="padding-right: 15px; border-bottom: none; vertical-align: text-top; max-width: 40%; min-width: 30%">
+                    <mat-label><i class="fa fa-user"></i> Submitter</mat-label>
+                    <h4 id="name" name="name" style="color: black;">{{user.name}}</h4>
+                    <mat-label *ngIf="isAdmin"><i class="fa fa-envelope"></i> Submitter's Email</mat-label>
+                    <h4 *ngIf="isAdmin" id="email" name="email" style="color: black;">{{user.email}}</h4>
+                    <mat-label><i class="fa fa-calendar"></i> Date Submitted</mat-label>
+                    <h4 id="date" name="date" style="color: black;">{{report.date}}</h4>
+                    <mat-label><i class="fa fa-cogs"></i> Project(s)</mat-label>
+                    <h4 id="projects" name="projects" style="color: black;">{{report.projectNames.join(', ')}}</h4>
+                </td>
+                <td>
+                    <mat-label><i class="fa fa-envelope-open-text"></i> Report</mat-label>
+
+                    <h6 id="reportText" name="reportText" style="color: black;">{{reportText}}</h6>
+                    <!-- <div style="padding-top: 30%;">
+                            <p class="id">Employee ID: {{report.empId}}</p>
+                            <p class="id">Report ID: {{report.reportId}}</p>
+                        </div> -->
+                </td>
+            </tr>
+        </table>
+        <table id="reportPDF" #reportPDF style="width: 100%" *ngIf="mobileView">
+            <tr fxLayout="row" fxLayout.lt-md="column">
+                <!--TABLE LABELS-->
+                <td tyle="padding-right: 15px; border-bottom: none; vertical-align: text-top; max-width: 40%; min-width: 30%">
+                    <mat-label><i class="fa fa-user"></i> Submitter</mat-label>
+                    <h4 id="name" name="name" style="color: black;">{{user.name}}</h4>
+                    
+                </td>
+                <td>
+                    <mat-label *ngIf="isAdmin"><i class="fa fa-envelope"></i> Submitter's Email</mat-label>
+                    <h4 *ngIf="isAdmin" id="email" name="email" style="color: black;">{{user.email}}</h4>
+                </td>
+                <td>
+                    <mat-label><i class="fa fa-calendar"></i> Date Submitted</mat-label>
+                    <h4 id="date" name="date" style="color: black;">{{report.date}}</h4>
+                </td>
+                <td>
+                    <mat-label><i class="fa fa-cogs"></i> Project(s)</mat-label>
+                    <h4 id="projects" name="projects" style="color: black;">{{report.projectNames.join(', ')}}</h4>
+                </td>
+                <td>
+                    <mat-label><i class="fa fa-envelope-open-text"></i> Report</mat-label>
+
+                    <h6 id="reportText" name="reportText" style="color: black;">{{reportText}}</h6>
+                    <!-- <div style="padding-top: 30%;">
+                            <p class="id">Employee ID: {{report.empId}}</p>
+                            <p class="id">Report ID: {{report.reportId}}</p>
+                        </div> -->
+                </td>
+            </tr>
+        </table>
+        <!--BUTTONS FOR POP UP AS WELL AS OPTIONS FOR TRIGGER TO EMAIL AND EXPORT THE REPORT-->
+    </mat-dialog-content>
+    <div class="viewButtons">
+        <div class="fa fa-spinner fa-pulse fa-fw" *ngIf="!loading" style="padding-right: 10px;"></div>
+        <button mat-raised-button class="unfilled" mat-dialog-close (click)="close()" data-testid="close">Close</button>
+        <div class="divider"></div>
+        <button mat-raised-button *ngIf="role != ''" class="filledDelete" mat-dialog-close (click)="deleteReport()"
+            data-testid="delete">Delete</button>
+        <div class="divider"></div>
+
+        <button mat-raised-button class="filled options" [matMenuTriggerFor]="menu">
+            Options | <i class="fa fa-caret-down"></i>
+        </button>
+        <mat-menu #menu="matMenu" xPosition="before">
+            <button mat-menu-item *ngIf="role == 'ADMIN' || localUser.uuid == user.uuid" (click)="editReport()"><i
+                    class="fa fa-pen"></i> Edit</button>
+            <button mat-menu-item (click)="export()"><i class="fa fa-file-download"></i> Export to PDF</button>
+        </mat-menu>
+    </div>
+</div>

@@ -1,0 +1,8 @@
+<h1 mat-dialog-title data-testid="title">{{data.title || data}}</h1>
+<div mat-dialog-content data-testid="body" [innerHtml]="data.text">
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close cdkFocusInitial>
+    Close
+  </button>
+</div>

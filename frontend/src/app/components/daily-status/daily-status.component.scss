@@ -1,0 +1,131 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+h3{
+  margin:10px;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
+mat-card {
+  background-color: white;
+  border-radius: 30px;
+  font-family: 'Roboto';
+  height: 100%;
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-top: 2.5rem;
+    margin-bottom: 5rem;
+    padding-bottom: 1.5rem;
+    padding-left: 0;
+    padding-right: 0;
+    // padding: 10px
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
+mat-card-content{
+  overflow-x: auto;
+}
+
+.mat-mdc-header-row {
+  background-color: #e0aa51;
+}
+.mat-mdc-header-cell {
+  color: #000;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.mat-mdc-card-header{
+  padding-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  overflow-x: scroll;
+
+  .mat-column-date {
+    width: 25%;
+  }
+
+  .mat-column-projectIds {
+    width: 50%;
+  }
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of paginator that may no longer apply for the MDC version. */
+mat-paginator {
+  min-width: 200px;
+  float: right;
+}
+
+th.mat-mdc-header-cell, td.mat-mdc-cell, td.mat-mdc-footer-cell {
+  padding: 10px;
+}
+
+button {
+  margin: 10px;
+}
+
+.spinner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.date-container {
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+mat-form-field {
+  margin: 10px;
+}
+
+::ng-deep .mat-mdc-form-field-infix  {
+  min-height: 45px;
+}
+
+@media screen and (max-width: 800px) {
+  .container {
+    margin: 0;
+    border: none;
+    border-radius: 0px;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+
+  mat-card {
+    margin: 0;
+    border-radius: 0;
+  }
+
+  table {
+  
+    .mat-column-date {
+      width: 50%;
+      padding-left: 20px;
+    }
+  }
+  
+  h3 {
+    text-align: center;
+  }
+
+  .tableButtons {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+}
