@@ -1,0 +1,56 @@
+<div class="container">
+    <h2 mat-dialog-title>Add Report</h2>
+    <mat-dialog-content>
+        <form [formGroup]="reportForm" *ngIf="reportForm">
+            <div fxLayout='row' fxLayout.lt-md="column">
+                <mat-form-field class="name" fxFlex="50">
+                    <mat-label>Name</mat-label>
+                    <input type="text" matInput formControlName="name" />
+                </mat-form-field>
+                <mat-form-field class="date" fxFlex="50">
+                    <mat-label>Date</mat-label>
+                    <input type="text" matInput formControlName="date" />
+                </mat-form-field>
+            </div>
+            <div fxLayout="row" fxLayout.lt-md="column" *ngIf="showProjectStatus" class="color-circles">
+                <div fxFlex="30" fxLayout="row">
+                    <button class="statusIcon" mat-fab disabled style="border: 7px solid green;">Healthy</button>
+                    <div class="statusText">Project is in good standing</div>
+                </div>
+                <div fxFlex="30" fxLayout="row">
+                    <button class="statusIcon" mat-fab disabled style="border: 7px solid yellow;">Attention</button>
+                    <div class="statusText">Needs attention but not urgent</div>
+                </div>
+                <div fxFlex="30" fxLayout="row">
+                    <button class="statusIcon" mat-fab disabled style="border: 7px solid red;">Urgent</button>
+                    <div class="statusText">Urgent attention needed</div>
+                </div>
+            </div>
+            <div *ngFor="let project of projects" fxLayout='row' fxLayout.lt-md="column">
+                <mat-form-field fxFlex="100" appearance="outline">
+                    <mat-label>{{project.projectName}}</mat-label>
+                    <textarea #projectInput type="text" placeholder="Report text for {{project.projectName}} goes here..." matInput
+                        formControlName="{{project.projectName}}.reportText" required="true" class="reportText"
+                        cdkTextareaAutosize cdkAutosizeMinRows="3" autofocus></textarea>
+                </mat-form-field>
+                <div fxFlex="15" fxLayout="column" class="project-status" *ngIf="showProjectStatus">
+                    <label>Project Status</label>
+                    <mat-radio-group formControlName="{{project.projectName}}.reportStatus" fxLayout="column"
+                        required="true">
+                        <mat-radio-button value="healthy" class="green">Healthy</mat-radio-button>
+                        <mat-radio-button value="attention" class="yellow">Attention</mat-radio-button>
+                        <mat-radio-button value="urgent" class="red">Urgent</mat-radio-button>
+                    </mat-radio-group>
+                    <br>
+                </div>
+            </div>
+        </form>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+        <button mat-raised-button matDialogClose (click)="close()" data-testid="cancel">Cancel</button>
+        <button mat-raised-button color="primary" [disabled]="!reportForm.dirty" *ngIf="reportForm && (data?.report?.reportStatus == undefined || data?.report?.reportStatus == 'DRAFT')"
+            (click)="submitReport(false)" data-testid="save">Save Draft</button>
+        <button mat-raised-button color="primary" [disabled]="reportForm.invalid" *ngIf="reportForm"
+            (click)="submitReport(true)" data-testid="save">Submit</button>
+    </mat-dialog-actions>
+</div>

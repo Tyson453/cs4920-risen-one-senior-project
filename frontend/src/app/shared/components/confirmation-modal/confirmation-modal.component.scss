@@ -1,0 +1,61 @@
+.action-buffer {
+  margin: 3px 0px 0px 0px;
+  justify-content: center;
+}
+
+title {
+  text-align: left;
+}
+
+.popup {
+  padding: 16px 0px 16px 0px;
+}
+
+p {
+  color: black;
+  align-self: flex-end;
+}
+
+.datesList {
+  padding-top: 16px;
+}
+
+.submit {
+  height: 2rem;
+  background-color: #000;
+  color: #fff !important;
+  border-radius: 25px;
+  width: 6em;
+  font-size: 0.9rem;
+  font-weight: 350;
+  font-family:'Montserrat', 'sans-serif';
+  justify-content: center;
+  align-content: center;
+  display: grid;
+
+  :hover {
+    background-color: #e0aa51;
+    color: #fff;
+    cursor: pointer;
+  }
+}
+
+.cancel {
+  height: 2rem;
+  background-color: #eee;
+  color: #000;
+  border-radius: 25px;
+  width: 6em;
+  font-size: 0.9rem;
+  font-weight: 350;
+  font-family:'Montserrat', 'sans-serif';
+  justify-content: center;
+  align-content: center;
+  display: grid;
+
+  :hover {
+    background-color: #d2d2d2;
+    color: #000;
+    cursor: pointer;
+  }
+}

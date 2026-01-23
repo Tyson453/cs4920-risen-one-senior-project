@@ -52,9 +52,15 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import {provideNativeDateAdapter} from '@angular/material/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HomeComponent } from './home/home.component';
+import { HomeComponent } from './components/home/home.component';
 import { AppRoutingModule } from './app.routes';
-import { LoginComponent } from './login/login.component';
+import { LoginComponent } from './components/login/login.component';
+import { ProgressSpinnerComponent } from './shared/components/progress-spinner/progress-spinner.component';
+import { GenericErrorComponent } from './shared/components/generic-error/generic-error.component';
+import { DailyStatusComponent } from './components/daily-status/daily-status.component';
+import { UpdateDateRangeComponent } from './components/daily-status/update-date-range/update-date-range.component';
+import { ReportReviewComponent } from './components/daily-status/report-review/report-review.component';
+import { ReportDialogComponent } from './components/daily-status/report-dialog/report-dialog.component';
 
 @NgModule({
     declarations: [
@@ -63,7 +69,13 @@ import { LoginComponent } from './login/login.component';
       HomeComponent,
       SidenavComponent,
       LoginComponent,
-      AppComponent
+      AppComponent,
+      ProgressSpinnerComponent,
+      GenericErrorComponent,
+      DailyStatusComponent,
+      UpdateDateRangeComponent,
+      ReportReviewComponent,
+      ReportDialogComponent
     ],
     exports: [],
     bootstrap: [AppComponent],
@@ -116,6 +128,7 @@ import { LoginComponent } from './login/login.component';
     providers: [
         MatSnackBar,
         provideHttpClient(withInterceptorsFromDi()),
+        provideNativeDateAdapter(),
     ]
   })
   export class AppModule {}

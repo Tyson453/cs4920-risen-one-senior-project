@@ -14,14 +14,66 @@ resources:
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: users
         AttributeDefinitions:
-          - AttributeName: username
-            AttributeType: S
-        KeySchema:
-          - AttributeName: username
-            KeyType: HASH
+          [
+            { 'AttributeName': 'uuid', 'AttributeType': 'S' },
+            { 'AttributeName': 'startDate', 'AttributeType': 'S' },
+            { 'AttributeName': 'teamName', 'AttributeType': 'S' },
+          ]
+        KeySchema: [{ 'AttributeName': 'uuid', 'KeyType': 'HASH' }]
+        GlobalSecondaryIndexes:
+          [
+            {
+              'IndexName': 'StartDateIndex',
+              'KeySchema': [{ 'AttributeName': 'startDate', 'KeyType': 'HASH' }],
+              'Projection': { 'ProjectionType': 'ALL' },
+            },
+            {
+              'IndexName': 'TeamNameIndex',
+              'KeySchema': [{ 'AttributeName': 'teamName', 'KeyType': 'HASH' }],
+              'Projection': { 'ProjectionType': 'ALL' },
+            }
+          ]
         BillingMode: PAY_PER_REQUEST
+        TableName: users
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    ProjectsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions: [{ 'AttributeName': 'uuid', 'AttributeType': 'S' }]
+        KeySchema: [{ 'AttributeName': 'uuid', 'KeyType': 'HASH' }]
+        BillingMode: PAY_PER_REQUEST
+        TableName: projects
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    DailyStatusTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          [
+            { 'AttributeName': 'uuid', 'AttributeType': 'S' },
+            { 'AttributeName': 'userId', 'AttributeType': 'S' },
+            { 'AttributeName': 'date', 'AttributeType': 'S' }
+          ]
+        KeySchema: [{ 'AttributeName': 'uuid', 'KeyType': 'HASH' }]
+        GlobalSecondaryIndexes:
+          [
+            {
+              'IndexName': 'userDateIndex',
+              'KeySchema': [{ 'AttributeName': 'userId', 'KeyType': 'HASH' }, { 'AttributeName': 'date', 'KeyType': 'RANGE' }],
+              'Projection': { 'ProjectionType': 'ALL' },
+            },
+            {
+              'IndexName': 'dateIndex',
+              'KeySchema': [{ 'AttributeName': 'date', 'KeyType': 'HASH' }],
+              'Projection': { 'ProjectionType': 'ALL' },
+            }
+          ]
+        BillingMode: PAY_PER_REQUEST
+        TableName: dailyStatus
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
 
 functions:
   login:
@@ -29,6 +81,18 @@ functions:
     events:
       - http:
           path: login
+          method: post
+          cors: true
+
+  importData:
+    handler: src/handlers/import-data.handler
+    environment:
+      USERS_TABLE: users
+      PROJECTS_TABLE: projects
+      DAILY_STATUS_TABLE: dailyStatus
+    events:
+      - http:
+          path: import-data
           method: post
           cors: true
 

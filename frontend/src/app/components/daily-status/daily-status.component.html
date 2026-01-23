@@ -1,0 +1,75 @@
+<div class="container" *ngIf="user">
+  <mat-card class="card" fxFlex="100">
+    <mat-card-header>
+      <h1 data-testid="title">{{user.name}}'{{ user.name.endsWith("s")? "" : "s" }} Daily Status</h1>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let element">{{ element.date }}</td>
+        </ng-container>
+        <ng-container matColumnDef="projects">
+          <th mat-header-cell *matHeaderCellDef>Project ID(s)</th>
+          <td mat-cell *matCellDef="let element">{{ element.projectNames.join(", ") }}</td>
+        </ng-container>
+        <ng-container matColumnDef="reportStatus">
+          <th mat-header-cell *matHeaderCellDef>Submitted</th>
+          <td mat-cell *matCellDef="let element">
+            <p>{{ element.status }}</p>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let element; columns: displayedColumns" (click)="viewReport(element)"></tr>
+        <div *matNoDataRow>
+          <td><img width="350" height="250" alt="EMPTY" src="../../../assets/RisenOneCat.gif"
+              style="text-align: center;" /></td>
+        </div>
+      </table>
+
+
+      <mat-form-field *ngIf="!mobileView" class="users-right-buffer users-form-size small-input" appearance="outline">
+        <mat-label>Date Range Start</mat-label>
+        <div class="date-container">
+          <input matInput [matDatepicker]="picker" [(ngModel)]="startRange" (dateChange)="dateRangeChange()" data-testid="start_range"/>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </div>
+        <mat-hint>MM/DD/YYYY</mat-hint>
+      </mat-form-field>
+      <mat-form-field *ngIf="!mobileView" class="users-right-buffer users-form-size small-input" appearance="outline">
+        <mat-label>Date Range End</mat-label>
+        <div class="date-container">
+          <input matInput [matDatepicker]="picker1" [(ngModel)]="endRange" (dateChange)="dateRangeChange()" data-testid="end_range"/>
+          <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+          <mat-datepicker #picker1></mat-datepicker>
+        </div>
+        <mat-hint>MM/DD/YYYY</mat-hint>
+      </mat-form-field>
+      <button *ngIf="!mobileView" mat-raised-button class="filled" [disabled]="!dateRangeValid()" (click)="updateRange()" data-testid="update_range">Update Range</button>
+      <button *ngIf="!mobileView" mat-raised-button class="filled" [disabled]="!dateRangeValid()" (click)="customReport()" data-testid="update_range" [color]="datesChanged ? 'primary' : ''" 
+      matTooltip="This will send you an email of this user's DSUs in the date range you have selected.">Run Report</button>
+
+      <mat-paginator showFirstLastButtons [pageSize]="pageSize" [pageIndex]="pageNumber" [pageSizeOptions]="[5, 10, 25]"
+        style="display: inline-block"></mat-paginator>
+    </mat-card-content>
+    <div class="tableButtons">
+      <button mat-raised-button color="primary" class="filled" (click)="addReport()" *ngIf="realUser==user" data-testid="add_report">Add
+        Report</button>
+      <button *ngIf="mobileView" mat-raised-button class="filled" (click)="openDateRangeModal()" data-testid="date_range">Update Range</button>  
+      <button mat-raised-button class="filled" [routerLink]="'/team/team-daily-status'" *ngIf="role=='LEAD'"
+        data-testid="return_lead">Return to Overview</button>
+      <button mat-raised-button class="filled" [routerLink]="'/admin/admin-daily-status'" *ngIf="role=='ADMIN'"
+        data-testid="return_admin">Return to Overview</button>
+      <button mat-raised-button class="filled" [routerLink]="'/pm/pm-daily-status'" *ngIf="role=='PM'"
+        data-testid="return_admin">Return to Overview</button>
+    </div>
+    <hr>
+    <h3>Email Monthly Reports</h3>
+    <div class="tableButtons">
+      <button mat-raised-button class="filled" (click)="monthly('current')">Current Monthly Report</button>
+      <button mat-raised-button class="filled" (click)="monthly('prev')">Previous Monthly Report</button>
+    </div>
+  </mat-card>
+</div>

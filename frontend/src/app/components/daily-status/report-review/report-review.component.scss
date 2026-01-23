@@ -1,0 +1,49 @@
+.name {
+    width: 100%;
+    display: block;
+}
+
+.date {
+    width: 100%;
+    display: block;
+}
+
+#reportText {
+    // width: 135%;
+    // height: 255px;
+    resize: both;
+    min-width: 70px;
+    min-height: 50px;
+    // display: inline-block;
+    white-space: pre-wrap;
+    
+}
+
+.projects {
+    width: 100%;
+    display: block;
+}
+
+.viewButtons {
+    display: flex;
+}
+
+button {
+    margin: 10px;
+}
+
+.options {
+    min-width: 125px;
+}
+
+::ng-deep .mat-mdc-menu-panel {
+    overflow-x: clip;
+}
+
+@media (max-width: 599px) {
+    ::ng-deep .cdk-overlay-pane.mat-mdc-dialog-panel.mat-mdc-dialog-panel {
+        max-width: calc(100vw - 20px);
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}

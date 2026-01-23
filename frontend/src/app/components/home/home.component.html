@@ -1,0 +1,53 @@
+<div class="home-container" *ngIf="user">
+  <div class="content">
+    <div class="header-card">
+      <img class="clickable" [src]="this.userphoto" 
+      [routerLink]="'/profile/'+user.uuid" alt="profile picture"/>
+      <div class="header-card-info">
+        <h1>Welcome, {{ user.name }}</h1>
+      </div>
+      <div class="header-card-info-mobile">
+        <h1>Welcome,</h1>
+        <h1>{{ user.name }}</h1>
+      </div>
+    </div>
+    <div class="home-cards-container">
+      <div class="home-card">
+        <mat-icon class="home-icon">send</mat-icon>
+        <h5>DAILY STATUS</h5>
+        <button class="button-black" mat-raised-button [routerLink]="'/daily-status'">Submit</button>
+      </div>
+      <div class="home-card">
+        <mat-icon class="home-icon">summarize</mat-icon>
+        <h5>EMPLOYEE DEVELOPMENT</h5>
+        <button class="button-black" mat-raised-button [routerLink]="'/reports/personal-dev'">View/Edit</button>
+      </div>
+      <div class="home-card">
+        <mat-icon class="home-icon">calendar_month</mat-icon>
+        <h5>TIME OFF</h5>
+        <button class="button-black" mat-raised-button [routerLink]="'/time-off'">Submit</button>
+      </div>
+      <div class="home-card">
+        <mat-icon class="home-icon">people</mat-icon>
+        <h5>ROC TEAM PAGE</h5>
+        <button class="button-black" mat-raised-button [routerLink]="'/team-summary'">View All</button>
+      </div>
+      <div class="home-card">
+        <mat-icon class="home-icon">list</mat-icon>
+        <h5>PROJECTS</h5>
+        <button class="button-black" mat-raised-button [routerLink]="'/dashboard'">View All</button>
+      </div>
+      <div class="home-card">
+        <mat-icon class="home-icon">keyboard_double_arrow_up</mat-icon>
+        <h5>CERTIFICATION & TRAINING</h5>
+        <button class="button-black" mat-raised-button [routerLink]="'/certification'">View/Manage</button>
+      </div>
+      <a class="home-card">
+        <mat-icon class="home-icon">help</mat-icon>
+        <h5>PORTAL SUPPORT</h5>
+        <a class="button-black button-link" target="_blank" mat-raised-button href="">Request Enhancement</a>
+        <a class="button-black button-link" target="_blank" mat-raised-button href="">Report a Bug</a>
+      </a>
+    </div>
+  </div>
+</div>

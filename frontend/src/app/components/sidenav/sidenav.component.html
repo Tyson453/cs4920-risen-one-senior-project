@@ -1,4 +1,29 @@
 <mat-nav-list class="sidenav-container">
     <mat-list-item [routerLink]="'/home'">Home</mat-list-item>
+    <mat-list-item [routerLink]="'/daily-status'">Daily Status</mat-list-item>
     <mat-list-item [routerLink]="'/blank'">blank</mat-list-item>
+    <mat-list-item (click)="toggle[0] = !toggle[0]">
+        Team
+        <span>
+            <mat-icon *ngIf="!toggle[0]">expand_more</mat-icon>
+            <mat-icon *ngIf="toggle[0]">expand_less</mat-icon>
+        </span>
+    </mat-list-item>
+    <div [hidden]="!toggle[0]"><!-- Lead -->
+        <mat-nav-list class="subList">
+            <mat-list-item [routerLink]="'/blank'">blank</mat-list-item>
+        </mat-nav-list>
+    </div>
+    <mat-list-item (click)="toggle[2] = !toggle[2]">
+        Admin
+        <span>
+            <mat-icon *ngIf="!toggle[2]">expand_more</mat-icon>
+            <mat-icon *ngIf="toggle[2]">expand_less</mat-icon>
+        </span>
+    </mat-list-item>
+    <div [hidden]="!toggle[2]"><!-- Admin -->
+        <mat-nav-list class="subList">
+            <mat-list-item [routerLink]="'/blank'">blank</mat-list-item>
+        </mat-nav-list>
+    </div>
 </mat-nav-list>

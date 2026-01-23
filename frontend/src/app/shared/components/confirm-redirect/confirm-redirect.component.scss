@@ -1,0 +1,33 @@
+.action-buffer {
+  margin: 3px 0px 0px 0px;
+  justify-content: center;
+}
+
+title {
+  text-align: left;
+}
+
+.popup {
+  padding: 16px 0px 16px 0px;
+}
+
+p {
+  color: black;
+  align-self: flex-end;
+}
+
+.datesList {
+  padding-top: 16px;
+}
+
+button {
+  padding: 10px;
+  margin: 10px;
+  width: 100%;
+}
+
+button:hover {
+  background-color: #ef9d33;
+  border-color: transparent;
+  color: white;
+}
