@@ -3,8 +3,8 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  runtime: nodejs20.x
-  region: us-east-1
+  runtime: nodejs16.x
+  region: us-east-2
 
 plugins:
   - serverless-offline
