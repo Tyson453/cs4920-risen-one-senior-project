@@ -6,12 +6,25 @@
     <div class="row">
       <div class="field">
         <label>Start Date</label>
-        <input type="date" />
+        <input 
+          type="date"
+          class="start"
+          [min]="today"
+          [max]="endDate || null"
+          [(ngModel)]="startDate" 
+          (change)="onStartChange()"
+        />
       </div>
 
       <div class="field">
         <label>End Date</label>
-        <input type="date" />
+        <input 
+          type="date"
+          class="end"
+          [min]="startDate || today"
+          [(ngModel)]="endDate"
+          (change)="onEndChange()"
+        />
       </div>
     </div>
 
