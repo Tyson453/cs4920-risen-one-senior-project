@@ -1,0 +1,22 @@
+.blank-container {
+  padding: 24px;
+  color: #222;
+}
+
+.blank-container h1 {
+  margin-bottom: 8px;
+}
+
+.blank-container p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.card {
+  max-width: 420px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
