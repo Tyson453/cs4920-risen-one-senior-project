@@ -61,6 +61,7 @@ import { DailyStatusComponent } from './components/daily-status/daily-status.com
 import { UpdateDateRangeComponent } from './components/daily-status/update-date-range/update-date-range.component';
 import { ReportReviewComponent } from './components/daily-status/report-review/report-review.component';
 import { ReportDialogComponent } from './components/daily-status/report-dialog/report-dialog.component';
+import { TeamSummaryComponent } from './components/team-summary/team-summary.component';
 
 @NgModule({
     declarations: [
@@ -75,7 +76,8 @@ import { ReportDialogComponent } from './components/daily-status/report-dialog/r
       DailyStatusComponent,
       UpdateDateRangeComponent,
       ReportReviewComponent,
-      ReportDialogComponent
+      ReportDialogComponent,
+      TeamSummaryComponent
     ],
     exports: [],
     bootstrap: [AppComponent],

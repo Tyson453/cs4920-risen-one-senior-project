@@ -1,0 +1,137 @@
+<div class="container">
+  <mat-card class="card">
+    <mat-card-header>
+      <h1>ROC Team Summary</h1>
+    </mat-card-header>
+
+    <!-- Admin view: two sections with expandable panels -->
+    <mat-card-content *ngIf="isAdmin">
+      <!-- Organizational Teams -->
+      <h2 class="section-header">Organizational Teams</h2>
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let team of orgTeams" [expanded]="false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ getTeamDisplayName(team.teamName) }} ({{ team.users.length }} members)
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <table mat-table [dataSource]="team.users" class="team-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let user">{{ user.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+            </ng-container>
+            <ng-container matColumnDef="roles">
+              <th mat-header-cell *matHeaderCellDef>Roles</th>
+              <td mat-cell *matCellDef="let user">{{ getRolesDisplay(user.roles) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="projects">
+              <th mat-header-cell *matHeaderCellDef>Projects</th>
+              <td mat-cell *matCellDef="let user">{{ getProjectNames(user.assignments) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="startDate">
+              <th mat-header-cell *matHeaderCellDef>Start Date</th>
+              <td mat-cell *matCellDef="let user">{{ getStartDateDisplay(user) }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" [attr.colspan]="displayedColumns.length">No members in this team.</td>
+            </tr>
+          </table>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <div *ngIf="orgTeams.length === 0" class="empty-state">
+        <p>No organizational teams found.</p>
+      </div>
+
+      <!-- PM Teams -->
+      <h2 class="section-header">PM Teams</h2>
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let team of pmTeams" [expanded]="false">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ team.teamName }} ({{ team.users.length }} members)
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <table mat-table [dataSource]="team.users" class="team-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let user">{{ user.name }}</td>
+            </ng-container>
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+            </ng-container>
+            <ng-container matColumnDef="roles">
+              <th mat-header-cell *matHeaderCellDef>Roles</th>
+              <td mat-cell *matCellDef="let user">{{ getRolesDisplay(user.roles) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="projects">
+              <th mat-header-cell *matHeaderCellDef>Projects</th>
+              <td mat-cell *matCellDef="let user">{{ getProjectNames(user.assignments) }}</td>
+            </ng-container>
+            <ng-container matColumnDef="startDate">
+              <th mat-header-cell *matHeaderCellDef>Start Date</th>
+              <td mat-cell *matCellDef="let user">{{ getStartDateDisplay(user) }}</td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" [attr.colspan]="displayedColumns.length">No members in this team.</td>
+            </tr>
+          </table>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <div *ngIf="pmTeams.length === 0" class="empty-state">
+        <p>No PM teams found.</p>
+      </div>
+    </mat-card-content>
+
+    <!-- Non-admin view: flat table -->
+    <mat-card-content *ngIf="!isAdmin">
+      <h2 class="section-header">Your Team</h2>
+      <table mat-table [dataSource]="teammatesDataSource" class="team-table">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let user">{{ user.name }}</td>
+        </ng-container>
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
+        <ng-container matColumnDef="roles">
+          <th mat-header-cell *matHeaderCellDef>Roles</th>
+          <td mat-cell *matCellDef="let user">{{ getRolesDisplay(user.roles) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="projects">
+          <th mat-header-cell *matHeaderCellDef>Projects</th>
+          <td mat-cell *matCellDef="let user">{{ getProjectNames(user.assignments) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="startDate">
+          <th mat-header-cell *matHeaderCellDef>Start Date</th>
+          <td mat-cell *matCellDef="let user">{{ getStartDateDisplay(user) }}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            <img
+              width="350"
+              height="250"
+              alt="EMPTY"
+              src="../../../assets/RisenOneCat.gif"
+              style="text-align: center;"
+            />
+            <p>No teammates to display.</p>
+          </td>
+        </tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

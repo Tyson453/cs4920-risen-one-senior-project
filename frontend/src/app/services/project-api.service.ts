@@ -32,6 +32,9 @@ export class ProjectApiService {
   } 
 
   getProjects() {
-    return of([{ uuid: '1', projectName: 'Project 1', status: 'Active' }, { uuid: '2', projectName: 'Project 2', status: 'Inactive' }]);
+    return of([
+      { uuid: '51506e92-650c-4c84-a15f-752370243891', projectName: 'PR22', projectFullName: 'Project 22', status: 'Active' },
+      { uuid: '62617f03-761d-5d95-b26g-863481354902', projectName: 'ALPHA', projectFullName: 'Project Alpha', status: 'Active' },
+    ]);
   }
 }

@@ -4,11 +4,13 @@ import { LoginComponent } from './components/login/login.component';
 import { NgModel } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { DailyStatusComponent } from './components/daily-status/daily-status.component';
+import { TeamSummaryComponent } from './components/team-summary/team-summary.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent }, 
+  { path: 'home', component: HomeComponent },
+  { path: 'team-summary', component: TeamSummaryComponent },
   {
     path: 'daily-status',
     component: DailyStatusComponent

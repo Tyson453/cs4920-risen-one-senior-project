@@ -1,0 +1,75 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-card {
+  background-color: white;
+  border-radius: 30px;
+  font-family: 'Roboto';
+  height: 100%;
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-top: 2.5rem;
+  margin-bottom: 5rem;
+  padding-bottom: 1.5rem;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+mat-card-content {
+  overflow-x: auto;
+}
+
+.mat-mdc-card-header {
+  padding-bottom: 20px;
+}
+
+.section-header {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.section-header:first-child {
+  margin-top: 0;
+}
+
+.team-table {
+  width: 100%;
+}
+
+.mat-mdc-header-row {
+  background-color: #e0aa51;
+}
+
+.mat-mdc-header-cell {
+  color: #000;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+th.mat-mdc-header-cell,
+td.mat-mdc-cell {
+  padding: 10px;
+}
+
+mat-expansion-panel {
+  margin-bottom: 0.5rem;
+}
+
+.empty-state {
+  padding: 1rem;
+  color: #666;
+}
+
+.empty-cell {
+  text-align: center;
+  padding: 2rem;
+
+  p {
+    margin-top: 1rem;
+    color: #666;
+  }
+}
