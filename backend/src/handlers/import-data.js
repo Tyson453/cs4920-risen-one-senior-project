@@ -1,13 +1,20 @@
 'use strict';
 
 const AWS = require('aws-sdk');
+const bcrypt = require('bcryptjs');
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
+const DEV_PASSWORD = 'Password123!';
 
 module.exports.handler = async (event) => {
   try {
+    const passwordHash = await bcrypt.hash(DEV_PASSWORD, 10);
+
     const users = [
       {
         uuid: 'john-doe-uuid',
+        username: 'johndoe',
+        password: passwordHash,
         assignments: ['51506e92-650c-4c84-a15f-752370243891'],
         birthday: '',
         birthdayNoAcknowledge: false,
@@ -44,6 +51,8 @@ module.exports.handler = async (event) => {
       },
       {
         uuid: 'jane-smith-uuid',
+        username: 'janesmith',
+        password: passwordHash,
         assignments: ['62617f03-761d-5d95-b26g-863481354902'],
         birthday: '',
         birthdayNoAcknowledge: false,
@@ -63,6 +72,8 @@ module.exports.handler = async (event) => {
       },
       {
         uuid: 'bob-johnson-uuid',
+        username: 'bobjohnson',
+        password: passwordHash,
         assignments: ['51506e92-650c-4c84-a15f-752370243891'],
         birthday: '',
         birthdayNoAcknowledge: false,
