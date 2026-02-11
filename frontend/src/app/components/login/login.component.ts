@@ -29,9 +29,11 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) { }
 
   login() {
+    console.log('Login method called with username:', this.username);
     this.authService.login(this.username, this.password)
       .subscribe({
         next: (success) => {
+          console.log('Subscribe next called with success:', success);
           if (success) {
             // Navigate to home component if login is successful
             this.router.navigate(['/home']);

@@ -25,6 +25,10 @@ module.exports.handler = async (event) => {
   } catch (e) {
     return {
       statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify({ message: 'Invalid request body' }),
     };
   }
@@ -33,6 +37,10 @@ module.exports.handler = async (event) => {
   if (!username || !password) {
     return {
       statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify({ message: 'Username and password are required' }),
     };
   }
@@ -43,6 +51,10 @@ module.exports.handler = async (event) => {
     console.error('Missing USERS_TABLE or JWT_SECRET');
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify({ message: 'Internal server error' }),
     };
   }
@@ -60,6 +72,10 @@ module.exports.handler = async (event) => {
     if (!data.Items || data.Items.length === 0) {
       return {
         statusCode: 401,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': true,
+        },
         body: JSON.stringify({ message: 'Invalid username or password' }),
       };
     }
@@ -70,6 +86,10 @@ module.exports.handler = async (event) => {
     if (!passwordMatch) {
       return {
         statusCode: 401,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Credentials': true,
+        },
         body: JSON.stringify({ message: 'Invalid username or password' }),
       };
     }
@@ -88,6 +108,10 @@ module.exports.handler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify({
         token,
         user: responseUser,
@@ -97,6 +121,10 @@ module.exports.handler = async (event) => {
     console.error('Login error:', error);
     return {
       statusCode: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true,
+      },
       body: JSON.stringify({ message: 'Internal server error' }),
     };
   }

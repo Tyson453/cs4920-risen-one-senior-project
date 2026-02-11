@@ -1,40 +1,48 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
+import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient,private router: Router) { }
+  private apiUrl = 'https://9fraib9ale.execute-api.us-east-2.amazonaws.com/dev';
+  // private apiUrl = 'arn:aws:execute-api:us-east-2:035711552519:9fraib9ale/*/POST/login';
+
+  constructor(private http: HttpClient, private router: Router) { }
 
   login(username: string, password: string): Observable<boolean> {
-    // Your login logic with Lambda function
-    // Simulating success for demonstration purposes
-    const loginSuccess = true;
-    
-    return new Observable<boolean>((observer) => {
-      if (loginSuccess) {
-        observer.next(true); // Notify subscribers that login was successful
-        observer.complete(); // Complete the observable
-      } else {
-        observer.error('Login failed'); // Notify subscribers that login failed
-      }
-    });
+    console.log('Attempting login for:', username);
+    return this.http.post<{ token: string, user: any }>(`${this.apiUrl}/login`, { username, password })
+      .pipe(
+        map(response => {
+          console.log('Login response received:', response);
+          if (response.token && response.user) {
+            // Store the JWT token
+            localStorage.setItem('authToken', response.token);
+            // Store the user in localStorage
+            localStorage.setItem('user', JSON.stringify(response.user));
+            console.log('Login successful, stored user:', response.user);
+            return true;
+          }
+          console.log('Login response invalid - missing token or user');
+          return false;
+        }),
+        catchError(error => {
+          console.error('Login failed with error:', error);
+          return of(false);
+        })
+      );
   }
 
   logout() {
-    // Your logout logic with Lambda function
-    // Simulating success for demonstration purposes
-    const logoutSuccess = true;
-
-    if (logoutSuccess) {
-      // Redirect to login page or any other desired page
-      this.router.navigate(['/login']);
-    } else {
-      // Handle logout failure
-      console.error('Logout failed');
-    }
+    // Clear stored authentication data
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    
+    // Redirect to login page
+    this.router.navigate(['/login']);
   }
 }

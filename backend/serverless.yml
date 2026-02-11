@@ -5,6 +5,24 @@ provider:
   name: aws
   runtime: nodejs16.x
   region: us-east-2
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/users
+            - arn:aws:dynamodb:${self:provider.region}:*:table/users/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/projects
+            - arn:aws:dynamodb:${self:provider.region}:*:table/projects/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus
+            - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus/index/*
 
 plugins:
   - serverless-offline
