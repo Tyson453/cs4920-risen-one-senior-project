@@ -1,15 +1,11 @@
-<div
-  class="header-container"
->
+<div class="header-container">
   <img
     id="roc-logo"
     src="/assets/RisenOneWhite.png"
     alt="risen one consulting logo"
     [routerLink]="'/home'"
   />
-  <h3 class="header-text montserrat">
-    Risen One Consulting Employee Portal
-  </h3>
+  <h3 class="header-text montserrat">Risen One Consulting Employee Portal</h3>
   <div class="header-right">
     <div class="verticle-alignment-helper">
       <mat-icon id="white">account_circle</mat-icon>
@@ -18,16 +14,8 @@
     <mat-menu #menu="matMenu">
       <button mat-menu-item [routerLink]="'/home'">Home</button>
       <button mat-menu-item [routerLink]="'/daily-status'">Daily Status</button>
-      <button mat-menu-item [routerLink]="'/home'">Blank</button>
-      <button mat-menu-item [matMenuTriggerFor]="leadMenu">Team</button>
-      <button mat-menu-item [matMenuTriggerFor]="adminMenu">Admin</button>
-      <button mat-menu-item (click)="signOut()">Log Out</button>
-    </mat-menu>
-    <mat-menu #leadMenu="matMenu">
-      <button mat-menu-item [routerLink]="'/home'">Blank</button>
-    </mat-menu>
-    <mat-menu #adminMenu="matMenu">
-      <button mat-menu-item [routerLink]="'/home'">Blank</button>
+      <button mat-menu-item [routerLink]="'/team-summary'">Team</button>
+      <button mat-menu-item [routerLink]="'/admin'">Admin</button>
     </mat-menu>
   </div>
 </div>

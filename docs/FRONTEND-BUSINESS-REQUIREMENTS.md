@@ -88,7 +88,7 @@ These components wrap all authenticated content (hidden on `/login`).
 
 | Requirement | Description |
 |------------|-------------|
-| **Content** | Company info: “Risen One Consulting”, address (13401 Mission Road, Suite 207, Leawood, KS 66209), and contact email (hr@risen-one.com). |
+| **Content** | Company info: “Risen One Consulting”, address (13401 Mission Road, Suite 207, Leawood, KS 66209), and contact email (<hr@risen-one.com>). |
 | **Persistence** | Same footer on all authenticated pages. |
 
 ---
@@ -244,7 +244,51 @@ This is the main implemented feature: employees submit and view **Daily Status U
 
 ---
 
-## 10. Referenced but Not Yet Implemented Pages
+## 10. Admin Page
+
+**Route:** `/admin`  
+**Component:** `AdminComponent`  
+**Access:** ADMIN role only.
+
+This page allows administrators to manage user accounts, including user details, roles, projects, start dates, and PM team assignments.
+
+### 10.1 Page-level requirements
+
+| Requirement | Description |
+|------------|-------------|
+| **Title** | "User Management" or "Manage Users". |
+| **Role protection** | Only accessible to users with ADMIN role. Non-admin users attempting to access should be redirected to `/home`. |
+| **Initial view** | Display a list of all users with columns: **Name**, **Email**, **State**, **Start Date**. |
+| **List actions** | Each user row has an **Edit** button. Clicking opens the edit form for that user. |
+
+### 10.2 Edit User Form
+
+Opened when an admin clicks the "Edit" button on a user row.
+
+| Requirement | Description |
+|------------|-------------|
+| **Read-only fields** | User UUID (for reference). |
+| **Editable fields** | Name, Email, State, Start Date, Roles, Projects, PM Team. |
+| **Roles field** | Multiselect dropdown; displays all available roles (EMPLOYEE, LEAD, PM, ADMIN, INTERIM_LEAD, TESTER). Admin can assign zero or more roles. |
+| **Projects field** | Multiselect dropdown; displays all available projects (filtered by project status: Active). Admin can assign zero or more projects to the user. |
+| **PM Team field** | Multiselect dropdown; displays all available team names. Admin can assign the user to zero or more PM teams. |
+| **Form validation** | Name and Email are required; form submit disabled when invalid. State and Start Date should accept standard formats (e.g. state abbreviations, date picker for Start Date). |
+| **Save button** | Submits the form; on success, shows a confirmation dialog (e.g. "User updated successfully") and returns to the user list. On error, shows standard error dialog. |
+| **Cancel button** | Closes the form and returns to the user list without saving. |
+| **Delete button** | Visible at the bottom or in a danger zone. Clicking shows a confirmation modal: "Are you sure you want to delete {user.name}? This action cannot be undone." On confirm, deletes the user and returns to list. On cancel, closes modal and stays in edit form. |
+
+### 10.3 API contract (conceptual)
+
+- **Get all users:** `getUsers()` returns array of user objects with fields: uuid, name, email, state, startDate, roles, assignments (projects), pmTeams.
+- **Get available roles:** `getAvailableRoles()` returns array of role names.
+- **Get available projects:** `getAllProjects()` returns array of active projects.
+- **Get available PM teams:** `getAvailablePMTeams()` returns array of team names.
+- **Update user:** `updateUser(uuid, userData)` with `userData`: `{ name, email, state, startDate, roles, projects, pmTeams }`.
+- **Delete user:** `deleteUser(uuid)`.
+
+---
+
+## 11. Referenced but Not Yet Implemented Pages
 
 These are **required from a product/navigation perspective** (links exist on Home or Daily Status) but have **no routes or components** yet. The redesign should account for them.
 
@@ -262,9 +306,9 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 ---
 
-## 11. Shared Components & Global Behavior
+## 12. Shared Components & Global Behavior
 
-### 11.1 Dialogs (DialogService)
+### 12.1 Dialogs (DialogService)
 
 | Component | Purpose |
 |-----------|---------|
@@ -274,12 +318,12 @@ These are **required from a product/navigation perspective** (links exist on Hom
 | **Generic error** | Standard error message; used by `standardError()` / `standardInputError()`. |
 | **Progress spinner** | Global loading overlay; `openSpinner()` / `closeSpinner()`. |
 
-### 11.2 Error handling
+### 12.2 Error handling
 
 - **standardError(err, title, bodyText):** Close spinner, show error dialog: “Error {title}” and “We ran into an error {bodyText}. Please try again…”.
 - **standardInputError:** Same but with custom body text (e.g. validation messages).
 
-### 11.3 Constants (roc-constants)
+### 12.3 Constants (roc-constants)
 
 - API route segments (e.g. EMP_ROUTES, ADMIN_ROUTES, APIS).
 - Form validators (alpha, numeric, date, etc.).
@@ -288,15 +332,15 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 ---
 
-## 12. Data & API Summary
+## 13. Data & API Summary
 
-### 12.1 Backend (existing)
+### 13.1 Backend (existing)
 
 - **Login:** POST with `{ username, password }`; validates against DynamoDB `users` (key `username` in login handler; note: import-data uses `uuid` for users table — confirm key alignment).
 - **Import data:** POST to seed users, projects, and daily reports.
 - **Tables:** `users`, `projects`, `dailyStatus` (see serverless.yml).
 
-### 12.2 Frontend services (intended API surface)
+### 13.2 Frontend services (intended API surface)
 
 - **Auth:** Login, logout, getUser, role checks (stub/mock in places).
 - **Daily reports:** getReportsNew, createReport, deleteReport, addUserToReportsTable, getMonthlyList, sendEmail; **getAllProjects**.
@@ -305,7 +349,7 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 Many of these currently return **mock data** or `of([])`; the redesign should assume real endpoints will be implemented to match these contracts.
 
-### 12.3 Key entities
+### 13.3 Key entities
 
 - **User:** uuid, name, email, roles, assignments, supervisorId, requestedPTO, etc.
 - **Project:** uuid, projectName, projectFullName, status (Active/Inactive), etc.
@@ -313,7 +357,7 @@ Many of these currently return **mock data** or `of([])`; the redesign should as
 
 ---
 
-## 13. Roles & Permissions (Summary)
+## 14. Roles & Permissions (Summary)
 
 | Role | Typical capabilities |
 |------|-----------------------|
@@ -326,7 +370,7 @@ Many of these currently return **mock data** or `of([])`; the redesign should as
 
 ---
 
-## 14. Non-Functional / Redesign Notes
+## 15. Non-Functional / Redesign Notes
 
 - **Responsive:** Daily Status and Report Review have explicit mobile behavior (column hiding, modal for date range). Header uses a hamburger menu. All new pages should be responsive.
 - **Accessibility:** Use semantic HTML and ARIA where appropriate; ensure keyboard and screen-reader support for dialogs and forms.
