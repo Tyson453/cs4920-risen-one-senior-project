@@ -7,6 +7,7 @@ import { DailyStatusComponent } from './components/daily-status/daily-status.com
 import { TeamSummaryComponent } from './components/team-summary/team-summary.component';
 import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
+import { EmployeeDevelopmentComponent } from './components/employee-development/employee-development.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: 'time-off', component: TimeOffComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'certification-training', component: CertificationTrainingComponent },
+  { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent },
 ];
 
 @NgModule({
