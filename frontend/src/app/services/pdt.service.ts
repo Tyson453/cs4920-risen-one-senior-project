@@ -87,4 +87,62 @@ export class PDTService {
     // return this.http.get<any>(`${this.baseUrl}${this.auditEndpoint}/${userId}`);
     return of({ success: true, auditLog: [] });
   }
+
+  /**
+   * Submit a PDT record for supervisor approval
+   * This triggers an email notification to the supervisor with a link/PDF
+   * and changes the PDT status to 'pending-approval'
+   * @param pdtId - The PDT record ID to submit for approval
+   * @returns Observable with success status
+   */
+  submitPDTForApproval(pdtId: string): Observable<any> {
+    // return this.http.post<any>(`${this.baseUrl}${this.pdtEndpoint}/${pdtId}/submit`, {});
+    return of({ success: true, message: 'PDT submitted for approval' });
+  }
+
+  /**
+   * Approve a PDT record (supervisor action)
+   * Updates the PDT status to 'approved' and adds supervisor signature
+   * @param pdtId - The PDT record ID to approve
+   * @param supervisorSignature - Supervisor's signature
+   * @returns Observable with success status
+   */
+  approvePDT(pdtId: string, supervisorSignature: string): Observable<any> {
+    // return this.http.post<any>(`${this.baseUrl}${this.pdtEndpoint}/${pdtId}/approve`, { supervisorSignature });
+    return of({ success: true, message: 'PDT approved successfully' });
+  }
+
+  /**
+   * Request changes to a PDT record (supervisor action)
+   * Updates the PDT status back to 'draft' and notifies employee of requested changes
+   * @param pdtId - The PDT record ID
+   * @param changeComments - Comments explaining what changes are needed
+   * @returns Observable with success status
+   */
+  requestPDTChanges(pdtId: string, changeComments: string): Observable<any> {
+    // return this.http.post<any>(`${this.baseUrl}${this.pdtEndpoint}/${pdtId}/request-changes`, { comments: changeComments });
+    return of({ success: true, message: 'Change request sent to employee' });
+  }
+
+  /**
+   * Send PDT approval email notification to supervisor
+   * Includes a PDF of the form and link to approve/request changes
+   * @param pdtId - The PDT record ID
+   * @param supervisorEmail - Supervisor's email address
+   * @returns Observable with success status
+   */
+  sendPDTApprovalEmail(pdtId: string, supervisorEmail: string): Observable<any> {
+    // return this.http.post<any>(`${this.baseUrl}${this.pdtEndpoint}/${pdtId}/send-approval-email`, { supervisorEmail });
+    return of({ success: true, message: 'Approval email sent to supervisor' });
+  }
+
+  /**
+   * Get all pending PDT approvals for a supervisor
+   * @param supervisorId - The supervisor's user ID
+   * @returns Observable of pending PDT records
+   */
+  getPendingApprovals(supervisorId: string): Observable<PDT[]> {
+    // return this.http.get<PDT[]>(`${this.baseUrl}${this.pdtEndpoint}/pending-approvals/${supervisorId}`);
+    return of([]);
+  }
 }
