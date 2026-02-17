@@ -56,11 +56,11 @@ import { DailyStatusComponent } from './components/daily-status/daily-status.com
 import { UpdateDateRangeComponent } from './components/daily-status/update-date-range/update-date-range.component';
 import { ReportReviewComponent } from './components/daily-status/report-review/report-review.component';
 import { ReportDialogComponent } from './components/daily-status/report-dialog/report-dialog.component';
+import { TeamSummaryComponent } from './components/team-summary/team-summary.component';
 
 import { ProgressSpinnerComponent } from './shared/components/progress-spinner/progress-spinner.component';
 import { GenericErrorComponent } from './shared/components/generic-error/generic-error.component';
 
-import { ProjectsComponent } from './components/projects/projects.component';   // ✅ THIS WAS MISSING
 import { AppRoutingModule } from './app.routes';
 
 @NgModule({
@@ -76,7 +76,8 @@ import { AppRoutingModule } from './app.routes';
     DailyStatusComponent,
     UpdateDateRangeComponent,
     ReportReviewComponent,
-    ReportDialogComponent
+    ReportDialogComponent,
+    TeamSummaryComponent
   ],
   bootstrap: [AppComponent],
   imports: [
@@ -121,7 +122,6 @@ import { AppRoutingModule } from './app.routes';
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
-    ProjectsComponent,
     AppRoutingModule
   ],
   providers: [

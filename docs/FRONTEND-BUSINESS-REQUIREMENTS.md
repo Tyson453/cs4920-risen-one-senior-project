@@ -88,7 +88,7 @@ These components wrap all authenticated content (hidden on `/login`).
 
 | Requirement | Description |
 |------------|-------------|
-| **Content** | Company info: “Risen One Consulting”, address (13401 Mission Road, Suite 207, Leawood, KS 66209), and contact email (hr@risen-one.com). |
+| **Content** | Company info: “Risen One Consulting”, address (13401 Mission Road, Suite 207, Leawood, KS 66209), and contact email (<hr@risen-one.com>). |
 | **Persistence** | Same footer on all authenticated pages. |
 
 ---
@@ -244,14 +244,274 @@ This is the main implemented feature: employees submit and view **Daily Status U
 
 ---
 
-## 10. Referenced but Not Yet Implemented Pages
+## 10. Admin Page
+
+**Route:** `/admin`  
+**Component:** `AdminComponent`  
+**Access:** ADMIN role only.
+
+This page allows administrators to manage user accounts, including user details, roles, projects, start dates, and PM team assignments.
+
+### 10.1 Page-level requirements
+
+| Requirement | Description |
+|------------|-------------|
+| **Title** | "User Management" or "Manage Users". |
+| **Role protection** | Only accessible to users with ADMIN role. Non-admin users attempting to access should be redirected to `/home`. |
+| **Initial view** | Display a list of all users with columns: **Name**, **Email**, **State**, **Start Date**. |
+| **List actions** | Each user row has an **Edit** button. Clicking opens the edit form for that user. |
+
+### 10.2 Edit User Form
+
+Opened when an admin clicks the "Edit" button on a user row.
+
+| Requirement | Description |
+|------------|-------------|
+| **Read-only fields** | User UUID (for reference). |
+| **Editable fields** | Name, Email, State, Start Date, Roles, Projects, PM Team. |
+| **Roles field** | Multiselect dropdown; displays all available roles (EMPLOYEE, LEAD, PM, ADMIN, INTERIM_LEAD, TESTER). Admin can assign zero or more roles. |
+| **Projects field** | Multiselect dropdown; displays all available projects (filtered by project status: Active). Admin can assign zero or more projects to the user. |
+| **PM Team field** | Multiselect dropdown; displays all available team names. Admin can assign the user to zero or more PM teams. |
+| **Form validation** | Name and Email are required; form submit disabled when invalid. State and Start Date should accept standard formats (e.g. state abbreviations, date picker for Start Date). |
+| **Save button** | Submits the form; on success, shows a confirmation dialog (e.g. "User updated successfully") and returns to the user list. On error, shows standard error dialog. |
+| **Cancel button** | Closes the form and returns to the user list without saving. |
+| **Delete button** | Visible at the bottom or in a danger zone. Clicking shows a confirmation modal: "Are you sure you want to delete {user.name}? This action cannot be undone." On confirm, deletes the user and returns to list. On cancel, closes modal and stays in edit form. |
+
+### 10.3 API contract (conceptual)
+
+- **Get all users:** `getUsers()` returns array of user objects with fields: uuid, name, email, state, startDate, roles, assignments (projects), pmTeams.
+- **Get available roles:** `getAvailableRoles()` returns array of role names.
+- **Get available projects:** `getAllProjects()` returns array of active projects.
+- **Get available PM teams:** `getAvailablePMTeams()` returns array of team names.
+- **Update user:** `updateUser(uuid, userData)` with `userData`: `{ name, email, state, startDate, roles, projects, pmTeams }`.
+- **Delete user:** `deleteUser(uuid)`.
+
+---
+
+## 11. Employee Development Page (Personal Development Training)
+
+**Route:** `/reports/personal-dev`
+**Component:** `EmployeeDevelopmentComponent`
+**Access:** All employees.
+
+This page allows employees to create and manage their **Personal Development Training (PDT)** records, which track professional development goals, development needs, and action plans. The page supports an approval workflow where employees create PDT records and submit them to their supervisor for review and signature.
+
+### 11.1 Page-level requirements
+
+| Requirement | Description |
+|------------|-------------|
+| **Title** | "Personal Development Training" or "Employee Development". |
+| **Initial view** | Display a table listing all PDT records for the current user with columns: **Created Date**, **Employee Name**, **Status**, **Actions**. |
+| **Status field** | Each PDT record has a status: **DRAFT**, **PENDING_APPROVAL**, **APPROVED**, **CHANGES_REQUESTED**. |
+| **Empty state** | When user has no PDT records, show friendly message with icon and "Create Your First PDT" button. |
+| **Loading** | Show progress spinner while loading PDT records. |
+| **Responsive** | Table should be responsive; on mobile, consider stacked card layout instead of table. |
+
+### 11.2 PDT Record Structure
+
+Based on the PDT interface in `models/pdt.ts`:
+
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| `id` | string | Unique identifier for the PDT record | Auto-generated |
+| `empName` | string | Employee's full name (auto-filled from user context) | Yes |
+| `shortTermGoals` | string | Goals for next 3-6 months | Yes |
+| `mediumTermGoals` | string | Goals for next 6-12 months | Yes |
+| `longTermGoals` | string | Goals for 1-3 years | Yes |
+| `developmentNeeds` | string | Skills, knowledge, or experiences to develop | Yes |
+| `actionPlan` | string | Specific steps to achieve goals | Yes |
+| `empSignature` | string | Employee's signature (typed full name) | Yes |
+| `superSignature` | string | Supervisor's signature (typed full name) | No (filled by supervisor) |
+| `createdDate` | string | Date PDT was created (MM/DD/YYYY) | Auto-generated |
+| `createdTimestamp` | string | ISO timestamp when created | Auto-generated |
+| `status` | string | Current approval status (see 11.3) | Auto-managed |
+| `supervisorComments` | string | Comments from supervisor (for changes requested) | Optional |
+
+### 11.3 PDT Status Workflow
+
+The PDT follows an approval workflow with these statuses:
+
+1. **DRAFT** (initial state):
+   - Employee is creating/editing the PDT
+   - All fields are editable by employee
+   - Can be saved as draft (no supervisor notification)
+   - Supervisor signature field is disabled/empty
+
+2. **PENDING_APPROVAL** (after "Submit for Approval"):
+   - Employee has completed and submitted the PDT
+   - Form is locked for employee (read-only)
+   - Supervisor is notified via email with PDF attachment
+   - Supervisor can approve or request changes
+   - Email includes link to review/approve (when portal-based approval is implemented)
+
+3. **CHANGES_REQUESTED** (supervisor action):
+   - Supervisor reviewed and requested changes
+   - Form becomes editable again for employee
+   - `supervisorComments` field contains feedback
+   - Employee can revise and re-submit
+
+4. **APPROVED** (supervisor action):
+   - Supervisor has reviewed and approved
+   - `superSignature` field is populated
+   - Form is locked (read-only) for both parties
+   - Record is finalized and archived
+
+**Status transitions:**
+- DRAFT → PENDING_APPROVAL (employee "Submit for Approval")
+- PENDING_APPROVAL → APPROVED (supervisor approves)
+- PENDING_APPROVAL → CHANGES_REQUESTED (supervisor requests changes)
+- CHANGES_REQUESTED → DRAFT (employee revises)
+- DRAFT → PENDING_APPROVAL (employee re-submits)
+
+### 11.4 List View (Table)
+
+| Requirement | Description |
+|------------|-------------|
+| **Columns** | Created Date, Employee Name, Status (badge/chip), Actions. |
+| **Status display** | Visual indicators: Draft (gray), Pending (yellow), Approved (green), Changes Requested (orange). |
+| **Action buttons** | **Edit** (for DRAFT/CHANGES_REQUESTED), **View** (for PENDING_APPROVAL/APPROVED), **Delete** (for DRAFT only). |
+| **Create button** | "Create New PDT" button at top of page; opens create form. |
+| **Sorting** | Default sort by Created Date (newest first). |
+| **Filtering** | Future enhancement: filter by status. |
+
+### 11.5 Create/Edit Form
+
+Opened when user clicks "Create New PDT" or "Edit" on a draft PDT.
+
+| Requirement | Description |
+|------------|-------------|
+| **Form title** | "Create Personal Development Training Record" or "Edit Personal Development Training Record". |
+| **Layout** | Vertical form with labeled sections; textareas for goals and action plan. |
+| **Employee Name** | Auto-filled from current user; displayed but disabled (read-only). |
+| **Goal fields** | Three textareas (4 rows each): Short Term Goals, Medium Term Goals, Long Term Goals. All required with placeholder text. |
+| **Development Needs** | Textarea (4 rows) for skills/knowledge to develop. Required. |
+| **Action Plan** | Textarea (5 rows) for specific steps to achieve goals. Required. |
+| **Signatures section** | Separated section at bottom. Employee Signature is text input (required); Supervisor Signature is disabled (filled later by supervisor). |
+| **Validation** | All required fields must be filled; show inline errors (mat-error) on blur or submit attempt. |
+| **Save Draft** | Button to save form as DRAFT without submitting for approval. Shows success message. Only visible for DRAFT status. |
+| **Submit for Approval** | Button to submit PDT to supervisor; changes status to PENDING_APPROVAL, locks form, and triggers email to supervisor. Disabled if form invalid. |
+| **Cancel** | Returns to list view without saving. |
+
+### 11.6 View Form (Read-Only)
+
+Opened when user clicks "View" on a PENDING_APPROVAL or APPROVED PDT.
+
+| Requirement | Description |
+|------------|-------------|
+| **Form title** | "Personal Development Training Record". |
+| **Layout** | Same as edit form but all fields are read-only (disabled). |
+| **Status badge** | Display current status prominently at top. |
+| **Supervisor comments** | If status is CHANGES_REQUESTED, display supervisor's comments in a highlighted section. |
+| **Actions** | "Back to List" button. If CHANGES_REQUESTED, show "Edit" button to allow employee to make changes. |
+
+### 11.7 Supervisor Actions (Future Implementation)
+
+When proper authentication and role-based access is implemented:
+
+| Requirement | Description |
+|------------|-------------|
+| **Supervisor view** | Supervisors can see a list of pending PDT approvals from their direct reports. |
+| **Review PDT** | Supervisor can view the full PDT record. |
+| **Approve** | Supervisor can approve the PDT; this adds their signature and changes status to APPROVED. Requires typing their full name as signature. |
+| **Request Changes** | Supervisor can request changes; requires entering comments. Changes status to CHANGES_REQUESTED and notifies employee. |
+| **Email notifications** | When PDT is submitted for approval, supervisor receives email with PDF attachment and link to review. |
+| **Audit trail** | All status changes and actions are logged with timestamp and user ID. |
+
+### 11.8 API Contract (PDTService)
+
+Service: `PDTService` in `services/pdt.service.ts`
+
+**Basic CRUD:**
+- `getPDTRecords(userId: string): Observable<PDT[]>` — Get all PDT records for a user
+- `getPDTRecord(pdtId: string): Observable<PDT>` — Get a specific PDT record
+- `createPDT(pdt: Partial<PDT>): Observable<any>` — Create new PDT (returns `{ success: true, id }`)
+- `updatePDT(pdtId: string, pdt: Partial<PDT>): Observable<any>` — Update existing PDT
+- `deletePDT(pdtId: string): Observable<any>` — Delete PDT (only allowed for DRAFT status)
+
+**Approval Workflow:**
+- `submitPDTForApproval(pdtId: string): Observable<any>` — Submit PDT to supervisor; changes status to PENDING_APPROVAL and triggers email
+- `approvePDT(pdtId: string, supervisorSignature: string): Observable<any>` — Supervisor approves PDT; changes status to APPROVED
+- `requestPDTChanges(pdtId: string, changeComments: string): Observable<any>` — Supervisor requests changes; changes status to CHANGES_REQUESTED
+- `sendPDTApprovalEmail(pdtId: string, supervisorEmail: string): Observable<any>` — Send approval email with PDF to supervisor
+- `getPendingApprovals(supervisorId: string): Observable<PDT[]>` — Get all pending PDTs for a supervisor to review
+- `auditDevelopments(userId: string): Observable<any>` — Get audit log of PDT changes
+
+**Current Implementation Status:**
+- All service methods are implemented as **stubs** returning mock data via `of()` Observable
+- No backend integration yet; methods return success immediately
+- Full implementation requires backend Lambda functions and DynamoDB table for PDT records
+
+### 11.9 Backend Requirements (Future Implementation)
+
+When implementing backend:
+
+1. **DynamoDB Table:** `personalDevelopmentTraining` (or `pdt`)
+   - Partition key: `userId` (string)
+   - Sort key: `pdtId` (string) or `createdTimestamp` (string)
+   - GSI on `status` for filtering pending approvals
+   - GSI on `supervisorId` for supervisor queries
+
+2. **Lambda Functions:**
+   - `getPDTRecords` — Query PDTs by userId
+   - `createPDT` — Create new PDT record
+   - `updatePDT` — Update existing PDT
+   - `deletePDT` — Delete PDT (with status validation)
+   - `submitForApproval` — Change status and trigger email
+   - `approvePDT` — Supervisor approval action
+   - `requestChanges` — Supervisor request changes action
+   - `sendApprovalEmail` — Send email via SES with PDF attachment
+
+3. **PDF Generation:**
+   - Generate PDF from PDT record data
+   - Include all goals, action plan, and signatures
+   - Attach to approval email
+
+4. **Email Notifications:**
+   - Template for "PDT Submitted for Approval" (to supervisor)
+   - Template for "PDT Approved" (to employee)
+   - Template for "Changes Requested on PDT" (to employee)
+
+### 11.10 Current Implementation (Phase 1)
+
+**What is implemented:**
+- ✅ Full UI for creating/editing PDT records
+- ✅ Form with all required fields (goals, development needs, action plan, signatures)
+- ✅ List view with table of PDT records
+- ✅ Empty state when no records exist
+- ✅ Form validation on all required fields
+- ✅ Save/Cancel functionality
+- ✅ Loading spinner and success/error dialogs
+- ✅ Responsive design (mobile and desktop)
+- ✅ Routing: `/reports/personal-dev`
+- ✅ PDTService with all stub methods
+- ✅ Integration with AuthService and DialogService
+
+**What is NOT implemented (future phases):**
+- ❌ Status field and workflow (DRAFT → PENDING → APPROVED)
+- ❌ "Submit for Approval" action
+- ❌ Supervisor approval UI
+- ❌ Email notifications
+- ❌ PDF generation
+- ❌ Backend API endpoints
+- ❌ Supervisor comments field
+- ❌ Audit trail
+- ❌ Role-based access (distinguishing supervisors from employees)
+
+**Note:** Because proper authentication and role-based access are not yet implemented in the portal, the approval workflow cannot be fully functional. The current implementation allows all employees to view and edit their own PDT records as drafts. The full approval workflow will be enabled once:
+1. Real authentication is implemented (not stub login)
+2. User roles and supervisor relationships are properly defined
+3. Backend endpoints for PDT are created
+4. Email service (SES) is configured
+
+---
+
+## 12. Referenced but Not Yet Implemented Pages
 
 These are **required from a product/navigation perspective** (links exist on Home or Daily Status) but have **no routes or components** yet. The redesign should account for them.
 
 | Route | Description (intent) |
 |-------|------------------------|
-| `/profile/:uuid` | User profile (view/edit own or others’ profile). |
-| `/reports/personal-dev` | Employee development reports — view/edit. |
+| `/profile/:uuid` | User profile (view/edit own or others' profile). |
 | `/time-off` | Time-off (PTO/sick) submission. |
 | `/team-summary` | ROC team summary view. |
 | `/dashboard` | Projects list/dashboard. |
@@ -262,9 +522,9 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 ---
 
-## 11. Shared Components & Global Behavior
+## 13. Shared Components & Global Behavior
 
-### 11.1 Dialogs (DialogService)
+### 13.1 Dialogs (DialogService)
 
 | Component | Purpose |
 |-----------|---------|
@@ -274,12 +534,12 @@ These are **required from a product/navigation perspective** (links exist on Hom
 | **Generic error** | Standard error message; used by `standardError()` / `standardInputError()`. |
 | **Progress spinner** | Global loading overlay; `openSpinner()` / `closeSpinner()`. |
 
-### 11.2 Error handling
+### 13.2 Error handling
 
-- **standardError(err, title, bodyText):** Close spinner, show error dialog: “Error {title}” and “We ran into an error {bodyText}. Please try again…”.
+- **standardError(err, title, bodyText):** Close spinner, show error dialog: "Error {title}" and "We ran into an error {bodyText}. Please try again…".
 - **standardInputError:** Same but with custom body text (e.g. validation messages).
 
-### 11.3 Constants (roc-constants)
+### 13.3 Constants (roc-constants)
 
 - API route segments (e.g. EMP_ROUTES, ADMIN_ROUTES, APIS).
 - Form validators (alpha, numeric, date, etc.).
@@ -288,45 +548,52 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 ---
 
-## 12. Data & API Summary
+## 14. Data & API Summary
 
-### 12.1 Backend (existing)
+### 14.1 Backend (existing)
 
 - **Login:** POST with `{ username, password }`; validates against DynamoDB `users` (key `username` in login handler; note: import-data uses `uuid` for users table — confirm key alignment).
 - **Import data:** POST to seed users, projects, and daily reports.
 - **Tables:** `users`, `projects`, `dailyStatus` (see serverless.yml).
 
-### 12.2 Frontend services (intended API surface)
+### 14.2 Frontend services (intended API surface)
 
 - **Auth:** Login, logout, getUser, role checks (stub/mock in places).
 - **Daily reports:** getReportsNew, createReport, deleteReport, addUserToReportsTable, getMonthlyList, sendEmail; **getAllProjects**.
 - **Projects:** getProjects, getProjectInfo, addProject, editProject, deleteProject.
 - **Users:** getUserInfo(uuid), getUsers (for leads/admins).
+- **PDT:** getPDTRecords, createPDT, updatePDT, deletePDT, submitPDTForApproval, approvePDT, requestPDTChanges, sendPDTApprovalEmail, getPendingApprovals, auditDevelopments.
 
 Many of these currently return **mock data** or `of([])`; the redesign should assume real endpoints will be implemented to match these contracts.
 
-### 12.3 Key entities
+### 14.3 Key entities
 
 - **User:** uuid, name, email, roles, assignments, supervisorId, requestedPTO, etc.
 - **Project:** uuid, projectName, projectFullName, status (Active/Inactive), etc.
 - **Daily report:** uuid, userId, date, projects: [{ projectId, reportText, reportStatus }], reportStatus (boolean submitted flag).
+- **PDT:** id, empName, shortTermGoals, mediumTermGoals, longTermGoals, developmentNeeds, actionPlan, empSignature, superSignature, createdDate, createdTimestamp, status, supervisorComments.
 
 ---
 
-## 13. Roles & Permissions (Summary)
+## 15. Roles & Permissions (Summary)
 
 | Role | Typical capabilities |
 |------|-----------------------|
-| **EMPLOYEE** | Own daily status (add, edit draft, submit); view own reports; monthly/custom report emails. |
-| **LEAD** | Everything for direct reports (view reports, edit, delete); project status on reports; “Return to Overview” → team daily status. |
-| **PM** | Similar to lead for their team; project status on reports; “Return to Overview” → pm daily status. |
-| **ADMIN** | Full access: view/edit/delete any report; see submitter email in review; user/project management (when implemented); “Return to Overview” → admin daily status. |
+| **EMPLOYEE** | Own daily status (add, edit draft, submit); view own reports; monthly/custom report emails; create and manage own PDT records. |
+| **LEAD** | Everything for direct reports (view reports, edit, delete); project status on reports; "Return to Overview" → team daily status; approve/request changes on direct reports' PDT records. |
+| **PM** | Similar to lead for their team; project status on reports; "Return to Overview" → pm daily status. |
+| **ADMIN** | Full access: view/edit/delete any report; see submitter email in review; user/project management (when implemented); "Return to Overview" → admin daily status. |
 | **INTERIM_LEAD** | Treated separately in role checks (e.g. interimLeadCheck). |
 | **TESTER** | Flag for tester-specific features (e.g. visibility of test tools). |
 
+**PDT-specific permissions:**
+- **EMPLOYEE:** Create, edit (DRAFT/CHANGES_REQUESTED), view (all statuses), delete (DRAFT only), submit for approval.
+- **LEAD/PM (as supervisor):** View direct reports' PDTs, approve, request changes, view all submitted PDTs from team.
+- **ADMIN:** View all PDTs across organization, audit trail access.
+
 ---
 
-## 14. Non-Functional / Redesign Notes
+## 16. Non-Functional / Redesign Notes
 
 - **Responsive:** Daily Status and Report Review have explicit mobile behavior (column hiding, modal for date range). Header uses a hamburger menu. All new pages should be responsive.
 - **Accessibility:** Use semantic HTML and ARIA where appropriate; ensure keyboard and screen-reader support for dialogs and forms.

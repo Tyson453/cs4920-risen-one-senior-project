@@ -28,13 +28,17 @@ export class AuthService {
   async setUser() {
     try {
       let user = {
-        uuid: 'XXX',
+        uuid: 'john-doe-uuid',
+        id: 'john-doe-uuid',
         name: 'John Doe',
-        email: 'john.doe@example.com',
+        email: 'john.doe@risen-one.com',
         assignments: [
-          "468879bf-8e44-4c95-8321-edd2b8fb0108"
+          "51506e92-650c-4c84-a15f-752370243891"
         ],
         birthday: "",
+        roles: ['EMPLOYEE', 'ADMIN', 'LEAD', 'PM'],
+        teamName: 'Engineering',
+        pmTeams: ['pm-team-project-alpha'],
       }
       return new Promise((resolve) => { resolve(user) })
     } catch (err) {
@@ -50,11 +54,7 @@ export class AuthService {
 
   async adminCheck() {
     let user = await this.user;
-    if (user.roles.includes('ADMIN')) {
-      return true;
-    } else {
-      return false;
-    }
+    return !!user?.roles?.includes('ADMIN');
   }
   async leadCheck() {
     let user = await this.user;
