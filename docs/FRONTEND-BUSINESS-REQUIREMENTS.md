@@ -33,8 +33,31 @@ The app uses **Angular** with **Angular Material**, a **serverless AWS backend**
 - `uuid`, `id`, `name`, `firstName`, `lastName`, `email`
 - `roles: string[]` (e.g. `['EMPLOYEE','LEAD']`)
 - `assignments: string[]` (project UUIDs)
-- `supervisorId` (for team hierarchies)
-- `requestedPTO` (map of date → PTO request details) for daily status “PTO”/“SICK” display
+- `teamName?: string | null` (organizational team name)
+- `pmTeams: string[]` (PM team names the user belongs to)
+- `requestedPTO` (map of date → PTO request details) for daily status "PTO"/"SICK" display
+
+### 2.3 Team Structure
+
+The application supports two types of teams:
+
+**Organizational Teams** (grouped by `teamName`):
+- Each user has an optional `teamName` attribute (string or null)
+- Users with the same `teamName` belong to the same organizational team
+- Examples: "Engineering", "Design", etc.
+- A user can only belong to one organizational team
+- The `teamName` field is defined in the DynamoDB schema with a Global Secondary Index (`TeamNameIndex`)
+
+**PM Teams** (project-based teams):
+- Each user has a `pmTeams` array containing PM team names
+- PM teams are project-based groups (e.g., "PR22 Team", "PR33 Team", "Project Alpha")
+- A user can belong to multiple PM teams
+- PM teams are not stored separately; they are derived from user records (any unique value in the `pmTeams` array creates a PM team)
+
+**Database Schema Notes**:
+- DynamoDB is schema-less; only attributes used as keys or in Global Secondary Indexes need to be defined in `serverless.yml`
+- The `teamName` attribute is defined with a GSI because it's used for querying users by organizational team
+- Other user fields (like `firstName`, `roles`, `pmTeams`, etc.) do not need to be in AttributeDefinitions
 
 ---
 
@@ -505,7 +528,114 @@ When implementing backend:
 
 ---
 
-## 12. Referenced but Not Yet Implemented Pages
+## 12. Team Summary Page
+
+**Route:** `/team-summary`
+**Component:** `TeamSummaryComponent`
+**Access:** All authenticated users (view differs based on role).
+
+This page displays team information in two views: an admin view showing all organizational and PM teams, and a non-admin view showing the user's teammates.
+
+### 12.1 Page-level requirements
+
+| Requirement | Description |
+|------------|-------------|
+| **Title** | "ROC Team Summary". |
+| **Role-based view** | Admins see all teams (organizational and PM teams); non-admins see only their teammates (same organizational team or same PM teams). |
+| **Loading** | Show global loading spinner while fetching team data. |
+| **Data sources** | Fetch users via `UserApiService.getTeamsForAdmin()` (admin) or `UserApiService.getTeammates(teamName, pmTeams)` (non-admin); fetch projects for mapping project UUIDs to names. |
+
+### 12.2 Admin View
+
+Visible when user has ADMIN role.
+
+| Requirement | Description |
+|------------|-------------|
+| **Organizational Teams** | Section showing organizational teams grouped by `teamName`. Each team displayed as an expandable panel. |
+| **Team panels** | Panel header shows team name (or "Unassigned" if teamName is null) and member count. Collapsed by default. |
+| **Team table** | When expanded, shows table with columns: Name, Email, Roles, Projects, Start Date. |
+| **Empty state** | If no organizational teams exist, show message "No organizational teams found." |
+| **PM Teams** | Section showing PM teams grouped by PM team name. Each team displayed as an expandable panel. |
+| **PM team panels** | Panel header shows PM team name and member count. Same table structure as organizational teams. |
+| **PM empty state** | If no PM teams exist, show message "No PM teams found." |
+
+### 12.3 Non-Admin View
+
+Visible when user does NOT have ADMIN role.
+
+| Requirement | Description |
+|------------|-------------|
+| **Title** | "Your Team". |
+| **Team table** | Flat table (no panels) showing teammates with columns: Name, Email, Roles, Projects, Start Date. |
+| **Teammate filtering** | If user has PM team assignments (`pmTeams` array not empty), show users in any of those PM teams. Otherwise, show users with the same `teamName`. |
+| **Empty state** | When no teammates, show placeholder image (RisenOneCat.gif) and message "No teammates to display." |
+
+### 12.4 Data Display
+
+| Requirement | Description |
+|------------|-------------|
+| **Roles display** | Show user's roles as comma-separated list (e.g., "EMPLOYEE, LEAD"). Display "—" if no roles. |
+| **Projects display** | Map project UUIDs in user's `assignments` array to project names using project data. Show as comma-separated list. Display "—" if no projects. |
+| **Start date display** | Show as "MM/DD/YYYY" if both `startDate` and `startYear` exist; otherwise show whichever is available. Display "—" if neither exists. |
+
+### 12.5 Team Grouping Logic
+
+**Organizational Teams** (Admin view):
+- Group users by their `teamName` field
+- Each unique `teamName` creates one organizational team
+- Users with `teamName: null` are grouped into "Unassigned" team
+
+**PM Teams** (Admin view):
+- Iterate through all users' `pmTeams` arrays
+- Each unique PM team name creates one PM team
+- A user can appear in multiple PM teams
+
+**Teammates** (Non-admin view):
+- If current user has PM teams: filter to users who share at least one PM team
+- If current user has no PM teams: filter to users with the same `teamName`
+- Excludes the current user themselves (shows only teammates)
+
+### 12.6 API Contract (UserApiService)
+
+**For admins:**
+```typescript
+getTeamsForAdmin(): Promise<AdminTeamData>
+// Returns: { orgTeams: OrgTeamGroup[], pmTeams: PmTeamGroup[] }
+// OrgTeamGroup: { teamName: string | null, users: TeamSummaryUser[] }
+// PmTeamGroup: { teamId: string, teamName: string, users: TeamSummaryUser[] }
+```
+
+**For non-admins:**
+```typescript
+getTeammates(teamName: string | null, pmTeamNames?: string[]): Promise<TeamSummaryUser[]>
+// teamName: Current user's organizational team name
+// pmTeamNames: Current user's PM team names (optional)
+// Returns: Array of users who are teammates
+```
+
+### 12.7 Current Implementation Status
+
+**What is implemented:**
+- ✅ Full UI with admin and non-admin views
+- ✅ Organizational teams and PM teams sections (admin view)
+- ✅ Expandable panels for team grouping
+- ✅ Table display with all required columns
+- ✅ Empty states for no teams/no teammates
+- ✅ Responsive design
+- ✅ Project name mapping
+- ✅ Team grouping by teamName and pmTeams
+- ✅ Routing: `/team-summary`
+
+**What is NOT implemented:**
+- ❌ Backend API endpoints (using mock data via UserApiService stubs)
+- ❌ Real-time team updates
+- ❌ Search/filter functionality
+- ❌ Export team roster to CSV/PDF
+- ❌ Team management (add/remove members) - this belongs in Admin page
+
+---
+
+## 13. Referenced but Not Yet Implemented Pages
 
 These are **required from a product/navigation perspective** (links exist on Home or Daily Status) but have **no routes or components** yet. The redesign should account for them.
 
@@ -513,7 +643,6 @@ These are **required from a product/navigation perspective** (links exist on Hom
 |-------|------------------------|
 | `/profile/:uuid` | User profile (view/edit own or others' profile). |
 | `/time-off` | Time-off (PTO/sick) submission. |
-| `/team-summary` | ROC team summary view. |
 | `/dashboard` | Projects list/dashboard. |
 | `/certification` | Certification and training — view/manage. |
 | `/team/team-daily-status` | Lead view of team daily status. |
@@ -522,9 +651,9 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 ---
 
-## 13. Shared Components & Global Behavior
+## 14. Shared Components & Global Behavior
 
-### 13.1 Dialogs (DialogService)
+### 14.1 Dialogs (DialogService)
 
 | Component | Purpose |
 |-----------|---------|
@@ -534,12 +663,12 @@ These are **required from a product/navigation perspective** (links exist on Hom
 | **Generic error** | Standard error message; used by `standardError()` / `standardInputError()`. |
 | **Progress spinner** | Global loading overlay; `openSpinner()` / `closeSpinner()`. |
 
-### 13.2 Error handling
+### 14.2 Error handling
 
 - **standardError(err, title, bodyText):** Close spinner, show error dialog: "Error {title}" and "We ran into an error {bodyText}. Please try again…".
 - **standardInputError:** Same but with custom body text (e.g. validation messages).
 
-### 13.3 Constants (roc-constants)
+### 14.3 Constants (roc-constants)
 
 - API route segments (e.g. EMP_ROUTES, ADMIN_ROUTES, APIS).
 - Form validators (alpha, numeric, date, etc.).
@@ -548,34 +677,36 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 ---
 
-## 14. Data & API Summary
+## 15. Data & API Summary
 
-### 14.1 Backend (existing)
+### 15.1 Backend (existing)
 
 - **Login:** POST with `{ username, password }`; validates against DynamoDB `users` (key `username` in login handler; note: import-data uses `uuid` for users table — confirm key alignment).
 - **Import data:** POST to seed users, projects, and daily reports.
 - **Tables:** `users`, `projects`, `dailyStatus` (see serverless.yml).
 
-### 14.2 Frontend services (intended API surface)
+### 15.2 Frontend services (intended API surface)
 
 - **Auth:** Login, logout, getUser, role checks (stub/mock in places).
 - **Daily reports:** getReportsNew, createReport, deleteReport, addUserToReportsTable, getMonthlyList, sendEmail; **getAllProjects**.
 - **Projects:** getProjects, getProjectInfo, addProject, editProject, deleteProject.
-- **Users:** getUserInfo(uuid), getUsers (for leads/admins).
+- **Users:** getUserInfo(uuid), getUsers (for leads/admins), **getTeamsForAdmin()** (returns organizational and PM teams), **getTeammates(teamName, pmTeamNames)** (returns user's teammates).
 - **PDT:** getPDTRecords, createPDT, updatePDT, deletePDT, submitPDTForApproval, approvePDT, requestPDTChanges, sendPDTApprovalEmail, getPendingApprovals, auditDevelopments.
 
 Many of these currently return **mock data** or `of([])`; the redesign should assume real endpoints will be implemented to match these contracts.
 
-### 14.3 Key entities
+### 15.3 Key entities
 
-- **User:** uuid, name, email, roles, assignments, supervisorId, requestedPTO, etc.
+- **User:** uuid, name, email, roles, assignments, teamName, pmTeams, requestedPTO, etc.
 - **Project:** uuid, projectName, projectFullName, status (Active/Inactive), etc.
 - **Daily report:** uuid, userId, date, projects: [{ projectId, reportText, reportStatus }], reportStatus (boolean submitted flag).
 - **PDT:** id, empName, shortTermGoals, mediumTermGoals, longTermGoals, developmentNeeds, actionPlan, empSignature, superSignature, createdDate, createdTimestamp, status, supervisorComments.
+- **OrgTeamGroup:** teamName (string | null), users (TeamSummaryUser[]) — represents an organizational team.
+- **PmTeamGroup:** teamId (string), teamName (string), users (TeamSummaryUser[]) — represents a PM team.
 
 ---
 
-## 15. Roles & Permissions (Summary)
+## 16. Roles & Permissions (Summary)
 
 | Role | Typical capabilities |
 |------|-----------------------|
@@ -593,7 +724,7 @@ Many of these currently return **mock data** or `of([])`; the redesign should as
 
 ---
 
-## 16. Non-Functional / Redesign Notes
+## 17. Non-Functional / Redesign Notes
 
 - **Responsive:** Daily Status and Report Review have explicit mobile behavior (column hiding, modal for date range). Header uses a hamburger menu. All new pages should be responsive.
 - **Accessibility:** Use semantic HTML and ARIA where appropriate; ensure keyboard and screen-reader support for dialogs and forms.
