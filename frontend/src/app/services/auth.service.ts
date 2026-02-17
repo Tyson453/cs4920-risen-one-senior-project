@@ -38,7 +38,7 @@ export class AuthService {
         birthday: "",
         roles: ['EMPLOYEE', 'ADMIN', 'LEAD', 'PM'],
         teamName: 'Engineering',
-        pmTeams: ['pm-team-project-alpha'],
+        pmTeams: ['PR22 Team', 'Project Alpha'],
       }
       return new Promise((resolve) => { resolve(user) })
     } catch (err) {

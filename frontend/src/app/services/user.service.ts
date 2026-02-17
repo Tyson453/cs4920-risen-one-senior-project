@@ -13,6 +13,7 @@ export interface TeamSummaryUser {
   startDate: string;
   startYear: string;
   pmTeams: string[];
+  teamName?: string | null;
   birthday?: string;
   birthdayNoAcknowledge?: boolean;
   maxHours?: number;
@@ -54,7 +55,8 @@ export class UserApiService {
       state: 'Kansas',
       startDate: '08/01',
       startYear: '2021',
-      pmTeams: ['Project Alpha'],
+      pmTeams: ['PR22 Team', 'Project Alpha'],
+      teamName: 'Engineering',
       birthday: '',
       birthdayNoAcknowledge: false,
       maxHours: 120,
@@ -73,7 +75,8 @@ export class UserApiService {
       state: 'Missouri',
       startDate: '09/15',
       startYear: '2022',
-      pmTeams: [],
+      pmTeams: ['PR33 Team'],
+      teamName: 'Engineering',
       birthday: '',
       birthdayNoAcknowledge: false,
       maxHours: 120,
@@ -92,7 +95,8 @@ export class UserApiService {
       state: 'Missouri',
       startDate: '03/10',
       startYear: '2023',
-      pmTeams: [],
+      pmTeams: ['PR22 Team'],
+      teamName: 'Engineering',
       birthday: '',
       birthdayNoAcknowledge: false,
       maxHours: 120,
@@ -111,7 +115,8 @@ export class UserApiService {
       state: 'California',
       startDate: '01/15',
       startYear: '2024',
-      pmTeams: [],
+      pmTeams: ['PR33 Team'],
+      teamName: 'Design',
       birthday: '',
       birthdayNoAcknowledge: false,
       maxHours: 120,
@@ -130,7 +135,8 @@ export class UserApiService {
       state: 'Texas',
       startDate: '06/01',
       startYear: '2023',
-      pmTeams: [],
+      pmTeams: ['Project Alpha'],
+      teamName: null,
       birthday: '',
       birthdayNoAcknowledge: false,
       maxHours: 120,
@@ -166,17 +172,18 @@ export class UserApiService {
 
   /**
    * Returns org teams and PM teams for admin view.
+   * Teams are grouped by teamName.
    * Stub implementation - replace with backend call when available.
    */
   public getTeamsForAdmin(): Promise<AdminTeamData> {
-    const orgTeamMap = new Map<string, TeamSummaryUser[]>();
+    const orgTeamMap = new Map<string | null, TeamSummaryUser[]>();
     const pmTeamMap = new Map<
       string,
       { teamName: string; users: TeamSummaryUser[] }
     >();
 
     for (const user of this.mockUsers) {
-      const teamName = 'None';
+      const teamName = user.teamName ?? null;
       if (!orgTeamMap.has(teamName)) {
         orgTeamMap.set(teamName, []);
       }
@@ -212,11 +219,11 @@ export class UserApiService {
   }
 
   /**
-   * Returns teammates for non-admin: same org team (teamName) or users in PM teams (pmTeamNames).
+   * Returns teammates for non-admin: users with the same teamName or users in PM teams.
    * Stub implementation - replace with backend call when available.
    */
   public getTeammates(
-    state: string,
+    teamName: string | null,
     pmTeamNames?: string[]
   ): Promise<TeamSummaryUser[]> {
     if (pmTeamNames && pmTeamNames.length > 0) {
@@ -227,8 +234,8 @@ export class UserApiService {
       return Promise.resolve(users);
     }
 
-    // const users = this.mockUsers.filter((u) => u.state === state);
-    return Promise.resolve(this.mockUsers);
+    const users = this.mockUsers.filter((u) => u.teamName === teamName);
+    return Promise.resolve(users);
   }
 
   public getProjects() {
