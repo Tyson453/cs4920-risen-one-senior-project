@@ -1,1 +1,74 @@
-<p>projects works!</p>
+<div class="projects-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-spinner-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Projects List View -->
+  <div *ngIf="!isLoading" class="projects-list-view">
+    <div class="list-header">
+      <div class="header-content">
+        <mat-icon class="header-icon">list</mat-icon>
+        <h1>Projects</h1>
+      </div>
+      <p class="header-description">View all active and inactive projects at Risen One Consulting</p>
+    </div>
+
+    <!-- Projects Table -->
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="projects" class="projects-table">
+        <!-- Project Name Column -->
+        <ng-container matColumnDef="projectName">
+          <th mat-header-cell *matHeaderCellDef>Project Code</th>
+          <td mat-cell *matCellDef="let element">
+            <strong>{{ element.projectName }}</strong>
+          </td>
+        </ng-container>
+
+        <!-- Full Name Column -->
+        <ng-container matColumnDef="fullName">
+          <th mat-header-cell *matHeaderCellDef>Project Name</th>
+          <td mat-cell *matCellDef="let element">{{ element.fullName || '-' }}</td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let element">
+            <mat-chip [class]="getStatusClass(element.status)">
+              {{ element.status }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Product Manager Column -->
+        <ng-container matColumnDef="productManager">
+          <th mat-header-cell *matHeaderCellDef>Product Manager</th>
+          <td mat-cell *matCellDef="let element">{{ element.productManager || '-' }}</td>
+        </ng-container>
+
+        <!-- Product Owner Column -->
+        <ng-container matColumnDef="productOwner">
+          <th mat-header-cell *matHeaderCellDef>Product Owner</th>
+          <td mat-cell *matCellDef="let element">{{ element.productOwner || '-' }}</td>
+        </ng-container>
+
+        <!-- Start Date Column -->
+        <ng-container matColumnDef="startDate">
+          <th mat-header-cell *matHeaderCellDef>Start Date</th>
+          <td mat-cell *matCellDef="let element">{{ element.startDate || '-' }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="projects.length === 0" class="empty-state">
+      <mat-icon>folder_open</mat-icon>
+      <h2>No projects found</h2>
+      <p>There are currently no projects in the system.</p>
+    </div>
+  </div>
+</div>
