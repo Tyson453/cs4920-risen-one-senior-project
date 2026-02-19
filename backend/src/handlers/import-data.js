@@ -2,7 +2,19 @@
 
 const AWS = require('aws-sdk');
 const bcrypt = require('bcryptjs');
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
+// Configure DynamoDB client for local development
+const dynamoDbClientConfig = {};
+if (process.env.DYNAMODB_ENDPOINT) {
+  dynamoDbClientConfig.region = 'us-east-2';
+  dynamoDbClientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
+  dynamoDbClientConfig.sslEnabled = false;
+  dynamoDbClientConfig.credentials = new AWS.Credentials({
+    accessKeyId: 'local',
+    secretAccessKey: 'local'
+  });
+}
+const dynamoDb = new AWS.DynamoDB.DocumentClient(dynamoDbClientConfig);
 
 const DEV_PASSWORD = 'Password123!';
 
