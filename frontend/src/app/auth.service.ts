@@ -45,4 +45,9 @@ export class AuthService {
     // Redirect to login page
     this.router.navigate(['/login']);
   }
+
+  isLoggedIn(): boolean {
+    const token = localStorage.getItem('authToken');
+    return !!token;
+  }
 }
