@@ -1,0 +1,208 @@
+<div class="employee-development-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-spinner-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="!isLoading && !isEditing && !isCreating" class="list-view">
+    <div class="list-header">
+      <h1>Personal Development Training</h1>
+      <button mat-raised-button color="primary" (click)="onCreateNew()">
+        <mat-icon>add</mat-icon>
+        Create New PDT
+      </button>
+    </div>
+
+    <!-- PDT Records Table -->
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="pdtRecords" class="pdt-table">
+        <!-- Created Date Column -->
+        <ng-container matColumnDef="createdDate">
+          <th mat-header-cell *matHeaderCellDef>Created Date</th>
+          <td mat-cell *matCellDef="let element">{{ element.createdDate }}</td>
+        </ng-container>
+
+        <!-- Employee Name Column -->
+        <ng-container matColumnDef="empName">
+          <th mat-header-cell *matHeaderCellDef>Employee</th>
+          <td mat-cell *matCellDef="let element">{{ element.empName }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let element">
+            <button mat-button color="primary" (click)="onEditRecord(element)">
+              <mat-icon>edit</mat-icon>
+              Edit
+            </button>
+            <button mat-button color="warn" (click)="onDeleteRecord(element)">
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="pdtRecords.length === 0" class="empty-state">
+      <mat-icon>summarize</mat-icon>
+      <h2>No Personal Development Training records found</h2>
+      <p>Create your first PDT record to track your professional development goals.</p>
+      <button mat-raised-button color="primary" (click)="onCreateNew()">
+        <mat-icon>add</mat-icon>
+        Create Your First PDT
+      </button>
+    </div>
+  </div>
+
+  <!-- Edit/Create Form View -->
+  <div *ngIf="!isLoading && (isEditing || isCreating)" class="form-view">
+    <div class="form-header">
+      <h1 *ngIf="isCreating">Create Personal Development Training Record</h1>
+      <h1 *ngIf="isEditing">Edit Personal Development Training Record</h1>
+    </div>
+
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="pdtForm" class="pdt-form">
+          <!-- Employee Name Field (Disabled) -->
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Employee Name</mat-label>
+            <input matInput formControlName="empName" />
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+
+          <!-- Short Term Goals -->
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Short Term Goals</mat-label>
+            <textarea
+              matInput
+              formControlName="shortTermGoals"
+              rows="4"
+              placeholder="What do you want to achieve in the next 3-6 months?"
+            ></textarea>
+            <mat-icon matPrefix>flag</mat-icon>
+            <mat-error *ngIf="pdtForm.get('shortTermGoals')?.hasError('required')">
+              Short term goals are required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Medium Term Goals -->
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Medium Term Goals</mat-label>
+            <textarea
+              matInput
+              formControlName="mediumTermGoals"
+              rows="4"
+              placeholder="What do you want to achieve in the next 6-12 months?"
+            ></textarea>
+            <mat-icon matPrefix>trending_up</mat-icon>
+            <mat-error *ngIf="pdtForm.get('mediumTermGoals')?.hasError('required')">
+              Medium term goals are required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Long Term Goals -->
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Long Term Goals</mat-label>
+            <textarea
+              matInput
+              formControlName="longTermGoals"
+              rows="4"
+              placeholder="What do you want to achieve in 1-3 years?"
+            ></textarea>
+            <mat-icon matPrefix>stars</mat-icon>
+            <mat-error *ngIf="pdtForm.get('longTermGoals')?.hasError('required')">
+              Long term goals are required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Development Needs -->
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Development Needs</mat-label>
+            <textarea
+              matInput
+              formControlName="developmentNeeds"
+              rows="4"
+              placeholder="What skills, knowledge, or experiences do you need to develop?"
+            ></textarea>
+            <mat-icon matPrefix>school</mat-icon>
+            <mat-error *ngIf="pdtForm.get('developmentNeeds')?.hasError('required')">
+              Development needs are required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Action Plan -->
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Action Plan</mat-label>
+            <textarea
+              matInput
+              formControlName="actionPlan"
+              rows="5"
+              placeholder="What specific steps will you take to achieve your goals?"
+            ></textarea>
+            <mat-icon matPrefix>checklist</mat-icon>
+            <mat-error *ngIf="pdtForm.get('actionPlan')?.hasError('required')">
+              Action plan is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Signatures Section -->
+          <div class="signatures-section">
+            <h3>Signatures</h3>
+            <div class="signature-fields">
+              <!-- Employee Signature -->
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Employee Signature</mat-label>
+                <input
+                  matInput
+                  formControlName="empSignature"
+                  placeholder="Type your full name"
+                />
+                <mat-icon matPrefix>draw</mat-icon>
+                <mat-error *ngIf="pdtForm.get('empSignature')?.hasError('required')">
+                  Employee signature is required
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Supervisor Signature -->
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Supervisor Signature</mat-label>
+                <input
+                  matInput
+                  formControlName="superSignature"
+                  placeholder="Supervisor's full name (optional)"
+                />
+                <mat-icon matPrefix>verified</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button mat-raised-button type="button" (click)="onCancel()">
+              <mat-icon>cancel</mat-icon>
+              Cancel
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              type="button"
+              (click)="onSave()"
+              [disabled]="!pdtForm.valid"
+            >
+              <mat-icon>save</mat-icon>
+              {{ isCreating ? 'Create PDT' : 'Update PDT' }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
