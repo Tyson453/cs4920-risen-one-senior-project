@@ -23,11 +23,10 @@ export class AuthService {
             // Store the JWT token
             localStorage.setItem('authToken', response.token);
             // Store the user in localStorage
-            localStorage.setItem('user', JSON.stringify(response.user));
-            console.log('Login successful, stored user:', response.user);
+            console.log('Login successful');
             return true;
           }
-          console.log('Login response invalid - missing token or user');
+          console.log('Login `response invalid - missing token or user');
           return false;
         }),
         catchError(error => {
@@ -40,7 +39,6 @@ export class AuthService {
   logout() {
     // Clear stored authentication data
     localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
     
     // Redirect to login page
     this.router.navigate(['/login']);

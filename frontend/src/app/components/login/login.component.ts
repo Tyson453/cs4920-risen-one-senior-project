@@ -22,13 +22,18 @@ interface previousRequest {
   <button (click)="login()">Login</button>
 `
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username: string = ''; // Initialize with an empty string
   password: string = ''; // Initialize with an empty string
   loginError: boolean = false;
   errorMessage: string = '';
 
   constructor(private authService: AuthService, private router: Router) { }
+
+  ngOnInit() {
+    localStorage.removeItem('authToken');
+    sessionStorage.clear();
+  }
 
   login() {
     console.log('Login method called with username:', this.username);
