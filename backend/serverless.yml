@@ -123,5 +123,14 @@ functions:
           method: post
           cors: true
 
-  
-
+  createUser:
+    handler: src/handlers/create-user.handler
+    environment:
+      USERS_TABLE: users
+      PROJECTS_TABLE: projects
+      DAILY_STATUS_TABLE: dailyStatus
+    events:
+      - http:
+          path: create-user
+          method: post
+          cors: true

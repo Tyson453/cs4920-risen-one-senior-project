@@ -21,6 +21,7 @@ module.exports.handler = async (event) => {
         email: 'john.doe@risen-one.com',
         firstName: 'John',
         lastName: 'Doe',
+        teamName: 'Engineering',
         maxHours: 120,
         maxSickHours: 40,
         name: 'John Doe',
@@ -59,6 +60,7 @@ module.exports.handler = async (event) => {
         email: 'jane.smith@risen-one.com',
         firstName: 'Jane',
         lastName: 'Smith',
+        teamName: 'Engineering',
         maxHours: 120,
         maxSickHours: 40,
         name: 'Jane Smith',
@@ -80,6 +82,7 @@ module.exports.handler = async (event) => {
         email: 'bob.johnson@risen-one.com',
         firstName: 'Bob',
         lastName: 'Johnson',
+        teamName: 'Design',
         maxHours: 120,
         maxSickHours: 40,
         name: 'Bob Johnson',
@@ -180,7 +183,7 @@ module.exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         message: 'Data imported successfully',
         usersImported: users.length,
         projectsImported: projects.length,
