@@ -25,6 +25,8 @@ interface previousRequest {
 export class LoginComponent {
   username: string = ''; // Initialize with an empty string
   password: string = ''; // Initialize with an empty string
+  loginError: boolean = false;
+  errorMessage: string = '';
 
   constructor(private authService: AuthService, private router: Router) { }
 
@@ -39,11 +41,15 @@ export class LoginComponent {
             this.router.navigate(['/home']);
           } else {
             // Handle login failure
+            this.loginError = true;
+            this.errorMessage = 'Username or Password is incorrect';
             console.error('Login failed');
           }
         },
         error: (error) => {
           // Handle login error
+          this.loginError = true;
+          this.errorMessage = 'Username or Password is incorrect';
           console.error('Login error:', error);
         }
       });

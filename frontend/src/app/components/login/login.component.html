@@ -39,15 +39,18 @@
                             </h1>
                             <h2>Login</h2>
                             <form class="login-form" ngNoForm (submit)="$event.preventDefault()">
+                                <div class="error-message" *ngIf="loginError">
+                                    {{errorMessage}}
+                                </div>
                                 <div class="form-group">
                                     <label for="username">Username:</label>
-                                    <mat-form-field appearance="fill" class="form-field">
+                                    <mat-form-field appearance="fill" class="form-field" [class.error-field]="loginError">
                                         <input matInput id="username" name="username" type="text" required [(ngModel)]="username">
                                     </mat-form-field>
                                 </div>
                                 <div class="form-group">
                                     <label for="password">Password:</label>
-                                    <mat-form-field appearance="fill" class="form-field">
+                                    <mat-form-field appearance="fill" class="form-field" [class.error-field]="loginError">
                                         <input matInput id="password" name="password" type="password" required [(ngModel)]="password">
                                     </mat-form-field>
                                 </div>
