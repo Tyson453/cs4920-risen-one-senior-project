@@ -25,7 +25,27 @@ provider:
             - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus/index/*
 
 plugins:
+  - serverless-dynamodb
   - serverless-offline
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: false
+    seed:
+      domain:
+        sources:
+          - table: users
+            sources: [./seeds/users.json]
+          - table: projects
+            sources: [./seeds/projects.json]
+          - table: dailyStatus
+            sources: [./seeds/dailyStatus.json]
 
 resources:
   Resources:
@@ -105,6 +125,7 @@ functions:
     environment:
       USERS_TABLE: users
       JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:
           path: login
@@ -117,6 +138,7 @@ functions:
       USERS_TABLE: users
       PROJECTS_TABLE: projects
       DAILY_STATUS_TABLE: dailyStatus
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:
           path: import-data
