@@ -9,18 +9,19 @@ import { TeamSummaryComponent } from './components/team-summary/team-summary.com
 import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
 import { EmployeeDevelopmentComponent } from './components/employee-development/employee-development.component';
+import { AuthGuard } from './auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent },
-  { path: 'daily-status', component: DailyStatusComponent },
-  { path: 'projects', component: ProjectsComponent },
-  { path: 'team-summary', component: TeamSummaryComponent },
-  { path: 'time-off', component: TimeOffComponent },
-  { path: 'admin', component: AdminComponent },
-  { path: 'certification-training', component: CertificationTrainingComponent },
-  { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'daily-status', component: DailyStatusComponent, canActivate: [AuthGuard] },
+  { path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard] },
+  { path: 'team-summary', component: TeamSummaryComponent, canActivate: [AuthGuard] },
+  { path: 'time-off', component: TimeOffComponent, canActivate: [AuthGuard] },
+  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
+  { path: 'certification-training', component: CertificationTrainingComponent, canActivate: [AuthGuard] },
+  { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

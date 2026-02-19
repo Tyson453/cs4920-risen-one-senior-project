@@ -5,6 +5,24 @@ provider:
   name: aws
   runtime: nodejs16.x
   region: us-east-2
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/users
+            - arn:aws:dynamodb:${self:provider.region}:*:table/users/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/projects
+            - arn:aws:dynamodb:${self:provider.region}:*:table/projects/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus
+            - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus/index/*
 
 plugins:
   - serverless-offline
@@ -19,6 +37,7 @@ resources:
             { 'AttributeName': 'uuid', 'AttributeType': 'S' },
             { 'AttributeName': 'startDate', 'AttributeType': 'S' },
             { 'AttributeName': 'teamName', 'AttributeType': 'S' },
+            { 'AttributeName': 'username', 'AttributeType': 'S' },
           ]
         KeySchema: [{ 'AttributeName': 'uuid', 'KeyType': 'HASH' }]
         GlobalSecondaryIndexes:
@@ -31,6 +50,11 @@ resources:
             {
               'IndexName': 'TeamNameIndex',
               'KeySchema': [{ 'AttributeName': 'teamName', 'KeyType': 'HASH' }],
+              'Projection': { 'ProjectionType': 'ALL' },
+            },
+            {
+              'IndexName': 'UsernameIndex',
+              'KeySchema': [{ 'AttributeName': 'username', 'KeyType': 'HASH' }],
               'Projection': { 'ProjectionType': 'ALL' },
             }
           ]
@@ -78,6 +102,9 @@ resources:
 functions:
   login:
     handler: src/handlers/login.handler
+    environment:
+      USERS_TABLE: users
+      JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
     events:
       - http:
           path: login

@@ -22,26 +22,39 @@ interface previousRequest {
   <button (click)="login()">Login</button>
 `
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username: string = ''; // Initialize with an empty string
   password: string = ''; // Initialize with an empty string
+  loginError: boolean = false;
+  errorMessage: string = '';
 
   constructor(private authService: AuthService, private router: Router) { }
 
+  ngOnInit() {
+    localStorage.removeItem('authToken');
+    sessionStorage.clear();
+  }
+
   login() {
+    console.log('Login method called with username:', this.username);
     this.authService.login(this.username, this.password)
       .subscribe({
         next: (success) => {
+          console.log('Subscribe next called with success:', success);
           if (success) {
             // Navigate to home component if login is successful
             this.router.navigate(['/home']);
           } else {
             // Handle login failure
+            this.loginError = true;
+            this.errorMessage = 'Username or Password is incorrect';
             console.error('Login failed');
           }
         },
         error: (error) => {
           // Handle login error
+          this.loginError = true;
+          this.errorMessage = 'Username or Password is incorrect';
           console.error('Login error:', error);
         }
       });
