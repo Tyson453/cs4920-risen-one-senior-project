@@ -20,14 +20,13 @@ export class AppHeaderComponent implements OnInit {
   constructor(
     private router: Router,
     private authService: AuthService
-  ) {
+  ) {}
 
-  }
+  ngOnInit() {}
 
-  ngOnInit() {
-  }
-
-  signOut() {
+  // ✅ Logout function for menu
+  logout() {
     this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }
