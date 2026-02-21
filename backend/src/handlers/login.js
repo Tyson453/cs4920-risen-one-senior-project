@@ -17,6 +17,14 @@ if (process.env.DYNAMODB_ENDPOINT) {
 }
 const dynamoDb = new AWS.DynamoDB.DocumentClient(dynamoDbClientConfig);
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Credentials': true,
+  'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'POST,OPTIONS',
+  'Content-Type': 'application/json'
+};
+
 function omitPassword(user) {
   const { password, ...userWithoutPassword } = user;
   return userWithoutPassword;
@@ -31,10 +39,19 @@ function toResponseUser(user) {
 }
 
 module.exports.handler = async (event) => {
+  // Handle OPTIONS preflight request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'OK' })
+    };
+  }
+
   console.log('=== Login attempt ===');
   console.log('Event body:', event.body);
   console.log('Event body type:', typeof event.body);
-
+  
   let requestBody;
   try {
     requestBody = JSON.parse(event.body || '{}');
@@ -43,10 +60,7 @@ module.exports.handler = async (event) => {
     console.log('JSON parse error:', e.message);
     return {
       statusCode: 400,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ message: 'Invalid request body' }),
     };
   }
@@ -56,10 +70,7 @@ module.exports.handler = async (event) => {
   if (!username || !password) {
     return {
       statusCode: 400,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ message: 'Username and password are required' }),
     };
   }
@@ -70,10 +81,7 @@ module.exports.handler = async (event) => {
     console.error('Missing USERS_TABLE or JWT_SECRET');
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ message: 'Internal server error' }),
     };
   }
@@ -93,10 +101,7 @@ module.exports.handler = async (event) => {
       console.log('No user found with username:', username);
       return {
         statusCode: 401,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ message: 'Invalid username or password' }),
       };
     }
@@ -109,10 +114,7 @@ module.exports.handler = async (event) => {
     if (!passwordMatch) {
       return {
         statusCode: 401,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Credentials': true,
-        },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ message: 'Invalid username or password' }),
       };
     }
@@ -132,10 +134,7 @@ module.exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         token,
         user: responseUser,
@@ -145,10 +144,7 @@ module.exports.handler = async (event) => {
     console.error('Login error:', error);
     return {
       statusCode: 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ message: 'Internal server error' }),
     };
   }
