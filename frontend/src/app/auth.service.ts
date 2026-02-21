@@ -8,8 +8,10 @@ import { map, catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://9fraib9ale.execute-api.us-east-2.amazonaws.com/dev';
-  // private apiUrl = 'arn:aws:execute-api:us-east-2:035711552519:9fraib9ale/*/POST/login';
+  // Production URL - uncomment when deploying
+  // private apiUrl = 'https://9fraib9ale.execute-api.us-east-2.amazonaws.com/dev';
+  // Local development URL
+  private apiUrl = 'http://localhost:3000/dev';
 
   constructor(private http: HttpClient, private router: Router) { }
 

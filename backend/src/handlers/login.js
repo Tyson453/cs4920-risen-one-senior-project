@@ -3,7 +3,19 @@
 const AWS = require('aws-sdk');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
+// Configure DynamoDB client for local development
+const dynamoDbClientConfig = {};
+if (process.env.DYNAMODB_ENDPOINT) {
+  dynamoDbClientConfig.region = 'us-east-2';
+  dynamoDbClientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
+  dynamoDbClientConfig.sslEnabled = false;
+  dynamoDbClientConfig.credentials = new AWS.Credentials({
+    accessKeyId: 'local',
+    secretAccessKey: 'local'
+  });
+}
+const dynamoDb = new AWS.DynamoDB.DocumentClient(dynamoDbClientConfig);
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -35,10 +47,17 @@ module.exports.handler = async (event) => {
       body: JSON.stringify({ message: 'OK' })
     };
   }
+
+  console.log('=== Login attempt ===');
+  console.log('Event body:', event.body);
+  console.log('Event body type:', typeof event.body);
+  
   let requestBody;
   try {
     requestBody = JSON.parse(event.body || '{}');
+    console.log('Parsed request body:', requestBody);
   } catch (e) {
+    console.log('JSON parse error:', e.message);
     return {
       statusCode: 400,
       headers: CORS_HEADERS,
@@ -47,6 +66,7 @@ module.exports.handler = async (event) => {
   }
 
   const { username, password } = requestBody;
+  console.log('Username:', username, 'Password length:', password?.length);
   if (!username || !password) {
     return {
       statusCode: 400,
@@ -75,9 +95,10 @@ module.exports.handler = async (event) => {
     };
 
     const data = await dynamoDb.query(queryParams).promise();
+    console.log('Query result:', data.Items?.length, 'users found');
 
     if (!data.Items || data.Items.length === 0) {
-      console.log("User not found:", username);
+      console.log('No user found with username:', username);
       return {
         statusCode: 401,
         headers: CORS_HEADERS,
@@ -86,7 +107,9 @@ module.exports.handler = async (event) => {
     }
 
     const user = data.Items[0];
+    console.log('User found:', user.username);
     const passwordMatch = await bcrypt.compare(password, user.password);
+    console.log('Password match:', passwordMatch);
 
     if (!passwordMatch) {
       return {
@@ -107,6 +130,7 @@ module.exports.handler = async (event) => {
 
     const token = jwt.sign(claims, jwtSecret, { expiresIn: '7d' });
     const responseUser = toResponseUser(user);
+    console.log('Login successful for user:', username);
 
     return {
       statusCode: 200,

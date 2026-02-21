@@ -1,6 +1,22 @@
-# package directories
-node_modules
-jspm_packages
+# Package directories
+node_modules/
+jspm_packages/
 
 # Serverless directories
-.serverless
+.serverless/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# DynamoDB Local
+.dynamodb/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
