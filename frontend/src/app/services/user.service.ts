@@ -101,4 +101,53 @@ export class UserApiService {
       this.http.get<TeamSummaryUser[]>(url, { headers: this.getAuthHeaders() })
     );
   }
+
+  /** POST /teams — validate name is unique, returns { type, teamName } */
+  public createTeam(type: 'org' | 'pm', teamName: string): Promise<any> {
+    return firstValueFrom(
+      this.http.post(`${this.apiUrl}/teams`, { type, teamName }, { headers: this.getAuthHeaders() })
+    );
+  }
+
+  /** PUT /teams/{type}/{teamName} — rename a team, returns { oldName, newName, updatedCount } */
+  public updateTeam(type: 'org' | 'pm', teamName: string, newName: string): Promise<any> {
+    return firstValueFrom(
+      this.http.put(
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}`,
+        { newName },
+        { headers: this.getAuthHeaders() }
+      )
+    );
+  }
+
+  /** DELETE /teams/{type}/{teamName} — remove team from all users, returns { clearedCount } */
+  public deleteTeam(type: 'org' | 'pm', teamName: string): Promise<any> {
+    return firstValueFrom(
+      this.http.delete(
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}`,
+        { headers: this.getAuthHeaders() }
+      )
+    );
+  }
+
+  /** POST /teams/{type}/{teamName}/members — assign a user to a team */
+  public assignTeamMember(type: 'org' | 'pm', teamName: string, uuid: string): Promise<any> {
+    return firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}/members`,
+        { uuid },
+        { headers: this.getAuthHeaders() }
+      )
+    );
+  }
+
+  /** DELETE /teams/{type}/{teamName}/members/{uuid} — remove a user from a team */
+  public removeTeamMember(type: 'org' | 'pm', teamName: string, uuid: string): Promise<any> {
+    return firstValueFrom(
+      this.http.delete(
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}/members/${uuid}`,
+        { headers: this.getAuthHeaders() }
+      )
+    );
+  }
 }
