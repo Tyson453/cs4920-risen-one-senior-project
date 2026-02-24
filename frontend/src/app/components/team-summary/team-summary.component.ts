@@ -73,7 +73,7 @@ export class TeamSummaryComponent implements OnInit {
     try {
       const teamName = user?.teamName ?? null;
       const pmTeamIds = user?.pmTeams && user.pmTeams.length > 0 ? user.pmTeams : undefined;
-      this.teammates = await this.userApiService.getTeammates(teamName, pmTeamIds);
+      this.teammates = await this.userApiService.getTeammates(teamName, pmTeamIds, user?.uuid);
       this.teammatesDataSource.data = this.teammates;
     } catch (err) {
       this.dialogService.standardError(err, 'Loading Teammates', 'loading teammates');
