@@ -223,6 +223,7 @@
 
   <!-- ── Edit / Create User form (replaces tabs) ──────────────────────────── -->
   <div *ngIf="!isLoading && (editingUser || isCreatingNewUser)" class="edit-user-view">
+
     <h1 *ngIf="editingUser">Edit User: {{ editingUser.name }}</h1>
     <h1 *ngIf="isCreatingNewUser">Create New User</h1>
 
@@ -358,7 +359,7 @@
           </button>
         </div>
         <p *ngIf="getAvailableUsersForTeam().length === 0" class="empty-members">
-          All users are already in this team.
+          No valid users to assign.
         </p>
       </div>
 

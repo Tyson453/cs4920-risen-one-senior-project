@@ -305,14 +305,19 @@ export class AdminComponent implements OnInit {
     this.showDeleteConfirmation = true;
   }
 
-  onConfirmDelete(): void {
+  async onConfirmDelete(): Promise<void> {
     if (!this.userToDelete) return;
-    // TODO: Call backend API to delete user
-    this.users = this.users.filter((u) => u.uuid !== this.userToDelete!.uuid);
-    this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '600px', data: { title: 'User Deleted', text: 'User deleted successfully' } });
-    this.onCancelEdit();
-    this.showDeleteConfirmation = false;
-    this.userToDelete = null;
+    try {
+      await this.userService.deleteUser(this.userToDelete.uuid);
+      this.users = this.users.filter((u) => u.uuid !== this.userToDelete!.uuid);
+      this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '600px', data: { title: 'User Deleted', text: 'User deleted successfully' } });
+      this.onCancelEdit();
+      this.showDeleteConfirmation = false;
+      this.userToDelete = null;
+      await this.loadTeams();
+    } catch (error) {
+      this.dialogService.standardError(error, 'Delete User', 'deleting the user');
+    }
   }
 
   onCancelDelete(): void {
