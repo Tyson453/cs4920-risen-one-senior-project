@@ -370,6 +370,26 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: true
 
+  deleteUser:
+    handler: src/handlers/delete-user.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: users/{uuid}
+          method: delete
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
   removeTeamMember:
     handler: src/handlers/remove-team-member.handler
     environment:

@@ -141,6 +141,13 @@ export class UserApiService {
     );
   }
 
+  /** DELETE /users/{uuid} — permanently delete a user */
+  public deleteUser(uuid: string): Promise<void> {
+    return firstValueFrom(
+      this.http.delete<void>(`${this.apiUrl}/users/${uuid}`, { headers: this.getAuthHeaders() })
+    );
+  }
+
   /** DELETE /teams/{type}/{teamName}/members/{uuid} — remove a user from a team */
   public removeTeamMember(type: 'org' | 'pm', teamName: string, uuid: string): Promise<any> {
     return firstValueFrom(
