@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface TeamSummaryUser {
   uuid: string;
@@ -42,245 +44,110 @@ export interface AdminTeamData {
   providedIn: 'root',
 })
 export class UserApiService {
-  /** Mock users for team summary - aligns with backend database structure */
-  private readonly mockUsers: TeamSummaryUser[] = [
-    {
-      uuid: 'john-doe-uuid',
-      name: 'John Doe',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@risen-one.com',
-      roles: ['EMPLOYEE', 'ADMIN', 'LEAD', 'PM'],
-      assignments: ['51506e92-650c-4c84-a15f-752370243891'],
-      state: 'Kansas',
-      startDate: '08/01',
-      startYear: '2021',
-      pmTeams: ['PR22 Team', 'Project Alpha'],
-      teamName: 'Engineering',
-      birthday: '',
-      birthdayNoAcknowledge: false,
-      maxHours: 120,
-      maxSickHours: 40,
-      notes: '',
-      requestedPTO: {},
-    },
-    {
-      uuid: 'jane-smith-uuid',
-      name: 'Jane Smith',
-      firstName: 'Jane',
-      lastName: 'Smith',
-      email: 'jane.smith@risen-one.com',
-      roles: ['EMPLOYEE', 'LEAD'],
-      assignments: ['62617f03-761d-5d95-b26g-863481354902'],
-      state: 'Missouri',
-      startDate: '09/15',
-      startYear: '2022',
-      pmTeams: ['PR33 Team'],
-      teamName: 'Engineering',
-      birthday: '',
-      birthdayNoAcknowledge: false,
-      maxHours: 120,
-      maxSickHours: 40,
-      notes: '',
-      requestedPTO: {},
-    },
-    {
-      uuid: 'bob-johnson-uuid',
-      name: 'Bob Johnson',
-      firstName: 'Bob',
-      lastName: 'Johnson',
-      email: 'bob.johnson@risen-one.com',
-      roles: ['EMPLOYEE'],
-      assignments: ['51506e92-650c-4c84-a15f-752370243891'],
-      state: 'Missouri',
-      startDate: '03/10',
-      startYear: '2023',
-      pmTeams: ['PR22 Team'],
-      teamName: 'Engineering',
-      birthday: '',
-      birthdayNoAcknowledge: false,
-      maxHours: 120,
-      maxSickHours: 40,
-      notes: ' ',
-      requestedPTO: {},
-    },
-    {
-      uuid: 'alice-williams-uuid',
-      name: 'Alice Williams',
-      firstName: 'Alice',
-      lastName: 'Williams',
-      email: 'alice.williams@risen-one.com',
-      roles: ['EMPLOYEE'],
-      assignments: ['62617f03-761d-5d95-b26g-863481354902'],
-      state: 'California',
-      startDate: '01/15',
-      startYear: '2024',
-      pmTeams: ['PR33 Team'],
-      teamName: 'Design',
-      birthday: '',
-      birthdayNoAcknowledge: false,
-      maxHours: 120,
-      maxSickHours: 40,
-      notes: '',
-      requestedPTO: {},
-    },
-    {
-      uuid: 'charlie-brown-uuid',
-      name: 'Charlie Brown',
-      firstName: 'Charlie',
-      lastName: 'Brown',
-      email: 'charlie.brown@risen-one.com',
-      roles: ['EMPLOYEE'],
-      assignments: [],
-      state: 'Texas',
-      startDate: '06/01',
-      startYear: '2023',
-      pmTeams: ['Project Alpha'],
-      teamName: null,
-      birthday: '',
-      birthdayNoAcknowledge: false,
-      maxHours: 120,
-      maxSickHours: 40,
-      notes: '',
-      requestedPTO: {},
-    },
-  ];
+  private apiUrl = environment.apiUrl;
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
-  public getUserInfo(uuid: string) {
-    //TODO change this to get user data from the backend
-    const user = {
-      uuid: 'XXX',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      assignments: ['468879bf-8e44-4c95-8321-edd2b8fb0108'],
-      birthday: '',
-    };
-
-    return new Promise((resolve) => {
-      resolve(user);
-    });
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('authToken');
+    return token
+      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
+      : new HttpHeaders();
   }
 
-  public getUsers() {
-    //TODO change this to get user data from the backend
-    return new Promise((resolve) => {
-      resolve(this.mockUsers);
-    });
+  public getUserInfo(uuid: string): Promise<any> {
+    return firstValueFrom(
+      this.http.get(`${this.apiUrl}/users/${uuid}`, { headers: this.getAuthHeaders() })
+    );
+  }
+
+  public getUsers(): Promise<TeamSummaryUser[]> {
+    return firstValueFrom(
+      this.http.get<TeamSummaryUser[]>(`${this.apiUrl}/users`, { headers: this.getAuthHeaders() })
+    );
   }
 
   /**
    * Returns org teams and PM teams for admin view.
-   * Teams are grouped by teamName.
-   * Stub implementation - replace with backend call when available.
+   * Backend: GET /teams/admin
    */
   public getTeamsForAdmin(): Promise<AdminTeamData> {
-    const orgTeamMap = new Map<string | null, TeamSummaryUser[]>();
-    const pmTeamMap = new Map<
-      string,
-      { teamName: string; users: TeamSummaryUser[] }
-    >();
-
-    for (const user of this.mockUsers) {
-      const teamName = user.teamName ?? null;
-      if (!orgTeamMap.has(teamName)) {
-        orgTeamMap.set(teamName, []);
-      }
-      orgTeamMap.get(teamName)!.push(user);
-
-      for (const pmTeamName of user.pmTeams ?? []) {
-        if (!pmTeamMap.has(pmTeamName)) {
-          pmTeamMap.set(pmTeamName, {
-            teamName: pmTeamName,
-            users: [],
-          });
-        }
-        pmTeamMap.get(pmTeamName)!.users.push(user);
-      }
-    }
-
-    const orgTeams: OrgTeamGroup[] = Array.from(orgTeamMap.entries()).map(
-      ([teamName, users]) => ({
-        teamName,
-        users,
-      })
+    return firstValueFrom(
+      this.http.get<AdminTeamData>(`${this.apiUrl}/teams/admin`, { headers: this.getAuthHeaders() })
     );
-
-    const pmTeams: PmTeamGroup[] = Array.from(pmTeamMap.entries()).map(
-      ([teamId, { teamName, users }]) => ({
-        teamId,
-        teamName,
-        users,
-      })
-    );
-
-    return Promise.resolve({ orgTeams, pmTeams });
   }
 
   /**
-   * Returns teammates for non-admin: users with the same teamName or users in PM teams.
-   * Stub implementation - replace with backend call when available.
+   * Returns teammates for non-admin users.
+   * Backend: GET /teams/teammates?teamName=xxx&pmTeams=team1,team2&excludeId=uuid
    */
   public getTeammates(
     teamName: string | null,
-    pmTeamNames?: string[]
+    pmTeamNames?: string[],
+    excludeId?: string
   ): Promise<TeamSummaryUser[]> {
+    const params: Record<string, string> = {};
+    params['teamName'] = teamName ?? 'null';
     if (pmTeamNames && pmTeamNames.length > 0) {
-      const names = new Set(pmTeamNames);
-      const users = this.mockUsers.filter((u) =>
-        (u.pmTeams ?? []).some((name) => names.has(name))
-      );
-      return Promise.resolve(users);
+      params['pmTeams'] = pmTeamNames.join(',');
+    }
+    if (excludeId) {
+      params['excludeId'] = excludeId;
     }
 
-    const users = this.mockUsers.filter((u) => u.teamName === teamName);
-    return Promise.resolve(users);
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${this.apiUrl}/teams/teammates?${queryString}`;
+    return firstValueFrom(
+      this.http.get<TeamSummaryUser[]>(url, { headers: this.getAuthHeaders() })
+    );
   }
 
-  public getProjects() {
-    //TODO change this to get project data from the backend
-    const projects = [
-      {
-        uuid: '51506e92-650c-4c84-a15f-752370243891',
-        contract: 'Contract',
-        description: 'example description',
-        pointOfContact: 'John Doe',
-        productManager: '',
-        productOwner: 'John Doe',
-        projectFullName: 'Project 22',
-        projectName: 'PR22',
-        startDate: '01/01/2021',
-        status: 'Active',
-      },
-      {
-        uuid: '62617f03-761d-5d95-b26g-863481354902',
-        contract: 'Contract',
-        description: 'another project description',
-        pointOfContact: 'Jane Smith',
-        productManager: 'Alice Williams',
-        productOwner: 'Jane Smith',
-        projectFullName: 'Project 33',
-        projectName: 'PR33',
-        startDate: '02/15/2022',
-        status: 'Active',
-      },
-      {
-        uuid: '73728g14-872e-6e06-c37h-974592365013',
-        contract: 'Contract',
-        description: 'inactive project',
-        pointOfContact: 'Bob Johnson',
-        productManager: '',
-        productOwner: 'Bob Johnson',
-        projectFullName: 'Legacy Project',
-        projectName: 'LEG',
-        startDate: '06/01/2020',
-        status: 'Inactive',
-      },
-    ];
+  /** POST /teams — validate name is unique, returns { type, teamName } */
+  public createTeam(type: 'org' | 'pm', teamName: string): Promise<any> {
+    return firstValueFrom(
+      this.http.post(`${this.apiUrl}/teams`, { type, teamName }, { headers: this.getAuthHeaders() })
+    );
+  }
 
-    return new Promise((resolve) => {
-      resolve(projects);
-    });
+  /** PUT /teams/{type}/{teamName} — rename a team, returns { oldName, newName, updatedCount } */
+  public updateTeam(type: 'org' | 'pm', teamName: string, newName: string): Promise<any> {
+    return firstValueFrom(
+      this.http.put(
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}`,
+        { newName },
+        { headers: this.getAuthHeaders() }
+      )
+    );
+  }
+
+  /** DELETE /teams/{type}/{teamName} — remove team from all users, returns { clearedCount } */
+  public deleteTeam(type: 'org' | 'pm', teamName: string): Promise<any> {
+    return firstValueFrom(
+      this.http.delete(
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}`,
+        { headers: this.getAuthHeaders() }
+      )
+    );
+  }
+
+  /** POST /teams/{type}/{teamName}/members — assign a user to a team */
+  public assignTeamMember(type: 'org' | 'pm', teamName: string, uuid: string): Promise<any> {
+    return firstValueFrom(
+      this.http.post(
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}/members`,
+        { uuid },
+        { headers: this.getAuthHeaders() }
+      )
+    );
+  }
+
+  /** DELETE /teams/{type}/{teamName}/members/{uuid} — remove a user from a team */
+  public removeTeamMember(type: 'org' | 'pm', teamName: string, uuid: string): Promise<any> {
+    return firstValueFrom(
+      this.http.delete(
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}/members/${uuid}`,
+        { headers: this.getAuthHeaders() }
+      )
+    );
   }
 }
