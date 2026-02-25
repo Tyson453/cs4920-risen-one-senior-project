@@ -23,6 +23,13 @@ provider:
             - arn:aws:dynamodb:${self:provider.region}:*:table/projects/index/*
             - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus
             - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/teams
+            - arn:aws:dynamodb:${self:provider.region}:*:table/teams/index/*
+        - Effect: Allow
+          Action:
+            - dynamodb:ConditionCheckItem
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/teams
 
 plugins:
   - serverless-dynamodb
@@ -118,6 +125,17 @@ resources:
         TableName: dailyStatus
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
+    TeamsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - { 'AttributeName': 'type', 'AttributeType': 'S' }
+          - { 'AttributeName': 'teamName', 'AttributeType': 'S' }
+        KeySchema:
+          - { 'AttributeName': 'type', 'KeyType': 'HASH' }
+          - { 'AttributeName': 'teamName', 'KeyType': 'RANGE' }
+        BillingMode: PAY_PER_REQUEST
+        TableName: teams
 
 functions:
   login:
@@ -165,3 +183,209 @@ functions:
           path: create-user
           method: post
           cors: true
+
+  getTeamsAdmin:
+    handler: src/handlers/get-teams-admin.handler
+    environment:
+      USERS_TABLE: users
+      TEAMS_TABLE: teams
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: teams/admin
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getTeammates:
+    handler: src/handlers/get-teammates.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: teams/teammates
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getUser:
+    handler: src/handlers/get-user.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: users/{uuid}
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getUsers:
+    handler: src/handlers/get-users.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: users
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getProjects:
+    handler: src/handlers/get-projects.handler
+    environment:
+      PROJECTS_TABLE: projects
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: projects
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  # ── Team management ──────────────────────────────────────────────────────────
+
+  createTeam:
+    handler: src/handlers/create-team.handler
+    environment:
+      USERS_TABLE: users
+      TEAMS_TABLE: teams
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: teams
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  updateTeam:
+    handler: src/handlers/update-team.handler
+    environment:
+      USERS_TABLE: users
+      TEAMS_TABLE: teams
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: teams/{type}/{teamName}
+          method: put
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  deleteTeam:
+    handler: src/handlers/delete-team.handler
+    environment:
+      USERS_TABLE: users
+      TEAMS_TABLE: teams
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: teams/{type}/{teamName}
+          method: delete
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  assignTeamMember:
+    handler: src/handlers/assign-team-member.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: teams/{type}/{teamName}/members
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  removeTeamMember:
+    handler: src/handlers/remove-team-member.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: teams/{type}/{teamName}/members/{uuid}
+          method: delete
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
