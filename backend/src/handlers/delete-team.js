@@ -43,7 +43,8 @@ module.exports.handler = async (event) => {
   }
 
   const tableName = process.env.USERS_TABLE;
-  if (!tableName) {
+  const teamsTable = process.env.TEAMS_TABLE;
+  if (!tableName || !teamsTable) {
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Internal server error' }) };
   }
 
@@ -110,6 +111,12 @@ module.exports.handler = async (event) => {
         }).promise();
       }
     }
+
+    // Remove the team record from TeamsTable so it no longer appears in the admin list.
+    await dynamoDb.delete({
+      TableName: teamsTable,
+      Key: { type, teamName }
+    }).promise();
 
     return {
       statusCode: 200,

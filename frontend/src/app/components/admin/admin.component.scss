@@ -300,6 +300,11 @@
   }
 
   .members-modal-content {
+    position: relative;
+    background: white;
+    border-radius: 8px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     max-width: 640px;
     width: 90%;
     max-height: 80vh;

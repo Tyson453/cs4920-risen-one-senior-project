@@ -30,9 +30,11 @@ function sanitizeUser(user) {
 /**
  * GET /teams/admin
  *
- * Scans all users and groups them into:
- *   - orgTeams: OrgTeamGroup[] (grouped by teamName)
- *   - pmTeams:  PmTeamGroup[]  (grouped by entries in each user's pmTeams array)
+ * Returns all org and PM teams, including empty ones, grouped with their members.
+ *
+ * TeamsTable is the authoritative source for which teams exist — this ensures
+ * teams with 0 members are always returned. Teams still referenced by user
+ * records but not yet in TeamsTable (pre-migration data) are included as well.
  *
  * Response shape: AdminTeamData
  * {
@@ -45,9 +47,10 @@ module.exports.handler = async (event) => {
     return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify({ message: 'OK' }) };
   }
 
-  const tableName = process.env.USERS_TABLE;
-  if (!tableName) {
-    console.error('Missing USERS_TABLE env var');
+  const usersTable = process.env.USERS_TABLE;
+  const teamsTable = process.env.TEAMS_TABLE;
+  if (!usersTable || !teamsTable) {
+    console.error('Missing USERS_TABLE or TEAMS_TABLE env var');
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
@@ -56,40 +59,68 @@ module.exports.handler = async (event) => {
   }
 
   try {
-    // Scan all users – this table is small (internal employee list)
-    const result = await dynamoDb.scan({ TableName: tableName }).promise();
-    const users = (result.Items || []).map(sanitizeUser);
+    // Fetch all three data sources in parallel.
+    const [usersResult, orgTeamsResult, pmTeamsResult] = await Promise.all([
+      dynamoDb.scan({ TableName: usersTable }).promise(),
+      dynamoDb.query({
+        TableName: teamsTable,
+        KeyConditionExpression: '#type = :type',
+        ExpressionAttributeNames: { '#type': 'type' },
+        ExpressionAttributeValues: { ':type': 'org' }
+      }).promise(),
+      dynamoDb.query({
+        TableName: teamsTable,
+        KeyConditionExpression: '#type = :type',
+        ExpressionAttributeNames: { '#type': 'type' },
+        ExpressionAttributeValues: { ':type': 'pm' }
+      }).promise()
+    ]);
 
-    // Group by teamName (null/missing → "Unassigned" bucket keyed as null)
-    const orgTeamMap = new Map();
-    // Group by PM team name
-    const pmTeamMap = new Map();
+    const users = (usersResult.Items || []).map(sanitizeUser);
+
+    // Build user membership maps from the users scan.
+    const orgUserMap = new Map();   // teamName → TeamSummaryUser[]
+    const pmUserMap = new Map();    // teamName → TeamSummaryUser[]
+    const unassignedUsers = [];
 
     for (const user of users) {
       const teamName = user.teamName !== undefined ? user.teamName : null;
 
-      if (!orgTeamMap.has(teamName)) {
-        orgTeamMap.set(teamName, []);
+      if (teamName !== null) {
+        if (!orgUserMap.has(teamName)) orgUserMap.set(teamName, []);
+        orgUserMap.get(teamName).push(user);
+      } else {
+        unassignedUsers.push(user);
       }
-      orgTeamMap.get(teamName).push(user);
 
       for (const pmTeamName of (user.pmTeams || [])) {
-        if (!pmTeamMap.has(pmTeamName)) {
-          pmTeamMap.set(pmTeamName, { teamName: pmTeamName, users: [] });
-        }
-        pmTeamMap.get(pmTeamName).users.push(user);
+        if (!pmUserMap.has(pmTeamName)) pmUserMap.set(pmTeamName, []);
+        pmUserMap.get(pmTeamName).push(user);
       }
     }
 
-    const orgTeams = Array.from(orgTeamMap.entries()).map(([teamName, teamUsers]) => ({
+    // Build org teams: start from TeamsTable (preserves empty teams), then union
+    // with any team names still in user records but not yet in TeamsTable.
+    const orgTeamNames = new Set((orgTeamsResult.Items || []).map(t => t.teamName));
+    for (const name of orgUserMap.keys()) {
+      orgTeamNames.add(name);
+    }
+    const orgTeams = Array.from(orgTeamNames).map(teamName => ({
       teamName,
-      users: teamUsers
+      users: orgUserMap.get(teamName) || []
     }));
+    // Always include the "Unassigned" bucket for users with no org team.
+    orgTeams.push({ teamName: null, users: unassignedUsers });
 
-    const pmTeams = Array.from(pmTeamMap.entries()).map(([teamId, { teamName, users: teamUsers }]) => ({
-      teamId,
+    // Build PM teams similarly.
+    const pmTeamNames = new Set((pmTeamsResult.Items || []).map(t => t.teamName));
+    for (const name of pmUserMap.keys()) {
+      pmTeamNames.add(name);
+    }
+    const pmTeams = Array.from(pmTeamNames).map(teamName => ({
+      teamId: teamName,
       teamName,
-      users: teamUsers
+      users: pmUserMap.get(teamName) || []
     }));
 
     return {

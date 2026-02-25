@@ -349,6 +349,7 @@ export class AdminComponent implements OnInit {
       await this.userService.createTeam(type, name);
       this.showCreateTeamForm = null;
       this.newTeamNameInput = '';
+      await this.loadTeams();
       this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '400px', data: { title: 'Team Created', text: `"${name}" is ready for members.` } });
     } catch (error: any) {
       if (error?.status === 409) {
@@ -383,8 +384,12 @@ export class AdminComponent implements OnInit {
       this.editingTeam = null;
       this.renameTeamInput = '';
       await this.loadTeams();
-    } catch (error) {
-      this.dialogService.standardError(error, 'Rename Team', 'renaming the team');
+    } catch (error: any) {
+      if (error?.status === 409) {
+        this.dialogService.standardError(error, 'Rename Team', `a team named "${newName}" already exists`);
+      } else {
+        this.dialogService.standardError(error, 'Rename Team', 'renaming the team');
+      }
     }
   }
 
@@ -443,7 +448,14 @@ export class AdminComponent implements OnInit {
   getAvailableUsersForTeam(): TeamSummaryUser[] {
     if (!this.managingTeam) return [];
     const memberUuids = new Set(this.managingTeam.members.map((m) => m.uuid));
-    return this.users.filter((u) => !memberUuids.has(u.uuid));
+    return this.users.filter((u) => {
+      if (memberUuids.has(u.uuid)) return false;
+      // For org teams a user can only belong to one team at a time.
+      // Exclude users already assigned to a different org team so admins
+      // can't accidentally move someone without intending to.
+      if (this.managingTeam!.type === 'org' && u.teamName) return false;
+      return true;
+    });
   }
 
   async onAddMember(): Promise<void> {

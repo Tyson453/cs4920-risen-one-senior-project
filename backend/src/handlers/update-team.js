@@ -25,17 +25,17 @@ const CORS_HEADERS = {
 /**
  * PUT /teams/{type}/{teamName}
  *
- * Renames a team across all user records.
+ * Renames a team.
+ *
+ * 1. Atomically renames in TeamsTable: deletes oldName row and puts newName row
+ *    with a condition that newName doesn't already exist (prevents silent merges).
+ * 2. Updates all user records that reference the old name.
  *
  * Path params:
  *   type     – 'org' | 'pm'
  *   teamName – current team name (URL-encoded)
  *
  * Body: { newName: string }
- *
- * For 'org': queries TeamNameIndex → updates teamName on each matched user.
- * For 'pm':  scans users where pmTeams contains teamName → replaces the name
- *            in each user's pmTeams array.
  *
  * Returns: { type, oldName, newName, updatedCount }
  */
@@ -45,7 +45,8 @@ module.exports.handler = async (event) => {
   }
 
   const tableName = process.env.USERS_TABLE;
-  if (!tableName) {
+  const teamsTable = process.env.TEAMS_TABLE;
+  if (!tableName || !teamsTable) {
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Internal server error' }) };
   }
 
@@ -75,10 +76,45 @@ module.exports.handler = async (event) => {
   }
 
   try {
+    // Atomically delete oldName and put newName, with a condition that newName
+    // doesn't already exist. This prevents silently merging two teams.
+    try {
+      await dynamoDb.transactWrite({
+        TransactItems: [
+          {
+            Delete: {
+              TableName: teamsTable,
+              Key: { type, teamName: oldName }
+            }
+          },
+          {
+            Put: {
+              TableName: teamsTable,
+              Item: { type, teamName: newName },
+              ConditionExpression: 'attribute_not_exists(teamName)'
+            }
+          }
+        ]
+      }).promise();
+    } catch (txError) {
+      if (
+        txError.code === 'TransactionCanceledException' &&
+        txError.CancellationReasons &&
+        txError.CancellationReasons.some(r => r.Code === 'ConditionalCheckFailed')
+      ) {
+        return {
+          statusCode: 409,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({ message: `${type === 'org' ? 'Org' : 'PM'} team "${newName}" already exists` })
+        };
+      }
+      throw txError;
+    }
+
+    // Update all user records that reference the old team name.
     let usersToUpdate = [];
 
     if (type === 'org') {
-      // Fetch all users with this teamName via the GSI
       let lastKey;
       do {
         const params = {
@@ -93,7 +129,6 @@ module.exports.handler = async (event) => {
         lastKey = result.LastEvaluatedKey;
       } while (lastKey);
 
-      // Update teamName on each user
       for (const user of usersToUpdate) {
         await dynamoDb.update({
           TableName: tableName,
@@ -103,7 +138,6 @@ module.exports.handler = async (event) => {
         }).promise();
       }
     } else {
-      // Scan for users whose pmTeams contains the old name
       let lastKey;
       do {
         const params = {
@@ -117,7 +151,6 @@ module.exports.handler = async (event) => {
         lastKey = result.LastEvaluatedKey;
       } while (lastKey);
 
-      // Replace the old name with the new name in each user's pmTeams array
       for (const user of usersToUpdate) {
         const updatedPmTeams = (user.pmTeams || []).map(t => (t === oldName ? newName : t));
         await dynamoDb.update({

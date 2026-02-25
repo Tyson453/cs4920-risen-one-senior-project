@@ -25,15 +25,10 @@ const CORS_HEADERS = {
 /**
  * POST /teams
  *
- * Validates that a team name is unique before it is used.
- * Since teams are stored as attributes on user records (no separate table),
- * "creating" a team means verifying the name is available so the caller can
- * safely proceed to assign members.
+ * Creates a new team by writing it to the TeamsTable.
+ * A conditional put ensures the name is unique within its type.
  *
  * Body: { type: 'org' | 'pm', teamName: string }
- *
- * For 'org': queries TeamNameIndex – fails if any user already has that teamName.
- * For 'pm':  scans users         – fails if any user already has that name in pmTeams.
  *
  * Returns: { type, teamName }
  */
@@ -42,7 +37,7 @@ module.exports.handler = async (event) => {
     return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify({ message: 'OK' }) };
   }
 
-  const tableName = process.env.USERS_TABLE;
+  const tableName = process.env.TEAMS_TABLE;
   if (!tableName) {
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Internal server error' }) };
   }
@@ -66,32 +61,11 @@ module.exports.handler = async (event) => {
   const name = teamName.trim();
 
   try {
-    if (type === 'org') {
-      // Query TeamNameIndex to check uniqueness
-      const result = await dynamoDb.query({
-        TableName: tableName,
-        IndexName: 'TeamNameIndex',
-        KeyConditionExpression: 'teamName = :name',
-        ExpressionAttributeValues: { ':name': name },
-        Limit: 1
-      }).promise();
-
-      if (result.Items && result.Items.length > 0) {
-        return { statusCode: 409, headers: CORS_HEADERS, body: JSON.stringify({ message: `Org team "${name}" already exists` }) };
-      }
-    } else {
-      // Scan users and check each pmTeams array
-      const result = await dynamoDb.scan({
-        TableName: tableName,
-        FilterExpression: 'contains(pmTeams, :name)',
-        ExpressionAttributeValues: { ':name': name },
-        Limit: 1
-      }).promise();
-
-      if (result.Items && result.Items.length > 0) {
-        return { statusCode: 409, headers: CORS_HEADERS, body: JSON.stringify({ message: `PM team "${name}" already exists` }) };
-      }
-    }
+    await dynamoDb.put({
+      TableName: tableName,
+      Item: { type, teamName: name },
+      ConditionExpression: 'attribute_not_exists(teamName)'
+    }).promise();
 
     return {
       statusCode: 201,
@@ -99,6 +73,13 @@ module.exports.handler = async (event) => {
       body: JSON.stringify({ type, teamName: name })
     };
   } catch (error) {
+    if (error.code === 'ConditionalCheckFailedException') {
+      return {
+        statusCode: 409,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ message: `${type === 'org' ? 'Org' : 'PM'} team "${name}" already exists` })
+      };
+    }
     console.error('create-team error:', error);
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Internal server error' }) };
   }
