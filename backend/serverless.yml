@@ -374,6 +374,7 @@ functions:
     handler: src/handlers/delete-user.handler
     environment:
       USERS_TABLE: users
+      TEAMS_TABLE: teams
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:

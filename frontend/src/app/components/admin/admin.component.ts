@@ -314,6 +314,7 @@ export class AdminComponent implements OnInit {
       this.onCancelEdit();
       this.showDeleteConfirmation = false;
       this.userToDelete = null;
+      await this.loadTeams();
     } catch (error) {
       this.dialogService.standardError(error, 'Delete User', 'deleting the user');
     }

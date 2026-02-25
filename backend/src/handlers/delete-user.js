@@ -26,17 +26,41 @@ module.exports.handler = async (event) => {
       };
     }
 
+    const usersTable = process.env.USERS_TABLE || "users";
+    const teamsTable = process.env.TEAMS_TABLE || "teams";
+
+    // Read the user first so we can preserve their org team if needed.
+    const existing = await dynamoDb.get({ TableName: usersTable, Key: { uuid } }).promise();
+    if (!existing.Item) {
+      return { statusCode: 404, body: JSON.stringify({ message: "User not found" }) };
+    }
+
+    const orgTeamName = existing.Item.teamName || null;
+
+    // If the user belongs to an org team, ensure that team is registered in the
+    // teams table so it persists as an empty team after this user is removed.
+    // (Teams created via the UI are already there; imported/seeded users may not be.)
+    if (orgTeamName) {
+      await dynamoDb.put({
+        TableName: teamsTable,
+        Item: { type: "org", teamName: orgTeamName },
+        ConditionExpression: "attribute_not_exists(#type)",
+        ExpressionAttributeNames: { "#type": "type" },
+      }).promise().catch(() => {
+        // Ignore ConditionalCheckFailedException — team already exists, nothing to do.
+      });
+    }
+
     await dynamoDb
-  .delete({
-    TableName: process.env.USERS_TABLE || "users",
-    Key: { uuid },
-    // ensures we return 404 if it doesn't exist
-    ConditionExpression: "attribute_exists(#uuid)",
-    ExpressionAttributeNames: {
-      "#uuid": "uuid",
-    },
-  })
-  .promise();
+      .delete({
+        TableName: usersTable,
+        Key: { uuid },
+        ConditionExpression: "attribute_exists(#uuid)",
+        ExpressionAttributeNames: {
+          "#uuid": "uuid",
+        },
+      })
+      .promise();
 
     return { statusCode: 204, body: "" };
   } catch (err) {
