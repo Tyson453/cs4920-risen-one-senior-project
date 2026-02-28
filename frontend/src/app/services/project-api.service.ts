@@ -10,7 +10,7 @@ import { Observable, of } from 'rxjs';
   providedIn: 'root',
 })
 export class ProjectApiService {
-  private baseUrl = environment.rocApiUrl;
+  private baseUrl = environment.apiUrl;
   private projectUrl = this.baseUrl + '/portal/' + RocConstants.APIS.PROJECTS;
   private apiUrl = environment.apiUrl;
 
@@ -37,9 +37,11 @@ export class ProjectApiService {
 
   deleteProject(uuid: string) {
     return of({ success: true });
-  } 
+  }
 
   getProjects(): Observable<Project[]> {
-    return this.http.get<Project[]>(`${this.apiUrl}/projects`, { headers: this.getAuthHeaders() });
+    return this.http.get<Project[]>(`${this.apiUrl}/projects`, {
+      headers: this.getAuthHeaders(),
+    });
   }
 }

@@ -3,23 +3,25 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
+import { environment } from '../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  // Production URL - uncomment when deploying
-  // private apiUrl = 'https://9fraib9ale.execute-api.us-east-2.amazonaws.com/dev';
-  // Local development URL
-  private apiUrl = 'http://localhost:3000/dev';
+  private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router) {}
 
   login(username: string, password: string): Observable<boolean> {
     console.log('Attempting login for:', username);
-    return this.http.post<{ token: string, user: any }>(`${this.apiUrl}/login`, { username, password })
+    return this.http
+      .post<{ token: string; user: any }>(`${this.apiUrl}/login`, {
+        username,
+        password,
+      })
       .pipe(
-        map(response => {
+        map((response) => {
           console.log('Login response received:', response);
           if (response.token && response.user) {
             // Store the JWT token
@@ -31,7 +33,7 @@ export class AuthService {
           console.log('Login `response invalid - missing token or user');
           return false;
         }),
-        catchError(error => {
+        catchError((error) => {
           console.error('Login failed with error:', error);
           return of(false);
         })
@@ -41,7 +43,7 @@ export class AuthService {
   logout() {
     // Clear stored authentication data
     localStorage.removeItem('authToken');
-    
+
     // Redirect to login page
     this.router.navigate(['/login']);
   }
