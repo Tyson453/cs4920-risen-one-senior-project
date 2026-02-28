@@ -9,7 +9,7 @@ import { PDT } from '../models/pdt';
   providedIn: 'root',
 })
 export class PDTService {
-  private baseUrl = environment.rocApiUrl;
+  private baseUrl = environment.apiUrl;
   private pdtEndpoint = RocConstants.APIS.PDT;
   private auditEndpoint = RocConstants.APIS.DEVELOPMENTAUDIT;
 
@@ -43,7 +43,7 @@ export class PDTService {
       developmentNeeds: '',
       actionPlan: '',
       empSignature: '',
-      superSignature: ''
+      superSignature: '',
     });
   }
 
@@ -131,7 +131,10 @@ export class PDTService {
    * @param supervisorEmail - Supervisor's email address
    * @returns Observable with success status
    */
-  sendPDTApprovalEmail(pdtId: string, supervisorEmail: string): Observable<any> {
+  sendPDTApprovalEmail(
+    pdtId: string,
+    supervisorEmail: string
+  ): Observable<any> {
     // return this.http.post<any>(`${this.baseUrl}${this.pdtEndpoint}/${pdtId}/send-approval-email`, { supervisorEmail });
     return of({ success: true, message: 'Approval email sent to supervisor' });
   }

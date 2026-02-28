@@ -8,7 +8,7 @@ import { of } from 'rxjs';
   providedIn: 'root',
 })
 export class ApiService {
-  private url = environment.rocApiUrl;
+  private url = environment.apiUrl;
   private emp = RocConstants.EMP_ROUTES.EMP;
   private admin = RocConstants.ADMIN_ROUTES.ADMIN;
   private reports = RocConstants.EMP_ROUTES.REPORTS;
@@ -17,11 +17,11 @@ export class ApiService {
   private createNewProject = RocConstants.ADMIN_ROUTES.NEWPROJECT;
   private delete = RocConstants.ADMIN_ROUTES.DELETE;
   private email = RocConstants.EMP_ROUTES.EMAIL;
-  private baseUrl = environment.rocApiUrl;
+  private baseUrl = environment.apiUrl;
   private reportUrl = this.baseUrl + '/getDailyReports/';
 
   constructor(private http: HttpClient) {}
-  
+
   getAllReports(date: string) {
     // return this.http.get<any>(this.reportUrl+date.replace('/', '-').replace('/', '-'));
     return of([]);
@@ -32,7 +32,12 @@ export class ApiService {
     return of([]);
   }
 
-  getReportsNew(userId: string, pageSize: number, startRange: string, endRange: string) {
+  getReportsNew(
+    userId: string,
+    pageSize: number,
+    startRange: string,
+    endRange: string
+  ) {
     // return this.http.get<any>(`${this.url}/getDailyStatus?id=${userId}&limit=${pageSize}&start=${startRange}&end=${endRange}`);
     return of([]);
   }
@@ -42,7 +47,14 @@ export class ApiService {
     return of({ success: true });
   }
 
-  getMonthlyList(userId: string, requester: string, month: string, year: string, date1: string, date2: string) {
+  getMonthlyList(
+    userId: string,
+    requester: string,
+    month: string,
+    year: string,
+    date1: string,
+    date2: string
+  ) {
     // return this.http.post<any>(this.url + '/monthlyEmailByUser/' + userId + "/" + requester + "/" + month + "/" + year+ "/" + date1+ "/" + date2, "");
     return of({ success: true });
   }

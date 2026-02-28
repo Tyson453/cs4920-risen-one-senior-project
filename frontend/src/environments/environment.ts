@@ -6,10 +6,9 @@
 export const environment = {
   state: 'local',
   production: false,
-  rocApiUrl: 'https://9fraib9ale.execute-api.us-east-2.amazonaws.com',
   // Base URL including the stage path; switch to production URL when deploying
-  // apiUrl: 'https://9fraib9ale.execute-api.us-east-2.amazonaws.com/dev',
-  apiUrl: 'http://localhost:3000/dev',
+  apiUrl: 'https://9fraib9ale.execute-api.us-east-2.amazonaws.com/dev',
+  // apiUrl: 'http://localhost:3000/dev',
   clientId: 'temp',
   calendarId: 'temp',
   adminCalendarId: 'temp',
