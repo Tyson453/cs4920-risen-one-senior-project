@@ -62,6 +62,7 @@ import { ProgressSpinnerComponent } from './shared/components/progress-spinner/p
 import { GenericErrorComponent } from './shared/components/generic-error/generic-error.component';
 
 import { AppRoutingModule } from './app.routes';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -122,7 +123,8 @@ import { AppRoutingModule } from './app.routes';
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
-    AppRoutingModule
+    AppRoutingModule,
+    DragDropModule
   ],
   providers: [
     MatSnackBar,
