@@ -34,6 +34,7 @@ export class HomeComponent {
   user: any;
   userphoto = "../assets/RisenOneWhite.png"
   isReordering = false;
+  private readonly cardOrderStorageKey = 'home.cardOrder';
 
   cards: HomeCard[] = [
     { id: 'daily-status', icon: 'send', title: 'DAILY STATUS', actions: [{ label: 'Submit', route: '/daily-status' }] },
@@ -63,6 +64,8 @@ export class HomeComponent {
   ) { }
   /* Sign In navigation Function */
   ngOnInit() {
+    this.loadCardOrder();
+    this.originalOrder = [...this.cards];
     this.dialogService.openSpinner();
     this.authService.getUser().then((user: any) => {
       console.log("User:", user)
@@ -73,12 +76,13 @@ export class HomeComponent {
   signIn() {
     this.router.navigate(['/login']);
   }
-  
+
   toggleReordering() {
     this.isReordering = !this.isReordering;
   }
 
   finishReordering() {
+    this.saveCardOrder();
     this.originalOrder = [...this.cards];
     this.isReordering = false;
   }
@@ -95,5 +99,43 @@ export class HomeComponent {
 
   trackByCardId(_index: number, card: HomeCard): string {
     return card.id;
+  }
+
+  private saveCardOrder(): void {
+    if (typeof localStorage === 'undefined') {
+      console.log('localStorage is not available.');
+      return;
+    }
+    const orderedIds = this.cards.map((card) => card.id);
+    localStorage.setItem(this.cardOrderStorageKey, JSON.stringify(orderedIds));
+  }
+
+  private loadCardOrder(): void {
+    if (typeof localStorage === 'undefined') {
+      console.log('localStorage is not available.');
+      return;
+    }
+
+    const savedOrderRaw = localStorage.getItem(this.cardOrderStorageKey);
+    if (savedOrderRaw === null) {
+      console.log('No saved card order found in localStorage. Using default order.');
+      return;
+    }
+
+    let savedIds: unknown;
+    try {
+      savedIds = JSON.parse(savedOrderRaw);
+      if (!Array.isArray(savedIds)) return;
+    } catch {
+      console.log('Failed to parse saved card order from localStorage. Ignoring saved order.');
+      return;
+    }
+
+    const cardsById = new Map(this.cards.map(card => [card.id, card]));
+    const orderedCards = Array.from(savedIds)
+      .map(id => cardsById.get(id))
+      .filter((card): card is HomeCard => !!card);
+
+    this.cards = [...orderedCards];
   }
 }
