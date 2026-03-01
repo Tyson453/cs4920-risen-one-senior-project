@@ -91,6 +91,7 @@
       class="home-cards-container"
       cdkDropList
       cdkDropListOrientation="mixed"
+      [cdkDropListAutoScrollDisabled]="true"
       [cdkDropListData]="cards"
       [cdkDropListDisabled]="!isReordering"
       [cdkDropListSortingDisabled]="!isReordering"
@@ -101,7 +102,7 @@
         class="home-card"
         [ngClass]="[
           (!isReordering && card.className) ? card.className : '',
-          isReordering ? 'is-draggable' : ''
+          isReordering ? 'is-draggable is-reordering' : ''
         ]"
         cdkDrag
         [cdkDragDisabled]="!isReordering">
@@ -114,6 +115,7 @@
             *ngIf="action.route"
             class="button-black"
             mat-raised-button
+            [disabled]="isReordering"
             [routerLink]="action.route">
             {{ action.label }}
           </button>
@@ -124,7 +126,10 @@
             mat-raised-button
             target="_blank"
             rel="noopener noreferrer"
-            [href]="action.href">
+            [attr.href]="isReordering ? null : action.href"
+            [attr.tabindex]="isReordering ? -1 : null"
+            [attr.aria-disabled]="isReordering"
+            (click)="isReordering && $event.preventDefault()">
             {{ action.label }}
           </a>
         </ng-container>

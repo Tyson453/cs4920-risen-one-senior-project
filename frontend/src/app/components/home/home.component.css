@@ -115,14 +115,61 @@
   justify-content: space-around;
   align-items: center;
   margin: 0;
+  transform-origin: center bottom;
+  overflow: hidden;
 }
 
 .home-card.is-draggable {
   cursor: grab;
+  touch-action: none;
 }
 
 .home-card.is-draggable:active {
   cursor: grabbing;
+}
+
+.home-card.is-reordering {
+  animation:
+    reorder-jiggle 700ms ease-in-out 500ms infinite;
+}
+
+.home-card.is-reordering:nth-child(even) {
+  animation-delay: 0s, 500ms;
+}
+
+.home-card.is-reordering:nth-child(odd) {
+  animation-delay: 0s, 620ms;
+}
+
+.home-card.is-reordering.cdk-drag-dragging,
+.cdk-drag-preview.home-card.is-reordering {
+  animation: none;
+  rotate: 0deg;
+  translate: 0 0;
+  scale: 1;
+}
+
+@keyframes reorder-jiggle {
+  0% {
+    rotate: -0.5deg;
+    translate: 0 0;
+  }
+  25% {
+    rotate: 0.5deg;
+    translate: 0 -0.5px;
+  }
+  50% {
+    rotate: -0.45deg;
+    translate: 0 0;
+  }
+  75% {
+    rotate: 0.45deg;
+    translate: 0 -0.5px;
+  }
+  100% {
+    rotate: -0.5deg;
+    translate: 0 0;
+  }
 }
 
 .home-card.cdk-drag-placeholder {
@@ -133,6 +180,8 @@
   box-sizing: border-box;
   border-radius: 0.5rem;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  touch-action: none;
 }
 
 .home-card.cdk-drag-animating,
