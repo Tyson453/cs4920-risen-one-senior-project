@@ -25,6 +25,8 @@ provider:
             - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus/index/*
             - arn:aws:dynamodb:${self:provider.region}:*:table/teams
             - arn:aws:dynamodb:${self:provider.region}:*:table/teams/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/personalDevelopmentTraining
+            - arn:aws:dynamodb:${self:provider.region}:*:table/personalDevelopmentTraining/index/*
         - Effect: Allow
           Action:
             - dynamodb:ConditionCheckItem
@@ -136,6 +138,22 @@ resources:
           - { 'AttributeName': 'teamName', 'KeyType': 'RANGE' }
         BillingMode: PAY_PER_REQUEST
         TableName: teams
+    PersonalDevelopmentTrainingTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - { 'AttributeName': 'pdtId', 'AttributeType': 'S' }
+          - { 'AttributeName': 'userId', 'AttributeType': 'S' }
+        KeySchema:
+          - { 'AttributeName': 'pdtId', 'KeyType': 'HASH' }
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+              - { 'AttributeName': 'userId', 'KeyType': 'HASH' }
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+        TableName: personalDevelopmentTraining
 
 functions:
   login:
@@ -400,6 +418,108 @@ functions:
       - http:
           path: teams/{type}/{teamName}/members/{uuid}
           method: delete
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  # ── Personal Development Training (PDT) ──────────────────────────────────────
+
+  getPDTRecords:
+    handler: src/handlers/get-pdt-records.handler
+    environment:
+      PDT_TABLE: personalDevelopmentTraining
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pdt/{userId}
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  createPDT:
+    handler: src/handlers/create-pdt.handler
+    environment:
+      PDT_TABLE: personalDevelopmentTraining
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pdt
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  updatePDT:
+    handler: src/handlers/update-pdt.handler
+    environment:
+      PDT_TABLE: personalDevelopmentTraining
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pdt/{pdtId}
+          method: put
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  deletePDT:
+    handler: src/handlers/delete-pdt.handler
+    environment:
+      PDT_TABLE: personalDevelopmentTraining
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pdt/{pdtId}
+          method: delete
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  submitPDT:
+    handler: src/handlers/submit-pdt.handler
+    environment:
+      PDT_TABLE: personalDevelopmentTraining
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pdt/{pdtId}/submit
+          method: post
           cors:
             origin: '*'
             headers:

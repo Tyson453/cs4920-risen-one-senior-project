@@ -11,15 +11,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { PDTService } from '../../services/pdt.service';
 import { DialogService } from '../../services/dialog.service';
-import { PDT } from '../../models/pdt';
+import { PDT, PDTStatus } from '../../models/pdt';
+
+type ViewMode = 'list' | 'create' | 'edit' | 'view';
 
 @Component({
   selector: 'app-employee-development',
@@ -32,11 +31,8 @@ import { PDT } from '../../models/pdt';
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatDialogModule,
   ],
   templateUrl: './employee-development.component.html',
   styleUrls: ['./employee-development.component.scss'],
@@ -45,12 +41,11 @@ export class EmployeeDevelopmentComponent implements OnInit {
   currentUser: any = null;
   pdtRecords: PDT[] = [];
   selectedRecord: PDT | null = null;
-  isEditing = false;
-  isCreating = false;
+  viewMode: ViewMode = 'list';
   pdtForm: FormGroup;
   isLoading = true;
 
-  displayedColumns: string[] = ['createdDate', 'empName', 'actions'];
+  displayedColumns: string[] = ['createdDate', 'empName', 'status', 'actions'];
 
   constructor(
     private authService: AuthService,
@@ -61,14 +56,48 @@ export class EmployeeDevelopmentComponent implements OnInit {
     this.pdtForm = this.createPDTForm();
   }
 
-  ngOnInit(): void {
-    this.loadCurrentUser();
+  async ngOnInit(): Promise<void> {
+    this.currentUser = await this.authService.getUser();
     this.loadPDTRecords();
   }
 
-  private loadCurrentUser(): void {
-    this.currentUser = this.authService.getUser();
+  // ── Computed helpers ─────────────────────────────────────────────────────────
+
+  get isListView(): boolean { return this.viewMode === 'list'; }
+  get isFormView(): boolean { return this.viewMode === 'create' || this.viewMode === 'edit'; }
+  get isViewOnly(): boolean { return this.viewMode === 'view'; }
+  get isCreating(): boolean { return this.viewMode === 'create'; }
+  get isEditing(): boolean { return this.viewMode === 'edit'; }
+
+  statusLabel(status: PDTStatus): string {
+    const labels: Record<PDTStatus, string> = {
+      DRAFT: 'Draft',
+      PENDING_APPROVAL: 'Pending Approval',
+      APPROVED: 'Approved',
+      CHANGES_REQUESTED: 'Changes Requested',
+    };
+    return labels[status] ?? status;
   }
+
+  statusClass(status: PDTStatus): string {
+    const classes: Record<PDTStatus, string> = {
+      DRAFT: 'status-draft',
+      PENDING_APPROVAL: 'status-pending',
+      APPROVED: 'status-approved',
+      CHANGES_REQUESTED: 'status-changes',
+    };
+    return classes[status] ?? '';
+  }
+
+  canEdit(record: PDT): boolean {
+    return record.status === 'DRAFT' || record.status === 'CHANGES_REQUESTED';
+  }
+
+  canDelete(record: PDT): boolean {
+    return record.status === 'DRAFT';
+  }
+
+  // ── Data loading ─────────────────────────────────────────────────────────────
 
   private loadPDTRecords(): void {
     this.isLoading = true;
@@ -80,16 +109,17 @@ export class EmployeeDevelopmentComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading PDT records:', error);
         this.dialogService.standardError(
           error,
           'Load Error',
-          'Failed to load Personal Development Training records'
+          'loading Personal Development Training records'
         );
         this.isLoading = false;
       },
     });
   }
+
+  // ── Form setup ───────────────────────────────────────────────────────────────
 
   private createPDTForm(): FormGroup {
     return this.formBuilder.group({
@@ -100,32 +130,28 @@ export class EmployeeDevelopmentComponent implements OnInit {
       developmentNeeds: ['', Validators.required],
       actionPlan: ['', Validators.required],
       empSignature: ['', Validators.required],
-      superSignature: [''],
+      superSignature: [{ value: '', disabled: true }],
     });
   }
 
+  // ── Navigation ───────────────────────────────────────────────────────────────
+
   onCreateNew(): void {
     this.selectedRecord = null;
-    this.isCreating = true;
-    this.isEditing = false;
-
-    this.pdtForm.reset({
-      empName: this.currentUser?.name || '',
-      shortTermGoals: '',
-      mediumTermGoals: '',
-      longTermGoals: '',
-      developmentNeeds: '',
-      actionPlan: '',
-      empSignature: '',
-      superSignature: '',
-    });
+    this.viewMode = 'create';
+    this.pdtForm.reset();
+    this.pdtForm.enable();
+    this.pdtForm.get('empName')?.disable();
+    this.pdtForm.get('superSignature')?.disable();
+    this.pdtForm.patchValue({ empName: this.currentUser?.name || '' });
   }
 
   onEditRecord(record: PDT): void {
     this.selectedRecord = record;
-    this.isEditing = true;
-    this.isCreating = false;
-
+    this.viewMode = 'edit';
+    this.pdtForm.enable();
+    this.pdtForm.get('empName')?.disable();
+    this.pdtForm.get('superSignature')?.disable();
     this.pdtForm.patchValue({
       empName: record.empName,
       shortTermGoals: record.shortTermGoals,
@@ -138,107 +164,165 @@ export class EmployeeDevelopmentComponent implements OnInit {
     });
   }
 
-  onSave(): void {
+  onViewRecord(record: PDT): void {
+    this.selectedRecord = record;
+    this.viewMode = 'view';
+    this.pdtForm.disable();
+    this.pdtForm.patchValue({
+      empName: record.empName,
+      shortTermGoals: record.shortTermGoals,
+      mediumTermGoals: record.mediumTermGoals,
+      longTermGoals: record.longTermGoals,
+      developmentNeeds: record.developmentNeeds,
+      actionPlan: record.actionPlan,
+      empSignature: record.empSignature,
+      superSignature: record.superSignature,
+    });
+  }
+
+  onBackToList(): void {
+    this.selectedRecord = null;
+    this.viewMode = 'list';
+    this.pdtForm.reset();
+  }
+
+  onEditFromView(): void {
+    if (this.selectedRecord) {
+      this.onEditRecord(this.selectedRecord);
+    }
+  }
+
+  // ── Save draft ───────────────────────────────────────────────────────────────
+
+  onSaveDraft(): void {
     if (!this.pdtForm.valid) {
-      Object.keys(this.pdtForm.controls).forEach((key) => {
-        this.pdtForm.get(key)?.markAsTouched();
-      });
+      Object.keys(this.pdtForm.controls).forEach((key) =>
+        this.pdtForm.get(key)?.markAsTouched()
+      );
       return;
     }
 
     this.dialogService.openSpinner();
-
-    const formValue = this.pdtForm.getRawValue();
-    const pdtData: Partial<PDT> = {
-      empName: formValue.empName,
-      shortTermGoals: formValue.shortTermGoals,
-      mediumTermGoals: formValue.mediumTermGoals,
-      longTermGoals: formValue.longTermGoals,
-      developmentNeeds: formValue.developmentNeeds,
-      actionPlan: formValue.actionPlan,
-      empSignature: formValue.empSignature,
-      superSignature: formValue.superSignature,
-      createdDate: new Date().toLocaleDateString('en-US'),
-      createdTimestamp: new Date().toISOString(),
-    };
+    const payload = this.buildPayload();
 
     if (this.isCreating) {
-      this.pdtService.createPDT(pdtData).subscribe({
+      this.pdtService.createPDT({ ...payload, userId: this.currentUser?.uuid }).subscribe({
         next: () => {
           this.dialogService.closeSpinner();
           this.dialogService.saveSuccessOpen({
             width: '500px',
-            data: {
-              title: 'PDT Created',
-              text: 'Your Personal Development Training record has been created successfully.',
-            },
+            data: { title: 'Draft Saved', text: 'Your PDT record has been saved as a draft.' },
           });
           this.loadPDTRecords();
-          this.onCancel();
+          this.onBackToList();
         },
-        error: (err) => {
-          this.dialogService.standardError(
-            err,
-            'Creating PDT',
-            'creating the PDT record'
-          );
-        },
+        error: (err) => this.dialogService.standardError(err, 'Saving Draft', 'saving the PDT draft'),
       });
     } else if (this.selectedRecord) {
-      this.pdtService.updatePDT(this.selectedRecord.id, pdtData).subscribe({
+      this.pdtService.updatePDT(this.selectedRecord.id, payload).subscribe({
         next: () => {
           this.dialogService.closeSpinner();
           this.dialogService.saveSuccessOpen({
             width: '500px',
-            data: {
-              title: 'PDT Updated',
-              text: 'Your Personal Development Training record has been updated successfully.',
-            },
+            data: { title: 'Draft Saved', text: 'Your PDT record has been updated.' },
           });
           this.loadPDTRecords();
-          this.onCancel();
+          this.onBackToList();
         },
-        error: (err) => {
-          this.dialogService.standardError(
-            err,
-            'Updating PDT',
-            'updating the PDT record'
-          );
-        },
+        error: (err) => this.dialogService.standardError(err, 'Updating PDT', 'updating the PDT record'),
       });
     }
   }
 
-  onCancel(): void {
-    this.selectedRecord = null;
-    this.isEditing = false;
-    this.isCreating = false;
-    this.pdtForm.reset();
+  // ── Submit for approval ──────────────────────────────────────────────────────
+
+  onSubmitForApproval(): void {
+    if (!this.pdtForm.valid) {
+      Object.keys(this.pdtForm.controls).forEach((key) =>
+        this.pdtForm.get(key)?.markAsTouched()
+      );
+      return;
+    }
+
+    this.dialogService.openSpinner();
+    const payload = this.buildPayload();
+
+    const doSubmit = (pdtId: string) => {
+      this.pdtService.submitPDTForApproval(pdtId).subscribe({
+        next: () => {
+          this.dialogService.closeSpinner();
+          this.dialogService.saveSuccessOpen({
+            width: '500px',
+            data: {
+              title: 'Submitted for Approval',
+              text: 'Your PDT has been submitted to your supervisor for review.',
+            },
+          });
+          this.loadPDTRecords();
+          this.onBackToList();
+        },
+        error: (err) =>
+          this.dialogService.standardError(err, 'Submitting PDT', 'submitting the PDT for approval'),
+      });
+    };
+
+    if (this.isCreating) {
+      this.pdtService.createPDT({ ...payload, userId: this.currentUser?.uuid }).subscribe({
+        next: (res) => doSubmit(res.id),
+        error: (err) => this.dialogService.standardError(err, 'Creating PDT', 'creating the PDT record'),
+      });
+    } else if (this.selectedRecord) {
+      this.pdtService.updatePDT(this.selectedRecord.id, payload).subscribe({
+        next: () => doSubmit(this.selectedRecord!.id),
+        error: (err) => this.dialogService.standardError(err, 'Updating PDT', 'updating the PDT record'),
+      });
+    }
   }
 
-  onDeleteRecord(record: PDT): void {
-    // Future enhancement: Add delete confirmation dialog
-    this.dialogService.openSpinner();
+  // ── Delete ───────────────────────────────────────────────────────────────────
 
-    this.pdtService.deletePDT(record.id).subscribe({
-      next: () => {
-        this.dialogService.closeSpinner();
-        this.dialogService.saveSuccessOpen({
-          width: '500px',
-          data: {
-            title: 'PDT Deleted',
-            text: 'The Personal Development Training record has been deleted successfully.',
-          },
-        });
-        this.loadPDTRecords();
-      },
-      error: (err) => {
-        this.dialogService.standardError(
-          err,
-          'Deleting PDT',
-          'deleting the PDT record'
-        );
+  onDeleteRecord(record: PDT): void {
+    const confirmRef = this.dialogService.confirmationOpen({
+      width: '400px',
+      data: {
+        title: 'Delete PDT Record?',
+        body: 'This draft will be permanently deleted. This action cannot be undone.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
       },
     });
+
+    confirmRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed) return;
+
+      this.dialogService.openSpinner();
+      this.pdtService.deletePDT(record.id).subscribe({
+        next: () => {
+          this.dialogService.closeSpinner();
+          this.dialogService.saveSuccessOpen({
+            width: '500px',
+            data: { title: 'PDT Deleted', text: 'The draft PDT record has been deleted.' },
+          });
+          this.loadPDTRecords();
+        },
+        error: (err) =>
+          this.dialogService.standardError(err, 'Deleting PDT', 'deleting the PDT record'),
+      });
+    });
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  private buildPayload(): Partial<PDT> {
+    const raw = this.pdtForm.getRawValue();
+    return {
+      empName: raw.empName,
+      shortTermGoals: raw.shortTermGoals,
+      mediumTermGoals: raw.mediumTermGoals,
+      longTermGoals: raw.longTermGoals,
+      developmentNeeds: raw.developmentNeeds,
+      actionPlan: raw.actionPlan,
+      empSignature: raw.empSignature,
+    };
   }
 }

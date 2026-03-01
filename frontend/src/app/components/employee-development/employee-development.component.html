@@ -1,11 +1,12 @@
 <div class="employee-development-container">
+
   <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="loading-spinner-container">
     <mat-spinner></mat-spinner>
   </div>
 
-  <!-- List View -->
-  <div *ngIf="!isLoading && !isEditing && !isCreating" class="list-view">
+  <!-- ── List View ─────────────────────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && isListView" class="list-view">
     <div class="list-header">
       <h1>Personal Development Training</h1>
       <button mat-raised-button color="primary" (click)="onCreateNew()">
@@ -15,29 +16,64 @@
     </div>
 
     <!-- PDT Records Table -->
-    <div class="table-wrapper">
+    <div *ngIf="pdtRecords.length > 0" class="table-wrapper">
       <table mat-table [dataSource]="pdtRecords" class="pdt-table">
+
         <!-- Created Date Column -->
         <ng-container matColumnDef="createdDate">
           <th mat-header-cell *matHeaderCellDef>Created Date</th>
-          <td mat-cell *matCellDef="let element">{{ element.createdDate }}</td>
+          <td mat-cell *matCellDef="let record">{{ record.createdDate }}</td>
         </ng-container>
 
         <!-- Employee Name Column -->
         <ng-container matColumnDef="empName">
           <th mat-header-cell *matHeaderCellDef>Employee</th>
-          <td mat-cell *matCellDef="let element">{{ element.empName }}</td>
+          <td mat-cell *matCellDef="let record">{{ record.empName }}</td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let record">
+            <span class="status-badge" [ngClass]="statusClass(record.status)">
+              {{ statusLabel(record.status) }}
+            </span>
+          </td>
         </ng-container>
 
         <!-- Actions Column -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-button color="primary" (click)="onEditRecord(element)">
+          <td mat-cell *matCellDef="let record">
+            <!-- Edit: DRAFT or CHANGES_REQUESTED -->
+            <button
+              *ngIf="canEdit(record)"
+              mat-button
+              color="primary"
+              (click)="onEditRecord(record)"
+            >
               <mat-icon>edit</mat-icon>
               Edit
             </button>
-            <button mat-button color="warn" (click)="onDeleteRecord(element)">
+
+            <!-- View: PENDING_APPROVAL or APPROVED -->
+            <button
+              *ngIf="!canEdit(record)"
+              mat-button
+              color="primary"
+              (click)="onViewRecord(record)"
+            >
+              <mat-icon>visibility</mat-icon>
+              View
+            </button>
+
+            <!-- Delete: DRAFT only -->
+            <button
+              *ngIf="canDelete(record)"
+              mat-button
+              color="warn"
+              (click)="onDeleteRecord(record)"
+            >
               <mat-icon>delete</mat-icon>
               Delete
             </button>
@@ -61,26 +97,43 @@
     </div>
   </div>
 
-  <!-- Edit/Create Form View -->
-  <div *ngIf="!isLoading && (isEditing || isCreating)" class="form-view">
+  <!-- ── Create / Edit Form View ───────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && isFormView" class="form-view">
     <div class="form-header">
-      <h1 *ngIf="isCreating">Create Personal Development Training Record</h1>
-      <h1 *ngIf="isEditing">Edit Personal Development Training Record</h1>
+      <h1>{{ isCreating ? 'Create' : 'Edit' }} Personal Development Training Record</h1>
+      <span
+        *ngIf="selectedRecord"
+        class="status-badge large"
+        [ngClass]="statusClass(selectedRecord.status)"
+      >
+        {{ statusLabel(selectedRecord.status) }}
+      </span>
+    </div>
+
+    <!-- Changes Requested Banner -->
+    <div
+      *ngIf="selectedRecord?.status === 'CHANGES_REQUESTED' && selectedRecord?.supervisorComments"
+      class="changes-requested-banner"
+    >
+      <mat-icon>feedback</mat-icon>
+      <div>
+        <strong>Supervisor Feedback:</strong>
+        <p>{{ selectedRecord?.supervisorComments }}</p>
+      </div>
     </div>
 
     <mat-card class="form-card">
       <mat-card-content>
         <form [formGroup]="pdtForm" class="pdt-form">
-          <!-- Employee Name Field (Disabled) -->
+
           <mat-form-field appearance="outline" class="form-field full-width">
             <mat-label>Employee Name</mat-label>
             <input matInput formControlName="empName" />
             <mat-icon matPrefix>person</mat-icon>
           </mat-form-field>
 
-          <!-- Short Term Goals -->
           <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label>Short Term Goals</mat-label>
+            <mat-label>Short Term Goals (3–6 months)</mat-label>
             <textarea
               matInput
               formControlName="shortTermGoals"
@@ -93,9 +146,8 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Medium Term Goals -->
           <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label>Medium Term Goals</mat-label>
+            <mat-label>Medium Term Goals (6–12 months)</mat-label>
             <textarea
               matInput
               formControlName="mediumTermGoals"
@@ -108,9 +160,8 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Long Term Goals -->
           <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label>Long Term Goals</mat-label>
+            <mat-label>Long Term Goals (1–3 years)</mat-label>
             <textarea
               matInput
               formControlName="longTermGoals"
@@ -123,7 +174,6 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Development Needs -->
           <mat-form-field appearance="outline" class="form-field full-width">
             <mat-label>Development Needs</mat-label>
             <textarea
@@ -138,7 +188,6 @@
             </mat-error>
           </mat-form-field>
 
-          <!-- Action Plan -->
           <mat-form-field appearance="outline" class="form-field full-width">
             <mat-label>Action Plan</mat-label>
             <textarea
@@ -157,13 +206,12 @@
           <div class="signatures-section">
             <h3>Signatures</h3>
             <div class="signature-fields">
-              <!-- Employee Signature -->
               <mat-form-field appearance="outline" class="form-field">
                 <mat-label>Employee Signature</mat-label>
                 <input
                   matInput
                   formControlName="empSignature"
-                  placeholder="Type your full name"
+                  placeholder="Type your full name to sign"
                 />
                 <mat-icon matPrefix>draw</mat-icon>
                 <mat-error *ngIf="pdtForm.get('empSignature')?.hasError('required')">
@@ -171,13 +219,12 @@
                 </mat-error>
               </mat-form-field>
 
-              <!-- Supervisor Signature -->
               <mat-form-field appearance="outline" class="form-field">
                 <mat-label>Supervisor Signature</mat-label>
                 <input
                   matInput
                   formControlName="superSignature"
-                  placeholder="Supervisor's full name (optional)"
+                  placeholder="Filled by supervisor upon approval"
                 />
                 <mat-icon matPrefix>verified</mat-icon>
               </mat-form-field>
@@ -186,23 +233,131 @@
 
           <!-- Form Actions -->
           <div class="form-actions">
-            <button mat-raised-button type="button" (click)="onCancel()">
-              <mat-icon>cancel</mat-icon>
+            <button mat-button type="button" (click)="onBackToList()">
+              <mat-icon>arrow_back</mat-icon>
               Cancel
+            </button>
+            <button
+              mat-raised-button
+              type="button"
+              (click)="onSaveDraft()"
+              [disabled]="!pdtForm.dirty && !isCreating"
+            >
+              <mat-icon>save</mat-icon>
+              Save Draft
             </button>
             <button
               mat-raised-button
               color="primary"
               type="button"
-              (click)="onSave()"
+              (click)="onSubmitForApproval()"
               [disabled]="!pdtForm.valid"
             >
-              <mat-icon>save</mat-icon>
-              {{ isCreating ? 'Create PDT' : 'Update PDT' }}
+              <mat-icon>send</mat-icon>
+              Submit for Approval
             </button>
           </div>
         </form>
       </mat-card-content>
     </mat-card>
   </div>
+
+  <!-- ── View-Only Form (PENDING_APPROVAL / APPROVED / CHANGES_REQUESTED) ─── -->
+  <div *ngIf="!isLoading && isViewOnly && selectedRecord" class="form-view view-only">
+    <div class="form-header">
+      <h1>Personal Development Training Record</h1>
+      <span class="status-badge large" [ngClass]="statusClass(selectedRecord.status)">
+        {{ statusLabel(selectedRecord.status) }}
+      </span>
+    </div>
+
+    <!-- Supervisor Comments Banner -->
+    <div
+      *ngIf="selectedRecord.status === 'CHANGES_REQUESTED' && selectedRecord.supervisorComments"
+      class="changes-requested-banner"
+    >
+      <mat-icon>feedback</mat-icon>
+      <div>
+        <strong>Supervisor Feedback:</strong>
+        <p>{{ selectedRecord.supervisorComments }}</p>
+      </div>
+    </div>
+
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="pdtForm" class="pdt-form">
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Employee Name</mat-label>
+            <input matInput formControlName="empName" />
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Short Term Goals (3–6 months)</mat-label>
+            <textarea matInput formControlName="shortTermGoals" rows="4"></textarea>
+            <mat-icon matPrefix>flag</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Medium Term Goals (6–12 months)</mat-label>
+            <textarea matInput formControlName="mediumTermGoals" rows="4"></textarea>
+            <mat-icon matPrefix>trending_up</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Long Term Goals (1–3 years)</mat-label>
+            <textarea matInput formControlName="longTermGoals" rows="4"></textarea>
+            <mat-icon matPrefix>stars</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Development Needs</mat-label>
+            <textarea matInput formControlName="developmentNeeds" rows="4"></textarea>
+            <mat-icon matPrefix>school</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Action Plan</mat-label>
+            <textarea matInput formControlName="actionPlan" rows="5"></textarea>
+            <mat-icon matPrefix>checklist</mat-icon>
+          </mat-form-field>
+
+          <div class="signatures-section">
+            <h3>Signatures</h3>
+            <div class="signature-fields">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Employee Signature</mat-label>
+                <input matInput formControlName="empSignature" />
+                <mat-icon matPrefix>draw</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Supervisor Signature</mat-label>
+                <input matInput formControlName="superSignature" />
+                <mat-icon matPrefix>verified</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button type="button" (click)="onBackToList()">
+              <mat-icon>arrow_back</mat-icon>
+              Back to List
+            </button>
+            <button
+              *ngIf="selectedRecord.status === 'CHANGES_REQUESTED'"
+              mat-raised-button
+              color="primary"
+              type="button"
+              (click)="onEditFromView()"
+            >
+              <mat-icon>edit</mat-icon>
+              Edit &amp; Resubmit
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
 </div>

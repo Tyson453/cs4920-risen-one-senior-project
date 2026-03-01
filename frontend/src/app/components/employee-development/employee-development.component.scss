@@ -17,6 +17,49 @@
   }
 }
 
+// ── Status badges ─────────────────────────────────────────────────────────────
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+
+  &.status-draft {
+    background-color: #e0e0e0;
+    color: #555;
+  }
+
+  &.status-pending {
+    background-color: #fff8e1;
+    color: #f57f17;
+    border: 1px solid #ffe082;
+  }
+
+  &.status-approved {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+  }
+
+  &.status-changes {
+    background-color: #fff3e0;
+    color: #e65100;
+    border: 1px solid #ffcc80;
+  }
+
+  &.large {
+    font-size: 14px;
+    padding: 6px 16px;
+    border-radius: 16px;
+  }
+}
+
+// ── List view ─────────────────────────────────────────────────────────────────
+
 .list-view {
   .list-header {
     display: flex;
@@ -118,12 +161,48 @@
   }
 }
 
+// ── Form view ─────────────────────────────────────────────────────────────────
+
 .form-view {
   .form-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     margin-bottom: 24px;
+    flex-wrap: wrap;
 
     h1 {
       margin: 0;
+    }
+  }
+
+  .changes-requested-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    background-color: #fff3e0;
+    border: 1px solid #ffcc80;
+    border-left: 4px solid #e65100;
+    border-radius: 4px;
+
+    mat-icon {
+      color: #e65100;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    strong {
+      display: block;
+      color: #e65100;
+      margin-bottom: 4px;
+    }
+
+    p {
+      margin: 0;
+      color: #555;
+      line-height: 1.5;
     }
   }
 
@@ -137,6 +216,10 @@
         padding: 16px;
       }
     }
+  }
+
+  &.view-only .form-card {
+    background-color: #fafafa;
   }
 
   .pdt-form {
@@ -215,7 +298,8 @@
   }
 }
 
-// Responsive adjustments
+// ── Responsive ────────────────────────────────────────────────────────────────
+
 @media (max-width: 768px) {
   .employee-development-container {
     padding: 16px;
@@ -254,6 +338,21 @@
             padding: 4px 8px;
           }
         }
+      }
+    }
+  }
+
+  .form-view {
+    .form-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .form-actions {
+      flex-direction: column;
+
+      button {
+        width: 100%;
       }
     }
   }
