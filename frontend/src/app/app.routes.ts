@@ -10,6 +10,7 @@ import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
 import { EmployeeDevelopmentComponent } from './components/employee-development/employee-development.component';
 import { AuthGuard } from './auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -19,7 +20,7 @@ export const routes: Routes = [
   { path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard] },
   { path: 'team-summary', component: TeamSummaryComponent, canActivate: [AuthGuard] },
   { path: 'time-off', component: TimeOffComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
+  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard, adminGuard] },
   { path: 'certification-training', component: CertificationTrainingComponent, canActivate: [AuthGuard] },
   { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent, canActivate: [AuthGuard] },
 ];

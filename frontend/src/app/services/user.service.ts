@@ -22,6 +22,7 @@ export interface TeamSummaryUser {
   maxSickHours?: number;
   notes?: string;
   requestedPTO?: Record<string, any>;
+  supervisorId?: string;
 }
 
 export interface OrgTeamGroup {
@@ -138,6 +139,13 @@ export class UserApiService {
         { uuid },
         { headers: this.getAuthHeaders() }
       )
+    );
+  }
+
+  /** PUT /users/{uuid} — update allowed fields on a user */
+  public updateUser(uuid: string, data: Partial<TeamSummaryUser>): Promise<any> {
+    return firstValueFrom(
+      this.http.put(`${this.apiUrl}/users/${uuid}`, data, { headers: this.getAuthHeaders() })
     );
   }
 

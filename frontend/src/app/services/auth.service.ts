@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -10,14 +8,13 @@ export class AuthService {
 
   constructor(
     private router: Router,
-    private dialogRef: MatDialog
   ) {
     this.user = this.setUser();
   }
 
   signOut() {
-    this.dialogRef.closeAll();
-    //apply logout if needed
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
     this.router.navigate(['/login']);
   }
 
@@ -27,23 +24,20 @@ export class AuthService {
 
   async setUser() {
     try {
-      let user = {
-        uuid: 'john-doe-uuid',
-        id: 'john-doe-uuid',
-        name: 'John Doe',
-        email: 'john.doe@risen-one.com',
-        assignments: [
-          "51506e92-650c-4c84-a15f-752370243891"
-        ],
-        birthday: "",
-        roles: ['EMPLOYEE', 'ADMIN', 'LEAD', 'PM'],
-        teamName: 'Engineering',
-        pmTeams: ['PR22 Team', 'Project Alpha'],
+      const stored = localStorage.getItem('currentUser');
+      if (!stored) {
+        this.router.navigate(['/login']);
+        return null;
       }
-      return new Promise((resolve) => { resolve(user) })
+      const user = JSON.parse(stored);
+      // Normalize: backend returns uuid but not always id
+      if (user.uuid && !user.id) {
+        user.id = user.uuid;
+      }
+      return user;
     } catch (err) {
-      console.log('not signed in: ' + err)
-      this.router.navigate(['/login'])
+      console.log('not signed in: ' + err);
+      this.router.navigate(['/login']);
       return null;
     }
   }
@@ -58,7 +52,7 @@ export class AuthService {
   }
   async leadCheck() {
     let user = await this.user;
-    if (user.roles.includes('LEAD')) {
+    if (user?.roles?.includes('LEAD')) {
       return true;
     } else {
       return false;
@@ -66,7 +60,7 @@ export class AuthService {
   }
   async leadAdminCheck() {
     let user = await this.user;
-    if (user.roles.includes('LEAD') || user.roles.includes('ADMIN')) {
+    if (user?.roles?.includes('LEAD') || user?.roles?.includes('ADMIN')) {
       return true;
     } else {
       return false;
@@ -74,7 +68,7 @@ export class AuthService {
   }
   async testerCheck() {
     let user = await this.user;
-    if (user.roles.includes('TESTER')) {
+    if (user?.roles?.includes('TESTER')) {
       return true;
     } else {
       return false;
@@ -82,7 +76,7 @@ export class AuthService {
   }
   async pmCheck() {
     let user = await this.user;
-    if (user.roles.includes('PM')) {
+    if (user?.roles?.includes('PM')) {
       return true;
     } else {
       return false;
@@ -90,7 +84,7 @@ export class AuthService {
   }
   async pmAdminCheck() {
     let user = await this.user;
-    if (user.roles.includes('PM') || user.roles.includes('ADMIN')) {
+    if (user?.roles?.includes('PM') || user?.roles?.includes('ADMIN')) {
       return true;
     } else {
       return false;
@@ -98,7 +92,7 @@ export class AuthService {
   }
   async interimLeadCheck() {
     let user = await this.user;
-    if (user.roles.includes('INTERIM_LEAD')) {
+    if (user?.roles?.includes('INTERIM_LEAD')) {
       return true;
     } else {
       return false;

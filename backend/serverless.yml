@@ -245,6 +245,26 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: true
 
+  updateUser:
+    handler: src/handlers/update-user.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: users/{uuid}
+          method: put
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
   getUsers:
     handler: src/handlers/get-users.handler
     environment:
