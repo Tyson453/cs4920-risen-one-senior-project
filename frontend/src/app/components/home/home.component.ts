@@ -34,7 +34,6 @@ export class HomeComponent {
   user: any;
   userphoto = "../assets/RisenOneWhite.png"
   isReordering = false;
-  private originalOrder: string[] = [];
 
   cards: HomeCard[] = [
     { id: 'daily-status', icon: 'send', title: 'DAILY STATUS', actions: [{ label: 'Submit', route: '/daily-status' }] },
@@ -55,6 +54,8 @@ export class HomeComponent {
     }
   ];
 
+  private originalOrder: HomeCard[] = [...this.cards];
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -72,28 +73,24 @@ export class HomeComponent {
   signIn() {
     this.router.navigate(['/login']);
   }
+  
   toggleReordering() {
     this.isReordering = !this.isReordering;
   }
 
   finishReordering() {
+    this.originalOrder = [...this.cards];
     this.isReordering = false;
   }
 
   cancelReordering() {
+    this.cards = [...this.originalOrder];
     this.isReordering = false;
   }
 
   drop(event: CdkDragDrop<HomeCard[]>): void {
     if (!this.isReordering || event.previousIndex === event.currentIndex) return;
-    // moveItemInArray(this.cards, event.previousIndex, event.currentIndex);
-    console.log("drop, " + event.previousIndex + " -> " + event.currentIndex);
-    this.swapCards(event.previousIndex, event.currentIndex);
-  }
-
-  private swapCards(i: number, j: number): void {
-    [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
-    console.log("Cards:", this.cards);
+    moveItemInArray(this.cards, event.previousIndex, event.currentIndex);
   }
 
   trackByCardId(_index: number, card: HomeCard): string {
