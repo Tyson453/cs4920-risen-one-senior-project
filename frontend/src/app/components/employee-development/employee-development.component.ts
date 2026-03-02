@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -18,7 +19,7 @@ import { PDTService } from '../../services/pdt.service';
 import { DialogService } from '../../services/dialog.service';
 import { PDT, PDTStatus } from '../../models/pdt';
 
-type ViewMode = 'list' | 'create' | 'edit' | 'view';
+type ViewMode = 'list' | 'create' | 'edit' | 'view' | 'pending-approvals';
 
 @Component({
   selector: 'app-employee-development',
@@ -33,6 +34,7 @@ type ViewMode = 'list' | 'create' | 'edit' | 'view';
     MatInputModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    FormsModule,
   ],
   templateUrl: './employee-development.component.html',
   styleUrls: ['./employee-development.component.scss'],
@@ -45,7 +47,17 @@ export class EmployeeDevelopmentComponent implements OnInit {
   pdtForm: FormGroup;
   isLoading = true;
 
+  // Supervisor state
+  pendingApprovals: PDT[] = [];
+  isPendingApprovalsLoading = false;
+  isSupervisorView = false;
+  supervisorSignature = '';
+  changeComments = '';
+  showApprovePanel = false;
+  showChangesPanel = false;
+
   displayedColumns: string[] = ['createdDate', 'empName', 'status', 'actions'];
+  pendingColumns: string[] = ['createdDate', 'empName', 'status', 'actions'];
 
   constructor(
     private authService: AuthService,
@@ -59,6 +71,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.currentUser = await this.authService.getUser();
     this.loadPDTRecords();
+    if (this.isSupervisor) { this.loadPendingApprovals(); }
   }
 
   // ── Computed helpers ─────────────────────────────────────────────────────────
@@ -68,6 +81,12 @@ export class EmployeeDevelopmentComponent implements OnInit {
   get isViewOnly(): boolean { return this.viewMode === 'view'; }
   get isCreating(): boolean { return this.viewMode === 'create'; }
   get isEditing(): boolean { return this.viewMode === 'edit'; }
+  get isPendingApprovalsView(): boolean { return this.viewMode === 'pending-approvals'; }
+
+  get isSupervisor(): boolean {
+    const roles: string[] = this.currentUser?.roles || [];
+    return roles.includes('LEAD') || roles.includes('PM') || roles.includes('ADMIN');
+  }
 
   statusLabel(status: PDTStatus): string {
     const labels: Record<PDTStatus, string> = {
@@ -184,6 +203,11 @@ export class EmployeeDevelopmentComponent implements OnInit {
     this.selectedRecord = null;
     this.viewMode = 'list';
     this.pdtForm.reset();
+    this.isSupervisorView = false;
+    this.showApprovePanel = false;
+    this.showChangesPanel = false;
+    this.supervisorSignature = '';
+    this.changeComments = '';
   }
 
   onEditFromView(): void {
@@ -308,6 +332,72 @@ export class EmployeeDevelopmentComponent implements OnInit {
         error: (err) =>
           this.dialogService.standardError(err, 'Deleting PDT', 'deleting the PDT record'),
       });
+    });
+  }
+
+  // ── Supervisor workflow ───────────────────────────────────────────────────────
+
+  onViewPendingApprovals(): void {
+    this.viewMode = 'pending-approvals';
+    this.loadPendingApprovals();
+  }
+
+  private loadPendingApprovals(): void {
+    this.isPendingApprovalsLoading = true;
+    this.pdtService.getPendingApprovals().subscribe({
+      next: (records) => {
+        this.pendingApprovals = records;
+        this.isPendingApprovalsLoading = false;
+      },
+      error: (err) => {
+        this.dialogService.standardError(err, 'Load Error', 'loading pending approvals');
+        this.isPendingApprovalsLoading = false;
+      }
+    });
+  }
+
+  onReviewRecord(record: PDT): void {
+    this.isSupervisorView = true;
+    this.showApprovePanel = false;
+    this.showChangesPanel = false;
+    this.supervisorSignature = '';
+    this.changeComments = '';
+    this.onViewRecord(record);
+  }
+
+  onApprovePDT(): void {
+    if (!this.supervisorSignature.trim()) return;
+    this.dialogService.openSpinner();
+    this.pdtService.approvePDT(this.selectedRecord!.id, this.supervisorSignature).subscribe({
+      next: () => {
+        this.dialogService.closeSpinner();
+        this.dialogService.saveSuccessOpen({
+          width: '500px',
+          data: { title: 'PDT Approved', text: 'The PDT has been approved and the signature has been recorded.' }
+        });
+        this.pendingApprovals = this.pendingApprovals.filter(r => r.id !== this.selectedRecord!.id);
+        this.onBackToList();
+        this.viewMode = 'pending-approvals';
+      },
+      error: (err) => this.dialogService.standardError(err, 'Approving PDT', 'approving the PDT')
+    });
+  }
+
+  onRequestChanges(): void {
+    if (!this.changeComments.trim()) return;
+    this.dialogService.openSpinner();
+    this.pdtService.requestPDTChanges(this.selectedRecord!.id, this.changeComments).subscribe({
+      next: () => {
+        this.dialogService.closeSpinner();
+        this.dialogService.saveSuccessOpen({
+          width: '500px',
+          data: { title: 'Changes Requested', text: 'The employee will be notified that changes are required.' }
+        });
+        this.pendingApprovals = this.pendingApprovals.filter(r => r.id !== this.selectedRecord!.id);
+        this.onBackToList();
+        this.viewMode = 'pending-approvals';
+      },
+      error: (err) => this.dialogService.standardError(err, 'Requesting Changes', 'requesting changes on the PDT')
     });
   }
 

@@ -22,12 +22,11 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json'
 };
 
-const SUBMITTABLE_STATUSES = ['DRAFT', 'CHANGES_REQUESTED'];
-
 /**
- * POST /pdt/{pdtId}/submit
- * Transitions a PDT from DRAFT or CHANGES_REQUESTED → PENDING_APPROVAL.
- * Clears any previous supervisorComments on re-submission.
+ * POST /pdt/{pdtId}/approve
+ * Supervisor approves a PDT record.
+ * Body: { supervisorSignature: string }
+ * Transitions PENDING_APPROVAL → APPROVED and records the supervisor's signature.
  */
 module.exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -44,13 +43,20 @@ module.exports.handler = async (event) => {
     return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ message: 'pdtId path parameter is required' }) };
   }
 
+  let body;
+  try {
+    body = JSON.parse(event.body || '{}');
+  } catch {
+    return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Invalid JSON body' }) };
+  }
+
   // Fetch existing record to validate status
   let existing;
   try {
     const result = await dynamoDb.get({ TableName: tableName, Key: { pdtId } }).promise();
     existing = result.Item;
   } catch (error) {
-    console.error('submit-pdt fetch error:', error);
+    console.error('approve-pdt fetch error:', error);
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Internal server error' }) };
   }
 
@@ -58,46 +64,33 @@ module.exports.handler = async (event) => {
     return { statusCode: 404, headers: CORS_HEADERS, body: JSON.stringify({ message: 'PDT record not found' }) };
   }
 
-  if (!SUBMITTABLE_STATUSES.includes(existing.status)) {
+  if (existing.status !== 'PENDING_APPROVAL') {
     return {
       statusCode: 409,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ message: `PDT with status "${existing.status}" cannot be submitted for approval` })
+      body: JSON.stringify({ message: `PDT with status "${existing.status}" cannot be approved` })
     };
-  }
-
-  // Look up the employee's supervisorId to store on the PDT record
-  let supervisorId = '';
-  const usersTable = process.env.USERS_TABLE;
-  if (usersTable && existing.userId) {
-    try {
-      const userResult = await dynamoDb.get({ TableName: usersTable, Key: { uuid: existing.userId } }).promise();
-      supervisorId = userResult.Item?.supervisorId || '';
-    } catch (e) {
-      console.warn('submit-pdt: could not fetch supervisorId for user', existing.userId, e.message);
-    }
   }
 
   try {
     await dynamoDb.update({
       TableName: tableName,
       Key: { pdtId },
-      UpdateExpression: 'SET #status = :status, supervisorComments = :empty, supervisorId = :supervisorId',
+      UpdateExpression: 'SET #status = :status, superSignature = :sig',
       ExpressionAttributeNames: { '#status': 'status' },
       ExpressionAttributeValues: {
-        ':status': 'PENDING_APPROVAL',
-        ':empty': '',
-        ':supervisorId': supervisorId
+        ':status': 'APPROVED',
+        ':sig': body.supervisorSignature || ''
       }
     }).promise();
 
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ success: true, message: 'PDT submitted for approval' })
+      body: JSON.stringify({ success: true, message: 'PDT approved successfully' })
     };
   } catch (error) {
-    console.error('submit-pdt error:', error);
+    console.error('approve-pdt error:', error);
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Internal server error' }) };
   }
 };

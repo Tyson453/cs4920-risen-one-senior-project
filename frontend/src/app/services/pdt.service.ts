@@ -59,4 +59,33 @@ export class PDTService {
       {}
     );
   }
+
+  /**
+   * Get all PDTs with status PENDING_APPROVAL for the calling supervisor.
+   */
+  getPendingApprovals(): Observable<PDT[]> {
+    return this.http
+      .get<any[]>(`${this.baseUrl}/${this.pdtPath}/supervisor/pending`)
+      .pipe(map((records) => records.map((r) => this.normalize(r))));
+  }
+
+  /**
+   * Supervisor approves a PDT. Transitions PENDING_APPROVAL → APPROVED.
+   */
+  approvePDT(pdtId: string, supervisorSignature: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/${this.pdtPath}/${pdtId}/approve`,
+      { supervisorSignature }
+    );
+  }
+
+  /**
+   * Supervisor requests changes on a PDT. Transitions PENDING_APPROVAL → CHANGES_REQUESTED.
+   */
+  requestPDTChanges(pdtId: string, comments: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/${this.pdtPath}/${pdtId}/request-changes`,
+      { comments }
+    );
+  }
 }

@@ -484,6 +484,7 @@ functions:
       - http:
           path: pdt/{userId}
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -504,6 +505,7 @@ functions:
       - http:
           path: pdt
           method: post
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -524,6 +526,7 @@ functions:
       - http:
           path: pdt/{pdtId}
           method: put
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -544,6 +547,7 @@ functions:
       - http:
           path: pdt/{pdtId}
           method: delete
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -559,11 +563,76 @@ functions:
     handler: src/handlers/submit-pdt.handler
     environment:
       PDT_TABLE: personalDevelopmentTraining
+      USERS_TABLE: users
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:
           path: pdt/{pdtId}/submit
           method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getPendingApprovals:
+    handler: src/handlers/get-pending-approvals.handler
+    environment:
+      PDT_TABLE: personalDevelopmentTraining
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pdt/supervisor/pending
+          method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  approvePDT:
+    handler: src/handlers/approve-pdt.handler
+    environment:
+      PDT_TABLE: personalDevelopmentTraining
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pdt/{pdtId}/approve
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  requestPDTChanges:
+    handler: src/handlers/request-pdt-changes.handler
+    environment:
+      PDT_TABLE: personalDevelopmentTraining
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pdt/{pdtId}/request-changes
+          method: post
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:

@@ -9,10 +9,17 @@
   <div *ngIf="!isLoading && isListView" class="list-view">
     <div class="list-header">
       <h1>Personal Development Training</h1>
-      <button mat-raised-button color="primary" (click)="onCreateNew()">
-        <mat-icon>add</mat-icon>
-        Create New PDT
-      </button>
+      <div class="list-header-actions">
+        <button mat-raised-button color="primary" (click)="onCreateNew()">
+          <mat-icon>add</mat-icon>
+          Create New PDT
+        </button>
+        <button *ngIf="isSupervisor" mat-stroked-button (click)="onViewPendingApprovals()">
+          <mat-icon>pending_actions</mat-icon>
+          Pending Approvals
+          <span *ngIf="pendingApprovals.length > 0" class="approval-count-badge">{{ pendingApprovals.length }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- PDT Records Table -->
@@ -94,6 +101,64 @@
         <mat-icon>add</mat-icon>
         Create Your First PDT
       </button>
+    </div>
+  </div>
+
+  <!-- ── Pending Approvals View (supervisor) ──────────────────────────────── -->
+  <div *ngIf="!isLoading && isPendingApprovalsView" class="list-view">
+    <div class="list-header">
+      <h1>Pending Approvals</h1>
+      <button mat-button (click)="onBackToList()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to My PDTs
+      </button>
+    </div>
+
+    <div *ngIf="isPendingApprovalsLoading" class="loading-spinner-container">
+      <mat-spinner></mat-spinner>
+    </div>
+
+    <div *ngIf="!isPendingApprovalsLoading && pendingApprovals.length === 0" class="empty-state">
+      <mat-icon>check_circle</mat-icon>
+      <h2>No pending approvals</h2>
+      <p>You have no PDT records awaiting your review.</p>
+    </div>
+
+    <div *ngIf="!isPendingApprovalsLoading && pendingApprovals.length > 0" class="table-wrapper">
+      <table mat-table [dataSource]="pendingApprovals" class="pdt-table">
+
+        <ng-container matColumnDef="createdDate">
+          <th mat-header-cell *matHeaderCellDef>Submitted Date</th>
+          <td mat-cell *matCellDef="let record">{{ record.createdDate }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="empName">
+          <th mat-header-cell *matHeaderCellDef>Employee</th>
+          <td mat-cell *matCellDef="let record">{{ record.empName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let record">
+            <span class="status-badge" [ngClass]="statusClass(record.status)">
+              {{ statusLabel(record.status) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let record">
+            <button mat-button color="primary" (click)="onReviewRecord(record)">
+              <mat-icon>rate_review</mat-icon>
+              Review
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="pendingColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: pendingColumns"></tr>
+      </table>
     </div>
   </div>
 
@@ -345,7 +410,7 @@
               Back to List
             </button>
             <button
-              *ngIf="selectedRecord.status === 'CHANGES_REQUESTED'"
+              *ngIf="selectedRecord.status === 'CHANGES_REQUESTED' && !isSupervisorView"
               mat-raised-button
               color="primary"
               type="button"
@@ -355,7 +420,82 @@
               Edit &amp; Resubmit
             </button>
           </div>
+
         </form>
+
+        <!-- ── Supervisor Actions ──────────────────────────────────────── -->
+        <div
+          *ngIf="isSupervisorView && selectedRecord.status === 'PENDING_APPROVAL'"
+          class="supervisor-actions"
+        >
+          <h3>Supervisor Actions</h3>
+
+          <!-- Approve panel -->
+          <div *ngIf="!showChangesPanel" class="action-group">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="showApprovePanel = !showApprovePanel"
+            >
+              <mat-icon>check_circle</mat-icon>
+              Approve
+            </button>
+            <div *ngIf="showApprovePanel" class="action-panel">
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>Your Signature (type your full name)</mat-label>
+                <input matInput [(ngModel)]="supervisorSignature" name="supervisorSignature" />
+                <mat-icon matPrefix>verified</mat-icon>
+              </mat-form-field>
+              <div class="action-panel-buttons">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  [disabled]="!supervisorSignature.trim()"
+                  (click)="onApprovePDT()"
+                >
+                  Confirm Approval
+                </button>
+                <button mat-button (click)="showApprovePanel = false">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Request Changes panel -->
+          <div *ngIf="!showApprovePanel" class="action-group">
+            <button
+              mat-raised-button
+              color="warn"
+              (click)="showChangesPanel = !showChangesPanel"
+            >
+              <mat-icon>feedback</mat-icon>
+              Request Changes
+            </button>
+            <div *ngIf="showChangesPanel" class="action-panel">
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>Comments for employee</mat-label>
+                <textarea
+                  matInput
+                  [(ngModel)]="changeComments"
+                  name="changeComments"
+                  rows="3"
+                  placeholder="Describe what changes are needed..."
+                ></textarea>
+                <mat-icon matPrefix>feedback</mat-icon>
+              </mat-form-field>
+              <div class="action-panel-buttons">
+                <button
+                  mat-raised-button
+                  color="warn"
+                  [disabled]="!changeComments.trim()"
+                  (click)="onRequestChanges()"
+                >
+                  Send Feedback
+                </button>
+                <button mat-button (click)="showChangesPanel = false">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
