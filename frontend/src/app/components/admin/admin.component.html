@@ -283,6 +283,16 @@
         </mat-select>
       </mat-form-field>
 
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Supervisor</mat-label>
+        <mat-select formControlName="supervisorId">
+          <mat-option [value]="null">— None —</mat-option>
+          <mat-option *ngFor="let sup of potentialSupervisors" [value]="sup.uuid">
+            {{ sup.name }} ({{ sup.roles.join(', ') }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <div class="form-actions">
         <button mat-raised-button color="primary" type="button" (click)="onSaveEdit()" [disabled]="!editForm.valid">Save</button>
         <button mat-raised-button type="button" (click)="onCancelEdit()">Cancel</button>

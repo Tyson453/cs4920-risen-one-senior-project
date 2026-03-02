@@ -9,40 +9,4 @@
   <h3 class="header-text montserrat">
     Risen One Consulting Employee Portal
   </h3>
-
-  <div class="header-right">
-    <div class="verticle-alignment-helper">
-      <mat-icon id="white">account_circle</mat-icon>
-    </div>
-
-    <mat-icon
-      [matMenuTriggerFor]="menu"
-      class="hamburger-icon"
-    >
-      menu
-    </mat-icon>
-
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item [routerLink]="'/home'">
-        Home
-      </button>
-
-      <button mat-menu-item [routerLink]="'/daily-status'">
-        Daily Status
-      </button>
-
-      <button mat-menu-item [routerLink]="'/team-summary'">
-        Team
-      </button>
-
-      <button mat-menu-item [routerLink]="'/admin'">
-        Admin
-      </button>
-
-      <!-- Logout Button Added -->
-      <button mat-menu-item (click)="logout()">
-        Logout
-      </button>
-    </mat-menu>
-  </div>
 </div>
