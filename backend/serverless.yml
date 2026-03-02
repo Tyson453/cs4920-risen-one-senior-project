@@ -41,7 +41,8 @@ custom:
       - dev
     start:
       port: 8000
-      inMemory: true
+      inMemory: false
+      dbPath: .dynamodb
       migrate: true
       seed: false
     seed:
