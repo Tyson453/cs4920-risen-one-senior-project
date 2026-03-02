@@ -3,11 +3,11 @@ body,
 .login-page {
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(135deg, #121212 15%, #FFCE1B 100%);
+    background: var(--login-screen-bg);
     overflow: hidden;
 }
 #yellow{
-    color:#e0a951;
+    color: var(--primary-accent-soft);
 }
 
 .example-spacer{
@@ -20,7 +20,7 @@ body,
     height: fit-content;
     width: fit-content;
     padding: clamp(10px, 1.2vw, 16px);
-    background-color: #e0a951;
+    background-color: var(--primary-accent-soft);
     border-radius: 100%;
 }
 #img-container2{
@@ -34,7 +34,7 @@ body,
     height: fit-content;
     width: fit-content;
     padding: clamp(8px, 1vw, 16px);
-    background-color: #e0a951;
+    background-color: var(--primary-accent-soft);
     border-radius: 100%;
     z-index: 1;
 }
@@ -86,7 +86,7 @@ mat-card {
 
 
 .cta-card {
-    background-color: #212124;
+    background-color: var(--primary-surface);
     color: white;
     border-radius: 15px;
     padding: 20px;
@@ -109,47 +109,47 @@ mat-card {
 
 .form-field {
     width: calc(100% - 20px);
-    --mdc-outlined-text-field-outline-color: #575757;
-    --mdc-outlined-text-field-focus-outline-color: #575757;
-    --mdc-outlined-text-field-hover-outline-color: #575757;
-    --mdc-outlined-text-field-error-outline-color: #575757;
-    --mdc-outlined-text-field-error-focus-outline-color: #575757;
-    --mdc-outlined-text-field-error-hover-outline-color: #575757;
-    --mdc-outlined-text-field-error-label-text-color: #575757;
-    --mdc-outlined-text-field-error-caret-color: #F5F5F5;
+    --mdc-outlined-text-field-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-focus-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-hover-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-focus-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-hover-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-label-text-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-caret-color: var(--primary-text);
 }
 
 .form-field.error-field {
-    --mdc-outlined-text-field-error-outline-color: #f44336;
-    --mdc-outlined-text-field-error-focus-outline-color: #f44336;
-    --mdc-outlined-text-field-error-hover-outline-color: #f44336;
-    --mdc-outlined-text-field-error-label-text-color: #f44336;
-    --mdc-outlined-text-field-error-caret-color: #f44336;
+    --mdc-outlined-text-field-error-outline-color: var(--danger);
+    --mdc-outlined-text-field-error-focus-outline-color: var(--danger);
+    --mdc-outlined-text-field-error-hover-outline-color: var(--danger);
+    --mdc-outlined-text-field-error-label-text-color: var(--danger);
+    --mdc-outlined-text-field-error-caret-color: var(--danger);
 }
 
 .login-form input {
     color: white;
 }
 .login-form input::placeholder {
-    color: #575757;
+    color: var(--secondary-text);
 }
 
 .login-form input:-webkit-autofill,
 .login-form input:-webkit-autofill:hover,
 .login-form input:-webkit-autofill:focus,
 .login-form input:-webkit-autofill:active {
-    color: #F5F5F5 !important;
-    -webkit-text-fill-color: #F5F5F5 !important;
-    caret-color: #F5F5F5;
-    -webkit-box-shadow: 0 0 0 1000px #212124 inset !important;
-    box-shadow: 0 0 0 1000px #212124 inset !important;
+    color: var(--primary-text) !important;
+    -webkit-text-fill-color: var(--primary-text) !important;
+    caret-color: var(--primary-text);
+    -webkit-box-shadow: 0 0 0 1000px var(--primary-surface) inset !important;
+    box-shadow: 0 0 0 1000px var(--primary-surface) inset !important;
     transition: background-color 999999s ease-out 0s, color 999999s ease-out 0s;
 }
 
 .login-form .login-button {
     align-self: center;
-    background-color: #FFCE1B;
-    color: black;
+    background-color: var(--primary-accent);
+    color: var(--primary-surface);
     width: calc(100% - 20px);
 }
 
