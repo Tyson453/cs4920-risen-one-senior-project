@@ -30,11 +30,6 @@ h3 {
   font-weight: bold;
 }
 
-.hamburger-icon {
-  cursor: pointer;
-  margin-left: 10px;
-}
-
 .head-bg {
   position: relative;
 }
@@ -61,6 +56,12 @@ h3 {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+}
+
+.account-logo {
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
 }
 
 .account-card {
@@ -90,10 +91,6 @@ h3 {
   font-weight: 600;
 }
 
-/* .hamburger-container {
-  height: 100%;
-} */
-
 @media screen and (max-width: 575px) {
   .header-container .header-text {
     display: none;
@@ -104,14 +101,4 @@ h3 {
     height: 70px;
     width: 70px;
   }
-}
-
-button.mat-mdc-menu-item {
-  height: 35px !important;
-  display: flex;
-  align-items: center;
-}
-
-.mat-menu-content {
-  background-color: #212124;
 }

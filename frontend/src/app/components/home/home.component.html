@@ -1,35 +1,43 @@
 <div class="home-container" *ngIf="user">
-  <div class="floating-reorder-controls">
-    <button
-      *ngIf="!isReordering"
-      mat-icon-button
-      class="reorder-gear"
-      type="button"
-      aria-label="Reorder cards"
-      matTooltip="Reorder Cards"
-      (click)="toggleReordering()">
-      <mat-icon>dashboard</mat-icon>
-    </button>
-
-    <div *ngIf="isReordering" class="reordering-state">
-      <button
-        mat-icon-button type="button"
-        aria-label="Save reordering"
-        matTooltip="Confirm"
-        (click)="finishReordering()">
-        <mat-icon>check</mat-icon>
-      </button>
-      <button
-        mat-icon-button type="button"
-        aria-label="Cancel reordering"
-        matTooltip="Cancel"
-        (click)="cancelReordering()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  </div>
-
   <div class="content">
+    <div class="home-page-header">
+      <div class="home-page-header-top">
+        <mat-icon class="dashboard-icon">dashboard</mat-icon>
+        <h1 class="home-page-title">Home</h1>
+        <div class="floating-reorder-controls">
+          <button
+            *ngIf="!isReordering"
+            mat-raised-button
+            class="reorder-gear"
+            type="button"
+            aria-label="Reorder cards"
+            matTooltip="Reorder Cards"
+            (click)="toggleReordering()">
+            <mat-icon>swap_horizontal_circle</mat-icon>
+          </button>
+
+          <div *ngIf="isReordering" class="reordering-state">
+            <button
+              mat-icon-button type="button"
+              aria-label="Save reordering"
+              matTooltip="Confirm"
+              (click)="finishReordering()">
+              <mat-icon>check</mat-icon>
+            </button>
+            <button
+              mat-icon-button type="button"
+              aria-label="Cancel reordering"
+              matTooltip="Cancel"
+              (click)="cancelReordering()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-page-divider"></div>
+    </div>
+
     <div
       class="home-cards-container"
       cdkDropList

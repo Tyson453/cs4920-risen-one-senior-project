@@ -17,7 +17,7 @@
         class="account-trigger verticle-alignment-helper"
         aria-label="Open account panel"
         (click)="toggleAccountCard($event)">
-        <mat-icon id="white">account_circle</mat-icon>
+        <mat-icon class="account-logo">account_circle</mat-icon>
       </button>
 
       <div class="account-card" *ngIf="showAccountCard">
@@ -29,35 +29,5 @@
         <span class="account-card-name">John Doe</span>
       </div>
     </div>
-
-    <mat-icon
-      [matMenuTriggerFor]="menu"
-      class="hamburger-icon"
-    >
-      menu
-    </mat-icon>
-
-    <mat-menu #menu="matMenu" class="header-menu-panel">
-      <button mat-menu-item [routerLink]="'/home'">
-        Home
-      </button>
-
-      <button mat-menu-item [routerLink]="'/daily-status'">
-        Daily Status
-      </button>
-
-      <button mat-menu-item [routerLink]="'/team-summary'">
-        Team
-      </button>
-
-      <button mat-menu-item [routerLink]="'/admin'">
-        Admin
-      </button>
-
-      <!-- Logout Button Added -->
-      <button mat-menu-item (click)="logout()">
-        Logout
-      </button>
-    </mat-menu>
   </div>
 </div>

@@ -4,5 +4,8 @@
   <mat-list-item [routerLink]="'/team-summary'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Team</mat-list-item>
   <mat-list-item *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Admin</mat-list-item>
   <div class="sidenav-spacer"></div>
-  <mat-list-item class="logout-item" (click)="logout()">Logout</mat-list-item>
+  <mat-list-item class="logout-item" (click)="logout()">
+    <mat-icon class="logout-icon">logout</mat-icon>
+    Logout
+  </mat-list-item>
 </mat-nav-list>
