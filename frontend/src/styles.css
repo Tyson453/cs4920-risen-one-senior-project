@@ -124,3 +124,12 @@ tr.expanded {
 .monthly-report-modal .mat-mdc-button {
   color: var(--primary-text) !important;
 }
+
+.cdk-overlay-pane.confirmation-modal .mat-mdc-dialog-container .mdc-dialog__surface,
+.confirmation-modal .mat-mdc-dialog-surface,
+.confirmation-modal .mdc-dialog__surface {
+  background-color: var(--primary-surface) !important;
+  border: 1px solid var(--primary-surface-hover) !important;
+  border-radius: 0.5rem !important;
+  color: var(--primary-text) !important;
+}
