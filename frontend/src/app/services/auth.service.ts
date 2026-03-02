@@ -19,6 +19,7 @@ export class AuthService {
   }
 
   getUser() {
+    this.user = this.setUser();
     return this.user;
   }
 

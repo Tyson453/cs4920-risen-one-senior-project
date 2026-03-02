@@ -181,7 +181,6 @@ functions:
           path: import-data
           method: post
           cors: true
-          authorizer: adminJwtAuthorizer
 
   createUser:
     handler: src/handlers/create-user.handler
