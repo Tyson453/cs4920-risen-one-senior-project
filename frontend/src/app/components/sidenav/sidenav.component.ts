@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { AuthService } from '../../auth.service';
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -7,18 +7,15 @@ import { AuthService } from '../../auth.service';
   styleUrls: ['./sidenav.component.scss']
 })
 export class SidenavComponent implements OnInit {
-  admin: boolean = false;
-  lead: boolean = false;
-  tester: boolean = false;
-  pm: boolean = false;
-
-  toggle = [false,false];
+  isAdmin = false;
 
   constructor(private authService: AuthService) {}
 
-  ngOnInit() {}
+  async ngOnInit() {
+    this.isAdmin = await this.authService.adminCheck();
+  }
 
   logout() {
-    this.authService.logout();
+    this.authService.signOut();
   }
 }
