@@ -1,7 +1,13 @@
 .container {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
 
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -11,34 +17,84 @@ h3{
   margin:10px;
 }
 
-/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
-mat-card {
-  background-color: white;
-  border-radius: 30px;
-  font-family: 'Roboto';
-  height: 100%;
-  margin-left: 5%;
-  margin-right: 5%;
-  margin-top: 2.5rem;
-    margin-bottom: 5rem;
-    padding-bottom: 1.5rem;
-    padding-left: 0;
-    padding-right: 0;
-    // padding: 10px
+.daily-status-page-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.daily-status-page-header-top .status-icon {
+  color: var(--primary-accent);
+  font-size: 26px;
+  width: 45px;
+  height: 45px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--primary-surface);
+  border: 2px solid var(--primary-accent);
+  box-sizing: border-box;
+}
+
+
+.daily-status-page-title {
+  margin: 0;
+  color: var(--primary-text);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-left: 0.25rem;
+}
+
+.daily-status-page-divider {
+  margin-top: 0.5rem;
+  width: 100%;
+  height: 2px;
+  background-color: var(--primary-accent);
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
-mat-card-content{
-  overflow-x: auto;
+.daily-status-card {
+  background-color: var(--primary-surface);
+  border-radius: 0.5rem;
+  height: 100%;
+  margin-top: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
+.daily-status-card .mat-mdc-card-content.mat-mdc-card-content {
+  overflow-x: hidden;
+  padding-left: 0;
+  padding-right: 0;
+  box-sizing: border-box;
+}
+
+.daily-status-card-header {
+  margin: 0.5rem 1.5rem 0.5rem;
+  color: var(--primary-text);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.daily-status-card-divider {
+  margin: 0.5rem 1.5rem;
+  width: calc(100% - 3rem);
+  height: 2px;
+  background-color: var(--primary-surface-hover);
 }
 
 .mat-mdc-header-row {
-  background-color: #e0aa51;
+  background: transparent;
+  background-color: var(--primary-surface);
 }
+
 .mat-mdc-header-cell {
-  color: #000;
-  font-weight: 700;
-  font-size: 1.15rem;
+  background: transparent;
+  color: var(--muted-text);
+  font-weight: bold;
+  font-size: 1rem;
 }
 
 .mat-mdc-card-header{
@@ -47,29 +103,193 @@ mat-card-content{
 
 table {
   width: 100%;
-  overflow-x: scroll;
+  margin: 0;
+  overflow-x: visible;
+  table-layout: fixed;
+  background-color: var(--primary-bg);
+  border: 1px solid var(--primary-surface-hover);
 
-  .mat-column-date {
-    width: 25%;
+  .mat-column-date,
+  .mat-column-projects,
+  .mat-column-reportStatus {
+    width: 33.333%;
   }
+}
 
-  .mat-column-projectIds {
-    width: 50%;
-  }
+table thead {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 206, 27, 0.25) 0%,
+    #1a1a1a 65%
+  );
+}
+
+table tbody .mat-mdc-row {
+  background: var(--primary-surface);
+}
+
+.no-data-cell {
+  text-align: center;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+.no-data-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-data-image {
+  display: block;
+  margin: 0 auto;
+}
+
+.no-data-title {
+  margin-top: -3rem;
+  color: var(--primary-text);
+  font-size: 1.5rem;
+  // font-weight: 700;
+}
+
+.no-data-subtitle {
+  margin-top: 0.25rem;
+  color: var(--secondary-text);
+  font-size: 0.85rem;
+}
+
+.no-data-add-btn {
+  margin-top: 0.75rem;
+  --mdc-protected-button-container-color: var(--primary-accent);
+  --mdc-protected-button-label-text-color: var(--primary-surface);
+  border: none;
+  border-radius: 999px;
+  font-weight: bold;
+  padding: 0.1rem 1rem;
+  transition: transform 120ms ease;
+}
+
+.no-data-add-btn:hover {
+  transform: scale(1.03);
 }
 
 /* TODO(mdc-migration): The following rule targets internal classes of paginator that may no longer apply for the MDC version. */
 mat-paginator {
   min-width: 200px;
-  float: right;
+  margin-right: 0;
 }
 
-th.mat-mdc-header-cell, td.mat-mdc-cell, td.mat-mdc-footer-cell {
-  padding: 10px;
+.daily-status-table-wrap {
+  margin: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.paginator {
+  width: auto !important;
+  background-color: var(--primary-surface);
+  color: var(--muted-text);
+  --mat-paginator-enabled-icon-color: var(--muted-text);
+  --mat-paginator-disabled-icon-color: var(--muted-text);
+  font-size: 13px;
+  align-self: flex-end;
+  margin-top: 0.5rem;
+}
+
+:host ::ng-deep .paginator .mat-mdc-select-value-text,
+:host ::ng-deep .paginator .mat-mdc-select-arrow,
+:host ::ng-deep .paginator .mat-mdc-select-arrow svg {
+  color: var(--muted-text) !important;
+  fill: var(--muted-text) !important;
+}
+
+:host ::ng-deep .paginator .mdc-notched-outline__leading,
+:host ::ng-deep .paginator .mdc-notched-outline__notch,
+:host ::ng-deep .paginator .mdc-notched-outline__trailing {
+  border-color: var(--muted-text) !important;
+}
+
+th.mat-mdc-header-cell,
+td.mat-mdc-cell,
+td.mat-mdc-footer-cell {
+  text-align: center;
 }
 
 button {
   margin: 10px;
+}
+
+.container button:not(.mat-mdc-icon-button) {
+  font-weight: bold;
+}
+
+.update-range-btn {
+  --mdc-protected-button-container-color: var(--primary-accent);
+  --mdc-protected-button-label-text-color: var(--primary-surface);
+  border: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.run-report-btn:disabled,
+.update-range-btn.mat-mdc-button-disabled {
+  --mdc-protected-button-container-color: var(--primary-surface);
+  --mdc-protected-button-label-text-color: var(--primary-accent);
+  --mdc-protected-button-disabled-container-color: var(--primary-surface);
+  --mdc-protected-button-disabled-label-text-color: var(--primary-accent);
+  border: 2px solid var(--primary-accent);
+  opacity: 1;
+}
+
+.run-report-btn {
+  --mdc-protected-button-container-color: var(--primary-accent);
+  --mdc-protected-button-label-text-color: var(--primary-surface);
+  border: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.run-report-btn:disabled,
+.run-report-btn.mat-mdc-button-disabled {
+  --mdc-protected-button-container-color: var(--primary-surface);
+  --mdc-protected-button-label-text-color: var(--primary-accent);
+  --mdc-protected-button-disabled-container-color: var(--primary-surface);
+  --mdc-protected-button-disabled-label-text-color: var(--primary-accent);
+  border: 2px solid var(--primary-accent);
+  opacity: 1;
+}
+
+.update-range-btn:disabled,
+.update-range-btn.mat-mdc-button-disabled {
+  opacity: 1;
+}
+
+.update-range-btn:hover:not(:disabled):not(.mat-mdc-button-disabled) {
+  transform: scale(1.01);
+}
+
+.run-report-btn:hover:not(:disabled):not(.mat-mdc-button-disabled) {
+  transform: scale(1.01);
+}
+
+.monthly-report-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 1rem 1rem;
+}
+
+.monthly-report-btn {
+  --mdc-protected-button-container-color: var(--primary-accent);
+  --mdc-protected-button-label-text-color: var(--primary-surface);
+  border: none;
+  min-width: 190px;
+  transition: transform 120ms ease;
+}
+
+.monthly-report-btn:hover {
+  transform: scale(1.01);
 }
 
 .spinner {
@@ -81,42 +301,107 @@ button {
   margin-bottom: 10px;
 }
 
-.date-container {
-  height: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 mat-form-field {
   margin: 10px;
 }
 
-::ng-deep .mat-mdc-form-field-infix  {
-  min-height: 45px;
+.date-range-field {
+  margin-left: 1.5rem;
+  --mat-form-field-container-height: 42px;
+  --mat-form-field-container-vertical-padding: 10px;
+  --mdc-outlined-text-field-outline-color: var(--secondary-text);
+  --mdc-outlined-text-field-hover-outline-color: var(--secondary-text);
+  --mdc-outlined-text-field-focus-outline-color: var(--secondary-text);
+  --mdc-outlined-text-field-label-text-color: var(--secondary-text);
+  --mdc-outlined-text-field-hover-label-text-color: var(--secondary-text);
+  --mdc-outlined-text-field-focus-label-text-color: var(--secondary-text);
+  --mdc-outlined-text-field-caret-color: var(--secondary-text);
+}
+
+.date-range-field input {
+  color: var(--primary-text);
+}
+
+.date-range-field mat-datepicker-toggle {
+  color: var(--secondary-text);
+}
+
+.date-range-field mat-hint {
+  color: var(--secondary-text);
 }
 
 @media screen and (max-width: 800px) {
   .container {
     margin: 0;
     border: none;
-    border-radius: 0px;
+    border-radius: 0;
     width: 100%;
-    height: 100%;
-    padding: 0;
+    height: auto;
+    max-width: none;
+    padding: 1rem;
   }
 
-  mat-card {
-    margin: 0;
-    border-radius: 0;
+  .daily-status-page-header-top .status-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 22px;
+  }
+
+  .daily-status-page-title {
+    font-size: 1.5rem;
+  }
+
+  .daily-status-card {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .daily-status-card-header {
+    margin: 0.5rem 1rem;
+  }
+
+  .daily-status-card-divider {
+    margin: 0.5rem 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .mobile-update-range-btn {
+    width: calc(100% - 2rem);
+    max-width: 320px;
+    margin: 0.25rem auto 0.75rem;
+    display: block;
+  }
+
+  .daily-status-table-wrap {
+    margin: 0 1rem;
+    overflow-x: auto;
   }
 
   table {
-  
-    .mat-column-date {
-      width: 50%;
-      padding-left: 20px;
+    min-width: 520px;
+
+    .mat-column-date,
+    .mat-column-projects,
+    .mat-column-reportStatus {
+      width: 33.333%;
     }
+  }
+
+  .paginator {
+    margin-top: 0.5rem;
+    margin-right: 0;
+  }
+
+  .monthly-report-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.5rem 1rem 1rem;
+  }
+
+  .monthly-report-btn {
+    width: 100%;
+    max-width: 320px;
   }
   
   h3 {
@@ -127,5 +412,11 @@ mat-form-field {
     display: flex;
     align-items: center;
     flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tableButtons button {
+    width: calc(100% - 2rem);
+    max-width: 320px;
   }
 }

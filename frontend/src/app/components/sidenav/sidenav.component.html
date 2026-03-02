@@ -1,8 +1,20 @@
 <mat-nav-list class="sidenav-container">
-  <mat-list-item [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Home</mat-list-item>
-  <mat-list-item [routerLink]="'/daily-status'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Daily Status</mat-list-item>
-  <mat-list-item [routerLink]="'/team-summary'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Team</mat-list-item>
-  <mat-list-item *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Admin</mat-list-item>
+  <mat-list-item class="home-item" [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon type="white">dashboard</mat-icon>
+    Home
+  </mat-list-item>
+  <mat-list-item class="daily-status-item" [routerLink]="'/daily-status'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon type="white">update</mat-icon>
+    Daily Status
+  </mat-list-item>
+  <mat-list-item class="team-item" [routerLink]="'/team-summary'" routerLinkActive="active-nav-item"[routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon type="white">group</mat-icon>
+    Team
+  </mat-list-item>
+  <mat-list-item class="admin-item" *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon type="white">security</mat-icon>
+    Admin
+  </mat-list-item>
   <div class="sidenav-spacer"></div>
   <mat-list-item class="logout-item" (click)="logout()">
     <mat-icon class="logout-icon">logout</mat-icon>

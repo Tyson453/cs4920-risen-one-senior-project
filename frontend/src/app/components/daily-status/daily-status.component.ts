@@ -297,6 +297,7 @@ export class DailyStatusComponent implements OnInit {
     }).finally(() => {
       this.dialogService.closeSpinner();
       this.dialogService.saveSuccessOpen({
+        panelClass: 'monthly-report-modal',
         width: '500px',
         data: {
           "title": "Email Sent",
@@ -326,6 +327,7 @@ export class DailyStatusComponent implements OnInit {
     }).finally(() => {
       this.dialogService.closeSpinner();
       this.dialogService.saveSuccessOpen({
+        panelClass: 'monthly-report-modal',
         width: '500px',
         data: {
           "title": "Email Sent",
