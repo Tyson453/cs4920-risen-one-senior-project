@@ -8,6 +8,16 @@
     min-width: 150px;
 }
 
+.sidenav-spacer {
+    flex: 1;
+}
+
+.logout-item {
+    border-top: 2px solid #e0aa51 !important;
+    color: #e0aa51 !important;
+    cursor: pointer;
+}
+
 .mat-mdc-list-item {
     color: #F5F5F5 !important;
     padding-top: 1rem;

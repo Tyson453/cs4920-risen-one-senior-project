@@ -41,7 +41,8 @@ custom:
       - dev
     start:
       port: 8000
-      inMemory: true
+      inMemory: false
+      dbPath: .dynamodb
       migrate: true
       seed: false
     seed:
@@ -159,6 +160,16 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: true
 
+  jwtAuthorizer:
+    handler: src/handlers/authorizer.handler
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
+
+  adminJwtAuthorizer:
+    handler: src/handlers/admin-authorizer.handler
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
+
   importData:
     handler: src/handlers/import-data.handler
     environment:
@@ -183,6 +194,7 @@ functions:
           path: create-user
           method: post
           cors: true
+          authorizer: adminJwtAuthorizer
 
   getTeamsAdmin:
     handler: src/handlers/get-teams-admin.handler
@@ -194,6 +206,7 @@ functions:
       - http:
           path: teams/admin
           method: get
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -214,6 +227,7 @@ functions:
       - http:
           path: teams/teammates
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -234,6 +248,28 @@ functions:
       - http:
           path: users/{uuid}
           method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  updateUser:
+    handler: src/handlers/update-user.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: users/{uuid}
+          method: put
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -254,6 +290,7 @@ functions:
       - http:
           path: users
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -274,6 +311,7 @@ functions:
       - http:
           path: projects
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -297,6 +335,7 @@ functions:
       - http:
           path: teams
           method: post
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -318,6 +357,7 @@ functions:
       - http:
           path: teams/{type}/{teamName}
           method: put
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -339,6 +379,7 @@ functions:
       - http:
           path: teams/{type}/{teamName}
           method: delete
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -359,6 +400,7 @@ functions:
       - http:
           path: teams/{type}/{teamName}/members
           method: post
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -380,6 +422,7 @@ functions:
       - http:
           path: users/{uuid}
           method: delete
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -400,6 +443,7 @@ functions:
       - http:
           path: teams/{type}/{teamName}/members/{uuid}
           method: delete
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:

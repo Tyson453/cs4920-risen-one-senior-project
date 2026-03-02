@@ -19,6 +19,8 @@ const USER_FIELDS = [
     'startDate',
     'startYear',
     'state',
+    'supervisorId',
+    'teamName',
     'username'
 ]
 

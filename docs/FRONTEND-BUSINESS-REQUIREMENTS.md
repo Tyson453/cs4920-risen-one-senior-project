@@ -22,11 +22,11 @@ The app uses **Angular** with **Angular Material**, a **serverless AWS backend**
 
 | Requirement | Description | Current state |
 |------------|-------------|---------------|
-| **Login** | User authenticates with username and password; on success, redirect to `/home`. | Login form exists; frontend currently uses a stub (always succeeds). Backend Lambda validates against DynamoDB `users` table (key: `username`). |
-| **Logout** | User can sign out; session is cleared and user is redirected to `/login`. | Implemented in header menu; `AuthService.logout()` navigates to `/login`. |
-| **Session / user context** | Authenticated user’s identity and metadata (name, uuid, roles, assignments, etc.) must be available app-wide. | `AuthService` in `services/auth.service.ts` provides `getUser()` returning a Promise; currently returns **hardcoded** user (no real login integration). |
-| **Route guard** | Unauthenticated users must not access protected routes; redirect to `/login` when not logged in. | Default route redirects `/` to `/login`; no explicit guard on `/home` or `/daily-status`. |
-| **Role checks** | App must support checking roles for conditional UI and API access: `ADMIN`, `LEAD`, `PM`, `TESTER`, `INTERIM_LEAD`. | `AuthService` exposes `adminCheck()`, `leadCheck()`, `leadAdminCheck()`, `pmCheck()`, `pmAdminCheck()`, `testerCheck()`, `interimLeadCheck()`. |
+| **Login** | User authenticates with username and password; on success, redirect to `/home`. | ✅ Implemented. `LoginComponent` calls `AuthService.login()`; backend Lambda validates against DynamoDB `users` table via `UsernameIndex`. On success, JWT stored as `localStorage.authToken` and full user object stored as `localStorage.currentUser`. |
+| **Logout** | User can sign out; session is cleared and user is redirected to `/login`. | ✅ Implemented. Logout button in sidenav calls `AuthService.signOut()`, clears `authToken` and `currentUser` from localStorage, navigates to `/login`. |
+| **Session / user context** | Authenticated user’s identity and metadata (name, uuid, roles, assignments, etc.) must be available app-wide. | ✅ Implemented. `services/auth.service.ts` `getUser()` reads `localStorage.currentUser` (set at login) and returns a Promise resolving to the real user object. All role-check methods (`adminCheck`, etc.) read from this real session data. |
+| **Route guard** | Unauthenticated users must not access protected routes; redirect to `/login` when not logged in. | ✅ Implemented. `AuthGuard` (`auth.guard.ts`) protects all authenticated routes by checking for `authToken`. `adminGuard` (`guards/admin.guard.ts`) additionally enforces ADMIN role on `/admin`. |
+| **Role checks** | App must support checking roles for conditional UI and API access: `ADMIN`, `LEAD`, `PM`, `TESTER`, `INTERIM_LEAD`. | ✅ Implemented. `services/auth.service.ts` exposes `adminCheck()`, `leadCheck()`, `leadAdminCheck()`, `pmCheck()`, `pmAdminCheck()`, `testerCheck()`, `interimLeadCheck()` — all now resolve against real session data. |
 
 ### 2.2 User model (expected from backend / session)
 
@@ -35,6 +35,7 @@ The app uses **Angular** with **Angular Material**, a **serverless AWS backend**
 - `assignments: string[]` (project UUIDs)
 - `teamName?: string | null` (organizational team name)
 - `pmTeams: string[]` (PM team names the user belongs to)
+- `supervisorId?: string` (UUID of the user's direct supervisor; assigned by admin)
 - `requestedPTO` (map of date → PTO request details) for daily status "PTO"/"SICK" display
 
 ### 2.3 Team Structure
@@ -92,20 +93,18 @@ These components wrap all authenticated content (hidden on `/login`).
 |------------|-------------|
 | **Logo** | ROC logo; click navigates to `/home`. |
 | **Title** | “Risen One Consulting Employee Portal” (or equivalent). |
-| **Navigation menu** | Hamburger/menu icon opens a menu with: Home, Daily Status, Team (submenu), Admin (submenu), Log Out. |
-| **Team submenu** | Placeholder for lead-specific links (e.g. team daily status); currently “Blank” links. |
-| **Admin submenu** | Placeholder for admin-specific links; currently “Blank” links. |
-| **Log Out** | Calls `AuthService.logout()` and redirects to `/login`. |
-| **User indicator** | Optional: show logged-in user (e.g. icon or name); component has `user` and `userphoto` but they are not wired to the shared auth user in the current code. |
+| **User indicator** | Optional: show logged-in user (e.g. icon or name); not yet wired. |
+
+> **Note:** The hamburger/navigation menu has been removed from the header. Navigation and logout have been moved to the sidenav (`app-sidenav`).
 
 ### 4.2 Sidenav (`app-sidenav`)
 
 | Requirement | Description |
 |------------|-------------|
-| **Main links** | Home, Daily Status, and placeholder “blank” link. |
-| **Team section** | Expandable “Team” section; when expanded, show sub-items (e.g. team daily status); currently “blank”. |
-| **Admin section** | Expandable “Admin” section; when expanded, show admin links; currently “blank”. |
-| **Role-based visibility** | Optionally show Team/Admin sections only for LEAD/ADMIN/PM (flags exist on component but not fully wired). |
+| **Main links** | Home, Daily Status, Team. |
+| **Admin link** | ✅ Shown only to users with ADMIN role (`*ngIf=”isAdmin”`); hidden for all other roles. |
+| **Log Out** | ✅ Logout button pinned to the bottom of the sidenav; calls `AuthService.signOut()`, clears session, and redirects to `/login`. |
+| **Team section** | Expandable “Team” section with sub-items (e.g. team daily status) — not yet implemented. |
 
 ### 4.3 Footer (`app-footer`)
 
@@ -280,7 +279,7 @@ This page allows administrators to manage user accounts, including user details,
 | Requirement | Description |
 |------------|-------------|
 | **Title** | "User Management" or "Manage Users". |
-| **Role protection** | Only accessible to users with ADMIN role. Non-admin users attempting to access should be redirected to `/home`. |
+| **Role protection** | ✅ Implemented. `adminGuard` enforces ADMIN role at the router level; runtime check in component provides a fallback. Admin link in sidenav is hidden for non-admins. |
 | **Initial view** | Display a list of all users with columns: **Name**, **Email**, **State**, **Start Date**. |
 | **List actions** | Each user row has an **Edit** button. Clicking opens the edit form for that user. |
 
@@ -291,10 +290,11 @@ Opened when an admin clicks the "Edit" button on a user row.
 | Requirement | Description |
 |------------|-------------|
 | **Read-only fields** | User UUID (for reference). |
-| **Editable fields** | Name, Email, State, Start Date, Roles, Projects, PM Team. |
+| **Editable fields** | Name, Email, State, Start Date, Roles, Projects, PM Team, Supervisor. |
 | **Roles field** | Multiselect dropdown; displays all available roles (EMPLOYEE, LEAD, PM, ADMIN, INTERIM_LEAD, TESTER). Admin can assign zero or more roles. |
 | **Projects field** | Multiselect dropdown; displays all available projects (filtered by project status: Active). Admin can assign zero or more projects to the user. |
 | **PM Team field** | Multiselect dropdown; displays all available team names. Admin can assign the user to zero or more PM teams. |
+| **Supervisor field** | ✅ Implemented. Single-select dropdown populated with users who have LEAD or PM role. Stores selected user's UUID as `supervisorId` on the employee record. Required for PDT approval workflow. |
 | **Form validation** | Name and Email are required; form submit disabled when invalid. State and Start Date should accept standard formats (e.g. state abbreviations, date picker for Start Date). |
 | **Save button** | Submits the form; on success, shows a confirmation dialog (e.g. "User updated successfully") and returns to the user list. On error, shows standard error dialog. |
 | **Cancel button** | Closes the form and returns to the user list without saving. |
@@ -302,11 +302,11 @@ Opened when an admin clicks the "Edit" button on a user row.
 
 ### 10.3 API contract (conceptual)
 
-- **Get all users:** `getUsers()` returns array of user objects with fields: uuid, name, email, state, startDate, roles, assignments (projects), pmTeams.
+- **Get all users:** `getUsers()` returns array of user objects with fields: uuid, name, email, state, startDate, roles, assignments (projects), pmTeams, supervisorId.
 - **Get available roles:** `getAvailableRoles()` returns array of role names.
 - **Get available projects:** `getAllProjects()` returns array of active projects.
 - **Get available PM teams:** `getAvailablePMTeams()` returns array of team names.
-- **Update user:** `updateUser(uuid, userData)` with `userData`: `{ name, email, state, startDate, roles, projects, pmTeams }`.
+- **Update user:** ✅ `updateUser(uuid, userData)` — `PUT /users/{uuid}`; `userData` fields: `{ name, email, state, startDate, startYear, roles, assignments, pmTeams, supervisorId, teamName, maxHours, maxSickHours }`. Backend handler: `update-user.js`.
 - **Delete user:** `deleteUser(uuid)`.
 
 ---
@@ -427,9 +427,15 @@ Opened when user clicks "View" on a PENDING_APPROVAL or APPROVED PDT.
 | **Supervisor comments** | If status is CHANGES_REQUESTED, display supervisor's comments in a highlighted section. |
 | **Actions** | "Back to List" button. If CHANGES_REQUESTED, show "Edit" button to allow employee to make changes. |
 
-### 11.7 Supervisor Actions (Future Implementation)
+### 11.7 Supervisor Actions (Next Phase)
 
-When proper authentication and role-based access is implemented:
+**Prerequisites now in place:**
+- ✅ Real authentication — login stores user object (roles, supervisorId) in session
+- ✅ Role checks read real session data (`adminCheck`, `leadCheck`, etc.)
+- ✅ `supervisorId` field supported in backend (`create-user.js`, `update-user.js`) and assignable via Admin UI
+- ✅ Backend Lambda functions for employee-side PDT CRUD are implemented
+
+**Remaining to implement:**
 
 | Requirement | Description |
 |------------|-------------|
@@ -494,37 +500,38 @@ When implementing backend:
    - Template for "PDT Approved" (to employee)
    - Template for "Changes Requested on PDT" (to employee)
 
-### 11.10 Current Implementation (Phase 1)
+### 11.10 Current Implementation (Phase 2)
 
 **What is implemented:**
 - ✅ Full UI for creating/editing PDT records
 - ✅ Form with all required fields (goals, development needs, action plan, signatures)
-- ✅ List view with table of PDT records
+- ✅ List view with status column and color-coded badges (gray/yellow/green/orange)
+- ✅ Status-aware action buttons: Edit (DRAFT/CHANGES_REQUESTED), View (PENDING_APPROVAL/APPROVED), Delete (DRAFT only)
 - ✅ Empty state when no records exist
 - ✅ Form validation on all required fields
-- ✅ Save/Cancel functionality
+- ✅ Save Draft and Submit for Approval buttons with appropriate enable/disable logic
+- ✅ View-only form for PENDING_APPROVAL and APPROVED records (all fields disabled)
+- ✅ Supervisor comments banner shown on CHANGES_REQUESTED records
+- ✅ "Edit & Resubmit" shortcut from view-only form when status is CHANGES_REQUESTED
+- ✅ Delete confirmation dialog before removing a draft
 - ✅ Loading spinner and success/error dialogs
 - ✅ Responsive design (mobile and desktop)
 - ✅ Routing: `/reports/personal-dev`
-- ✅ PDTService with all stub methods
-- ✅ Integration with AuthService and DialogService
+- ✅ PDTService with real HTTP calls (no stubs); normalizes `pdtId` → `id` from backend response
+- ✅ Integration with AuthService (awaits user Promise before loading records) and DialogService
+- ✅ DynamoDB table `personalDevelopmentTraining` defined in `serverless.yml`
+- ✅ Five Lambda functions covering employee-side CRUD and submit workflow
+- ✅ Backend status validation (update/delete/submit enforce allowed statuses server-side)
+- ✅ Real authentication — session reads actual user roles and `supervisorId`
+- ✅ `supervisorId` assignable via Admin UI; stored in DynamoDB user record
 
-**What is NOT implemented (future phases):**
-- ❌ Status field and workflow (DRAFT → PENDING → APPROVED)
-- ❌ "Submit for Approval" action
-- ❌ Supervisor approval UI
-- ❌ Email notifications
-- ❌ PDF generation
-- ❌ Backend API endpoints
-- ❌ Supervisor comments field
-- ❌ Audit trail
-- ❌ Role-based access (distinguishing supervisors from employees)
-
-**Note:** Because proper authentication and role-based access are not yet implemented in the portal, the approval workflow cannot be fully functional. The current implementation allows all employees to view and edit their own PDT records as drafts. The full approval workflow will be enabled once:
-1. Real authentication is implemented (not stub login)
-2. User roles and supervisor relationships are properly defined
-3. Backend endpoints for PDT are created
-4. Email service (SES) is configured
+**What is NOT implemented (next phase):**
+- ❌ Supervisor-facing UI: pending approvals list, approve action, request-changes action
+- ❌ Backend Lambda functions: `approvePDT`, `requestChanges`, `sendApprovalEmail`
+- ❌ Email notifications via SES
+- ❌ PDF generation and attachment
+- ❌ Audit trail (log of all status transitions)
+- ❌ Table filtering by status
 
 ---
 

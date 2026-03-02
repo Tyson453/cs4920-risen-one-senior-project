@@ -136,10 +136,17 @@ export class AdminComponent implements OnInit {
     this.loadData();
   }
 
-  private checkAdminAccess(): void {
-    if (!this.authService.adminCheck()) {
+  private async checkAdminAccess(): Promise<void> {
+    const isAdmin = await this.authService.adminCheck();
+    if (!isAdmin) {
       this.router.navigate(['/home']);
     }
+  }
+
+  get potentialSupervisors(): TeamSummaryUser[] {
+    return this.users.filter(
+      (u) => u.roles.includes('LEAD') || u.roles.includes('PM')
+    );
   }
 
   private createEditForm(): FormGroup {
@@ -151,6 +158,7 @@ export class AdminComponent implements OnInit {
       roles: [[], Validators.required],
       assignments: [[]],
       pmTeams: [[]],
+      supervisorId: [null],
     });
   }
 
@@ -209,6 +217,7 @@ export class AdminComponent implements OnInit {
       roles: user.roles,
       assignments: user.assignments,
       pmTeams: user.pmTeams,
+      supervisorId: user.supervisorId ?? null,
     });
   }
 
@@ -232,7 +241,7 @@ export class AdminComponent implements OnInit {
     return new Date(parseInt(startYear), parseInt(month) - 1, parseInt(day));
   }
 
-  onSaveEdit(): void {
+  async onSaveEdit(): Promise<void> {
     if (!this.editForm.valid) return;
 
     const formValue = this.editForm.value;
@@ -253,6 +262,7 @@ export class AdminComponent implements OnInit {
         roles: formValue.roles,
         assignments: formValue.assignments,
         pmTeams: formValue.pmTeams,
+        supervisorId: formValue.supervisorId ?? undefined,
         birthday: '',
         birthdayNoAcknowledge: false,
         maxHours: 120,
@@ -263,9 +273,9 @@ export class AdminComponent implements OnInit {
       // TODO: Call backend API to create user
       this.users.push(newUser);
       this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '600px', data: { title: 'User Created', text: 'User created successfully' } });
+      this.onCancelEdit();
     } else if (this.editingUser) {
-      const updatedUser: TeamSummaryUser = {
-        ...this.editingUser,
+      const updatePayload: Partial<TeamSummaryUser> = {
         name: formValue.name,
         firstName: formValue.name.split(' ')[0],
         lastName: formValue.name.split(' ').slice(1).join(' '),
@@ -276,13 +286,19 @@ export class AdminComponent implements OnInit {
         roles: formValue.roles,
         assignments: formValue.assignments,
         pmTeams: formValue.pmTeams,
+        supervisorId: formValue.supervisorId ?? undefined,
       };
-      // TODO: Call backend API to update user
-      const index = this.users.findIndex((u) => u.uuid === this.editingUser!.uuid);
-      if (index !== -1) this.users[index] = updatedUser;
-      this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '600px', data: { title: 'User Updated', text: 'User updated successfully' } });
+      try {
+        await this.userService.updateUser(this.editingUser.uuid, updatePayload);
+        const updatedUser: TeamSummaryUser = { ...this.editingUser, ...updatePayload };
+        const index = this.users.findIndex((u) => u.uuid === this.editingUser!.uuid);
+        if (index !== -1) this.users[index] = updatedUser;
+        this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '600px', data: { title: 'User Updated', text: 'User updated successfully' } });
+        this.onCancelEdit();
+      } catch (error) {
+        this.dialogService.standardError(error, 'Update User', 'updating the user');
+      }
     }
-    this.onCancelEdit();
   }
 
   onCancelEdit(): void {
