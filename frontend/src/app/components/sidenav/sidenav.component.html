@@ -1,6 +1,6 @@
 <mat-nav-list class="sidenav-container">
-  <mat-list-item [routerLink]="'/home'">Home</mat-list-item>
-  <mat-list-item [routerLink]="'/daily-status'">Daily Status</mat-list-item>
-  <mat-list-item [routerLink]="'/team-summary'">Team</mat-list-item>
-  <mat-list-item [routerLink]="'/admin'">Admin</mat-list-item>
+  <mat-list-item [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Home</mat-list-item>
+  <mat-list-item [routerLink]="'/daily-status'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Daily Status</mat-list-item>
+  <mat-list-item [routerLink]="'/team-summary'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Team</mat-list-item>
+  <mat-list-item [routerLink]="'/admin'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">Admin</mat-list-item>
 </mat-nav-list>

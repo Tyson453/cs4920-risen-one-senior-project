@@ -9,6 +9,36 @@
   margin-right: auto;
 }
 
+.floating-reorder-controls {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.floating-reorder-controls button {
+  margin-top: 0;
+}
+
+.reorder-gear {
+  background-color: #FFCE1B;
+  color: #212124;
+}
+
+.floating-reorder-controls .reordering-state {
+  background-color: #212124;
+  border-radius: 20px;
+  padding: 0.15rem 0.35rem;
+}
+
+.floating-reorder-controls .reordering-state button[mat-icon-button] {
+  background-color: #FFCE1B;
+  color: #212124;
+}
+
 .header-card {
   display: flex;
   margin-left: 1rem;
@@ -23,12 +53,13 @@
 
 .header-card h1 {
   font-weight: bold;
+  color: #212124;
 }
 
 .header-card img {
   margin: 0 0.75rem 0 0;
   border-radius: 50%;
-  border: 2px solid grey;
+  border: 2px solid #212124;
   width: 75px;
   height: 75px;
   object-fit: cover;
@@ -43,8 +74,8 @@
 
 .header-card-reorder-controls button {
   margin-top: 0;
-  background-color: black;
-  color: white;
+  background-color: #FFCE1B;
+  color: black;
   white-space: nowrap;
 }
 
@@ -84,6 +115,7 @@
   margin: 0;
   font-size: 1.3rem;
   font-weight: bold;
+  color: white;
 }
 
 .home-cards-container {
@@ -94,9 +126,9 @@
 
 .home-card {
   grid-column: auto;
-  background-color: white;
+  background-color: #212124;
+  color: white;
   padding: 2rem;
-  border: 2px solid grey;
   border-radius: 0.5rem;
   min-height: 20vh;
   display: flex;
@@ -168,9 +200,19 @@
 .cdk-drag-preview {
   box-sizing: border-box;
   border-radius: 0.5rem;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  background-color: #FFCE1B;
   overflow: hidden;
   touch-action: none;
+}
+
+.home-card.cdk-drag-dragging,
+.cdk-drag-preview.home-card {
+  color: black;
+}
+
+.home-card:is(.cdk-drag-dragging, .cdk-drag-preview) :is(button, .button-black) {
+  background-color: #212124;
+  color: #F5F5F5;
 }
 
 .home-card.cdk-drag-animating,
@@ -193,8 +235,8 @@ h5 {
 
 button {
   margin-top: 1rem;
-  color: white;
-  background-color: black;
+  color: black;
+  background-color: #FFCE1B;
 }
 
 button:hover {
@@ -213,6 +255,7 @@ button:hover {
   padding-right: 4rem;
   font-size: 4rem;
   height: 5rem;
+  color: #3f3f3f;
 }
 
 .header-card-info-mobile {
@@ -274,8 +317,8 @@ button:hover {
 }
 
 .button-black.button-black {
-  background-color: black;
-  color: white;
+  background-color: #FFCE1B;
+  color: black;
   height: auto;
   padding: 10px;
   text-align: center;

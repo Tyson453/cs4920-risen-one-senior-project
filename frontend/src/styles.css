@@ -6,11 +6,7 @@
 html,
 body {
   all: unset;
-    background-image: linear-gradient(
-      to right bottom,
-      hsla(48, 100%, 49%, 0.8),
-      hsla(34, 100%, 46%, 0.8)
-    );
+  background: #121212;
 }
 
 p {
@@ -88,4 +84,18 @@ tr.expanded {
 
 .mat-sort-header-container {
   justify-content: center;
+}
+
+.header-menu-panel.mat-mdc-menu-panel {
+  background-color: #212124 !important;
+  border: 1px solid #3f3f3f !important;
+}
+
+.header-menu-panel .mat-mdc-menu-item {
+  background-color: #212124 !important;
+  color: #F5F5F5 !important;
+}
+
+.header-menu-panel .mat-mdc-menu-item:is(:hover) {
+  background-color: #3f3f3f !important;
 }

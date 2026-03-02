@@ -1,46 +1,35 @@
 <div class="home-container" *ngIf="user">
-  <div class="content">
-    <div class="header-card">
-      <img class="clickable" [src]="this.userphoto" 
-      [routerLink]="'/profile/'+user.uuid" alt="profile picture"/>
-      <div class="header-card-info">
-        <h2>Welcome, {{ user.name }}</h2>
-      </div>
-      <div class="header-card-info-mobile">
-        <h1>Welcome,</h1>
-        <h1>{{ user.name }}</h1>
-      </div>
-      <div class="header-card-reorder-controls">
-        <button
-          *ngIf="!isReordering"
-          mat-raised-button
-          class="header-card-reorder-toggle"
-          type="button"
-          (click)="toggleReordering()">
-          Reorder Cards
-        </button>
+  <div class="floating-reorder-controls">
+    <button
+      *ngIf="!isReordering"
+      mat-icon-button
+      class="reorder-gear"
+      type="button"
+      aria-label="Reorder cards"
+      matTooltip="Reorder Cards"
+      (click)="toggleReordering()">
+      <mat-icon>dashboard</mat-icon>
+    </button>
 
-        <div *ngIf="isReordering" class="reordering-state">
-          <span class="reordering-text">Reordering...</span>
-          <button 
-            mat-icon-button type="button"
-            aria-label="Save reordering"
-            matTooltip="Confirm"
-            (click)="finishReordering()"
-            >
-            <mat-icon>check</mat-icon>
-          </button>
-          <button 
-            mat-icon-button type="button"
-            aria-label="Cancel reordering"
-            (click)="cancelReordering()"
-            matTooltip="Cancel"
-            >
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-      </div>
+    <div *ngIf="isReordering" class="reordering-state">
+      <button
+        mat-icon-button type="button"
+        aria-label="Save reordering"
+        matTooltip="Confirm"
+        (click)="finishReordering()">
+        <mat-icon>check</mat-icon>
+      </button>
+      <button
+        mat-icon-button type="button"
+        aria-label="Cancel reordering"
+        matTooltip="Cancel"
+        (click)="cancelReordering()">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
+  </div>
+
+  <div class="content">
     <div
       class="home-cards-container"
       cdkDropList

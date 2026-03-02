@@ -2,8 +2,8 @@
   height: 100px;
   display: flex;
   align-items: center;
-  color: #fff;
-  background-color: black;
+  color: #F5F5F5;
+  background-color: #212124;
 }
 
 .verticle-alignment-helper {
@@ -47,9 +47,52 @@ h3 {
   margin-right: 20px;
 }
 
-.hamburger-container {
-  height: 100%;
+.account-section {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
+
+.account-trigger {
+  border: 0;
+  background: transparent;
+  color: #F5F5F5;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.account-card {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: #212124;
+  border: 1px solid #3f3f3f;
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.account-card-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.account-card-name {
+  color: #F5F5F5;
+  font-weight: 600;
+}
+
+/* .hamburger-container {
+  height: 100%;
+} */
 
 @media screen and (max-width: 575px) {
   .header-container .header-text {
@@ -67,4 +110,8 @@ button.mat-mdc-menu-item {
   height: 35px !important;
   display: flex;
   align-items: center;
+}
+
+.mat-menu-content {
+  background-color: #212124;
 }
