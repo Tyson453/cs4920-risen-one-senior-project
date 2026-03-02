@@ -159,6 +159,11 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: true
 
+  jwtAuthorizer:
+    handler: src/handlers/authorizer.handler
+    environment:
+      JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
+
   importData:
     handler: src/handlers/import-data.handler
     environment:
@@ -171,6 +176,7 @@ functions:
           path: import-data
           method: post
           cors: true
+          authorizer: jwtAuthorizer
 
   createUser:
     handler: src/handlers/create-user.handler
@@ -183,6 +189,7 @@ functions:
           path: create-user
           method: post
           cors: true
+          authorizer: jwtAuthorizer
 
   getTeamsAdmin:
     handler: src/handlers/get-teams-admin.handler
@@ -194,6 +201,7 @@ functions:
       - http:
           path: teams/admin
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -214,6 +222,7 @@ functions:
       - http:
           path: teams/teammates
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -234,6 +243,7 @@ functions:
       - http:
           path: users/{uuid}
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -254,6 +264,7 @@ functions:
       - http:
           path: users/{uuid}
           method: put
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -274,6 +285,7 @@ functions:
       - http:
           path: users
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -294,6 +306,7 @@ functions:
       - http:
           path: projects
           method: get
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -317,6 +330,7 @@ functions:
       - http:
           path: teams
           method: post
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -338,6 +352,7 @@ functions:
       - http:
           path: teams/{type}/{teamName}
           method: put
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -359,6 +374,7 @@ functions:
       - http:
           path: teams/{type}/{teamName}
           method: delete
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -379,6 +395,7 @@ functions:
       - http:
           path: teams/{type}/{teamName}/members
           method: post
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -400,6 +417,7 @@ functions:
       - http:
           path: users/{uuid}
           method: delete
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:
@@ -420,6 +438,7 @@ functions:
       - http:
           path: teams/{type}/{teamName}/members/{uuid}
           method: delete
+          authorizer: jwtAuthorizer
           cors:
             origin: '*'
             headers:

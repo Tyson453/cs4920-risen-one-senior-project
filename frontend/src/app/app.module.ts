@@ -6,7 +6,8 @@ import { SidenavComponent } from './components/sidenav/sidenav.component';
 
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { LayoutModule } from '@angular/cdk/layout';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -129,7 +130,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
   providers: [
     MatSnackBar,
     provideHttpClient(withInterceptorsFromDi()),
-    provideNativeDateAdapter()
+    provideNativeDateAdapter(),
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ]
 })
 export class AppModule {}

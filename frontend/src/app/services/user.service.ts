@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -49,22 +49,15 @@ export class UserApiService {
 
   constructor(private http: HttpClient) {}
 
-  private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('authToken');
-    return token
-      ? new HttpHeaders({ Authorization: `Bearer ${token}` })
-      : new HttpHeaders();
-  }
-
   public getUserInfo(uuid: string): Promise<any> {
     return firstValueFrom(
-      this.http.get(`${this.apiUrl}/users/${uuid}`, { headers: this.getAuthHeaders() })
+      this.http.get(`${this.apiUrl}/users/${uuid}`)
     );
   }
 
   public getUsers(): Promise<TeamSummaryUser[]> {
     return firstValueFrom(
-      this.http.get<TeamSummaryUser[]>(`${this.apiUrl}/users`, { headers: this.getAuthHeaders() })
+      this.http.get<TeamSummaryUser[]>(`${this.apiUrl}/users`)
     );
   }
 
@@ -74,7 +67,7 @@ export class UserApiService {
    */
   public getTeamsForAdmin(): Promise<AdminTeamData> {
     return firstValueFrom(
-      this.http.get<AdminTeamData>(`${this.apiUrl}/teams/admin`, { headers: this.getAuthHeaders() })
+      this.http.get<AdminTeamData>(`${this.apiUrl}/teams/admin`)
     );
   }
 
@@ -99,14 +92,14 @@ export class UserApiService {
     const queryString = new URLSearchParams(params).toString();
     const url = `${this.apiUrl}/teams/teammates?${queryString}`;
     return firstValueFrom(
-      this.http.get<TeamSummaryUser[]>(url, { headers: this.getAuthHeaders() })
+      this.http.get<TeamSummaryUser[]>(url)
     );
   }
 
   /** POST /teams — validate name is unique, returns { type, teamName } */
   public createTeam(type: 'org' | 'pm', teamName: string): Promise<any> {
     return firstValueFrom(
-      this.http.post(`${this.apiUrl}/teams`, { type, teamName }, { headers: this.getAuthHeaders() })
+      this.http.post(`${this.apiUrl}/teams`, { type, teamName })
     );
   }
 
@@ -115,8 +108,7 @@ export class UserApiService {
     return firstValueFrom(
       this.http.put(
         `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}`,
-        { newName },
-        { headers: this.getAuthHeaders() }
+        { newName }
       )
     );
   }
@@ -125,8 +117,7 @@ export class UserApiService {
   public deleteTeam(type: 'org' | 'pm', teamName: string): Promise<any> {
     return firstValueFrom(
       this.http.delete(
-        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}`,
-        { headers: this.getAuthHeaders() }
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}`
       )
     );
   }
@@ -136,8 +127,7 @@ export class UserApiService {
     return firstValueFrom(
       this.http.post(
         `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}/members`,
-        { uuid },
-        { headers: this.getAuthHeaders() }
+        { uuid }
       )
     );
   }
@@ -145,14 +135,14 @@ export class UserApiService {
   /** PUT /users/{uuid} — update allowed fields on a user */
   public updateUser(uuid: string, data: Partial<TeamSummaryUser>): Promise<any> {
     return firstValueFrom(
-      this.http.put(`${this.apiUrl}/users/${uuid}`, data, { headers: this.getAuthHeaders() })
+      this.http.put(`${this.apiUrl}/users/${uuid}`, data)
     );
   }
 
   /** DELETE /users/{uuid} — permanently delete a user */
   public deleteUser(uuid: string): Promise<void> {
     return firstValueFrom(
-      this.http.delete<void>(`${this.apiUrl}/users/${uuid}`, { headers: this.getAuthHeaders() })
+      this.http.delete<void>(`${this.apiUrl}/users/${uuid}`)
     );
   }
 
@@ -160,8 +150,7 @@ export class UserApiService {
   public removeTeamMember(type: 'org' | 'pm', teamName: string, uuid: string): Promise<any> {
     return firstValueFrom(
       this.http.delete(
-        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}/members/${uuid}`,
-        { headers: this.getAuthHeaders() }
+        `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}/members/${uuid}`
       )
     );
   }
