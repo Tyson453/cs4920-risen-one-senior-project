@@ -26,7 +26,8 @@ export class AuthService {
           if (response.token && response.user) {
             // Store the JWT token
             localStorage.setItem('authToken', response.token);
-            // Store the user in localStorage
+            // Store the user object so components can read real roles/data
+            localStorage.setItem('currentUser', JSON.stringify(response.user));
             console.log('Login successful');
             return true;
           }
@@ -43,6 +44,7 @@ export class AuthService {
   logout() {
     // Clear stored authentication data
     localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
 
     // Redirect to login page
     this.router.navigate(['/login']);
