@@ -1,4 +1,7 @@
-<div class="employee-development-container">
+<mat-tab-group>
+
+  <mat-tab label="Personal Development (PDT)">
+    <div class="employee-development-container">
 
   <!-- Loading Spinner -->
   <div *ngIf="isLoading" class="loading-spinner-container">
@@ -526,3 +529,10 @@
   </div>
 
 </div>
+  </mat-tab>
+
+  <mat-tab label="Certifications & Training">
+    <app-certification-training></app-certification-training>
+  </mat-tab>
+
+</mat-tab-group>

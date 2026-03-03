@@ -159,3 +159,24 @@ tr.expanded {
   border-radius: 0.5rem !important;
   color: var(--primary-text) !important;
 }
+/* ======================
+   Angular Material Tabs Fix
+====================== */
+
+.mat-mdc-tab-group {
+  background-color: var(--primary-bg) !important;
+}
+
+.mat-mdc-tab .mdc-tab__text-label {
+  color: var(--primary-text) !important;
+  font-weight: 500;
+}
+
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: var(--primary-accent) !important;
+  font-weight: 600;
+}
+
+.mat-mdc-tab-header {
+  border-bottom: 1px solid var(--primary-surface-hover);
+}

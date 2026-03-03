@@ -1,46 +1,31 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
   FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
+
 import { AuthService } from '../../services/auth.service';
 import { PDTService } from '../../services/pdt.service';
 import { DialogService } from '../../services/dialog.service';
 import { UserApiService } from '../../services/user.service';
 import { PDT, PDTStatus } from '../../models/pdt';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'view' | 'pending-approvals';
 
 @Component({
   selector: 'app-employee-development',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatCardModule,
-    MatTableModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    FormsModule,
-    MatDialogModule,
-    MatTooltipModule,
-  ],
   templateUrl: './employee-development.component.html',
   styleUrls: ['./employee-development.component.scss'],
 })
@@ -80,23 +65,41 @@ export class EmployeeDevelopmentComponent implements OnInit {
     this.loadPDTRecords();
     if (this.isSupervisor) {
       const allUsers = await this.userApiService.getUsers();
-      this.hasSubordinates = allUsers.some(u => u.supervisorId === this.currentUser.uuid);
-      if (this.hasSubordinates) { this.loadPendingApprovals(); }
+      this.hasSubordinates = allUsers.some(
+        (u) => u.supervisorId === this.currentUser.uuid
+      );
+      if (this.hasSubordinates) {
+        this.loadPendingApprovals();
+      }
     }
   }
 
   // ── Computed helpers ─────────────────────────────────────────────────────────
 
-  get isListView(): boolean { return this.viewMode === 'list'; }
-  get isFormView(): boolean { return this.viewMode === 'create' || this.viewMode === 'edit'; }
-  get isViewOnly(): boolean { return this.viewMode === 'view'; }
-  get isCreating(): boolean { return this.viewMode === 'create'; }
-  get isEditing(): boolean { return this.viewMode === 'edit'; }
-  get isPendingApprovalsView(): boolean { return this.viewMode === 'pending-approvals'; }
+  get isListView(): boolean {
+    return this.viewMode === 'list';
+  }
+  get isFormView(): boolean {
+    return this.viewMode === 'create' || this.viewMode === 'edit';
+  }
+  get isViewOnly(): boolean {
+    return this.viewMode === 'view';
+  }
+  get isCreating(): boolean {
+    return this.viewMode === 'create';
+  }
+  get isEditing(): boolean {
+    return this.viewMode === 'edit';
+  }
+  get isPendingApprovalsView(): boolean {
+    return this.viewMode === 'pending-approvals';
+  }
 
   get isSupervisor(): boolean {
     const roles: string[] = this.currentUser?.roles || [];
-    return roles.includes('LEAD') || roles.includes('PM') || roles.includes('ADMIN');
+    return (
+      roles.includes('LEAD') || roles.includes('PM') || roles.includes('ADMIN')
+    );
   }
 
   private getUserName(): string {
@@ -241,18 +244,21 @@ export class EmployeeDevelopmentComponent implements OnInit {
     const payload = this.buildPayload();
 
     if (this.isCreating) {
-      this.pdtService.createPDT({ ...payload, userId: this.currentUser?.uuid }).subscribe({
-        next: () => {
-          this.dialogService.closeSpinner();
-          this.dialogService.saveSuccessOpen({
-            width: '500px',
-            data: { title: 'Draft Saved', text: 'Your PDT record has been saved as a draft.' },
-          });
-          this.loadPDTRecords();
-          this.onBackToList();
-        },
-        error: (err) => this.dialogService.standardError(err, 'Saving Draft', 'saving the PDT draft'),
-      });
+      this.pdtService
+        .createPDT({ ...payload, userId: this.currentUser?.uuid })
+        .subscribe({
+          next: () => {
+            this.dialogService.closeSpinner();
+            this.dialogService.saveSuccessOpen({
+              width: '500px',
+              data: { title: 'Draft Saved', text: 'Your PDT record has been saved as a draft.' },
+            });
+            this.loadPDTRecords();
+            this.onBackToList();
+          },
+          error: (err) =>
+            this.dialogService.standardError(err, 'Saving Draft', 'saving the PDT draft'),
+        });
     } else if (this.selectedRecord) {
       this.pdtService.updatePDT(this.selectedRecord.id, payload).subscribe({
         next: () => {
@@ -264,7 +270,8 @@ export class EmployeeDevelopmentComponent implements OnInit {
           this.loadPDTRecords();
           this.onBackToList();
         },
-        error: (err) => this.dialogService.standardError(err, 'Updating PDT', 'updating the PDT record'),
+        error: (err) =>
+          this.dialogService.standardError(err, 'Updating PDT', 'updating the PDT record'),
       });
     }
   }
@@ -302,14 +309,18 @@ export class EmployeeDevelopmentComponent implements OnInit {
     };
 
     if (this.isCreating) {
-      this.pdtService.createPDT({ ...payload, userId: this.currentUser?.uuid }).subscribe({
-        next: (res) => doSubmit(res.id),
-        error: (err) => this.dialogService.standardError(err, 'Creating PDT', 'creating the PDT record'),
-      });
+      this.pdtService
+        .createPDT({ ...payload, userId: this.currentUser?.uuid })
+        .subscribe({
+          next: (res) => doSubmit(res.id),
+          error: (err) =>
+            this.dialogService.standardError(err, 'Creating PDT', 'creating the PDT record'),
+        });
     } else if (this.selectedRecord) {
       this.pdtService.updatePDT(this.selectedRecord.id, payload).subscribe({
         next: () => doSubmit(this.selectedRecord!.id),
-        error: (err) => this.dialogService.standardError(err, 'Updating PDT', 'updating the PDT record'),
+        error: (err) =>
+          this.dialogService.standardError(err, 'Updating PDT', 'updating the PDT record'),
       });
     }
   }
@@ -367,7 +378,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
       error: (err) => {
         this.dialogService.standardError(err, 'Load Error', 'loading pending approvals');
         this.isPendingApprovalsLoading = false;
-      }
+      },
     });
   }
 
@@ -383,36 +394,40 @@ export class EmployeeDevelopmentComponent implements OnInit {
   onApprovePDT(): void {
     if (!this.supervisorSignature.trim()) return;
     this.dialogService.openSpinner();
+
     this.pdtService.approvePDT(this.selectedRecord!.id, this.supervisorSignature).subscribe({
       next: () => {
         this.dialogService.closeSpinner();
         this.dialogService.saveSuccessOpen({
           width: '500px',
-          data: { title: 'PDT Approved', text: 'The PDT has been approved and the signature has been recorded.' }
+          data: { title: 'PDT Approved', text: 'The PDT has been approved and the signature has been recorded.' },
         });
-        this.pendingApprovals = this.pendingApprovals.filter(r => r.id !== this.selectedRecord!.id);
+        this.pendingApprovals = this.pendingApprovals.filter((r) => r.id !== this.selectedRecord!.id);
         this.onBackToList();
         this.viewMode = 'pending-approvals';
       },
-      error: (err) => this.dialogService.standardError(err, 'Approving PDT', 'approving the PDT')
+      error: (err) =>
+        this.dialogService.standardError(err, 'Approving PDT', 'approving the PDT'),
     });
   }
 
   onRequestChanges(): void {
     if (!this.changeComments.trim()) return;
     this.dialogService.openSpinner();
+
     this.pdtService.requestPDTChanges(this.selectedRecord!.id, this.changeComments).subscribe({
       next: () => {
         this.dialogService.closeSpinner();
         this.dialogService.saveSuccessOpen({
           width: '500px',
-          data: { title: 'Changes Requested', text: 'The employee will be notified that changes are required.' }
+          data: { title: 'Changes Requested', text: 'The employee will be notified that changes are required.' },
         });
-        this.pendingApprovals = this.pendingApprovals.filter(r => r.id !== this.selectedRecord!.id);
+        this.pendingApprovals = this.pendingApprovals.filter((r) => r.id !== this.selectedRecord!.id);
         this.onBackToList();
         this.viewMode = 'pending-approvals';
       },
-      error: (err) => this.dialogService.standardError(err, 'Requesting Changes', 'requesting changes on the PDT')
+      error: (err) =>
+        this.dialogService.standardError(err, 'Requesting Changes', 'requesting changes on the PDT'),
     });
   }
 
