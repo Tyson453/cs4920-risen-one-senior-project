@@ -217,7 +217,8 @@ functions:
           path: trainings
           method: post
           cors: true
-          authorizer: jwtAuthorizer
+          authorizer: 
+            name: jwtAuthorizer
 
   getTrainings:
     handler: src/handlers/get-trainings.handler
@@ -226,7 +227,8 @@ functions:
           path: trainings/{userId}
           method: get
           cors: true
-          authorizer: jwtAuthorizer
+          authorizer: 
+            name: jwtAuthorizer
 
   createCertification:
     handler: src/handlers/create-certification.handler
@@ -235,7 +237,8 @@ functions:
           path: certifications
           method: post
           cors: true
-          authorizer: jwtAuthorizer
+          authorizer: 
+            name: jwtAuthorizer
 
   getCertifications:
     handler: src/handlers/get-certifications.handler
@@ -244,7 +247,8 @@ functions:
           path: certifications/{userId}
           method: get
           cors: true
-          authorizer: jwtAuthorizer
+          authorizer: 
+            name: jwtAuthorizer
   jwtAuthorizer:
     handler: src/handlers/authorizer.handler
     environment:
