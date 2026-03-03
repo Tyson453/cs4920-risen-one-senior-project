@@ -149,6 +149,7 @@ mat-card {
 .login-form .login-button {
     align-self: center;
     background-color: var(--primary-accent);
+    font-weight: bold;
     color: var(--primary-surface);
     width: calc(100% - 20px);
 }

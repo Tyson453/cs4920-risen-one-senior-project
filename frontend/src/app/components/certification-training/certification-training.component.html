@@ -13,7 +13,12 @@
     <div class="cert-toolbar">
       <div class="search-field">
         <mat-icon class="search-icon">search</mat-icon>
-        <input type="text" placeholder="Search certifications or training..." />
+        <input 
+          type="text"
+          placeholder="Search certifications or training..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        />
       </div>
 
       <button type="button" class="primary-btn">
@@ -23,20 +28,20 @@
     </div>
 
     <div class="cert-list">
-      <div class="cert-item">
+      <div class="cert-item" *ngFor="let item of filteredItems; trackBy: trackById">
         <div class="cert-item-left">
           <div class="cert-badge">
-            <mat-icon>workspace_premium</mat-icon>
+            <mat-icon>{{ item.icon }}</mat-icon>
           </div>
           <div class="cert-meta">
-            <div class="cert-name">AWS Certification</div>
-            <div class="cert-sub">Certification • Active</div>
+            <div class="cert-name">{{ item.name }}</div>
+            <div class="cert-sub">{{ item.type }} • {{ item.status }}</div>
           </div>
         </div>
         <button type="button" class="ghost-btn">View</button>
       </div>
 
-      <div class="cert-item">
+      <!-- <div class="cert-item">
         <div class="cert-item-left">
           <div class="cert-badge">
             <mat-icon>school</mat-icon>
@@ -60,7 +65,7 @@
           </div>
         </div>
         <button type="button" class="ghost-btn">View</button>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>
