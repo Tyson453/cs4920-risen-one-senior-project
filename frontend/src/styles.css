@@ -89,3 +89,29 @@ tr.expanded {
 .mat-sort-header-container {
   justify-content: center;
 }
+
+/* ── PDT Delete Dialog ────────────────────────────────────────────────────── */
+
+.pdt-delete-dialog .mat-mdc-dialog-surface {
+  padding: 8px;
+}
+
+.pdt-delete-dialog .mat-mdc-dialog-content {
+  padding: 16px 32px 8px !important;
+  color: #333;
+  font-size: 15px;
+}
+
+.pdt-delete-dialog .mdc-dialog__title {
+  padding: 24px 32px 16px !important;
+}
+
+.pdt-delete-dialog .mat-mdc-dialog-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 24px 20px !important;
+  min-height: unset !important;
+}

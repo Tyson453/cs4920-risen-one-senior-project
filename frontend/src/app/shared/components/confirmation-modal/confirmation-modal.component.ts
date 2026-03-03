@@ -6,11 +6,15 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { NgIf } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-confirmation-modal',
-  standalone: false,
+  standalone: true,
+  imports: [NgIf, MatDialogModule, MatButtonModule, A11yModule],
   templateUrl: './confirmation-modal.component.html',
   styleUrls: ['./confirmation-modal.component.scss'],
 })

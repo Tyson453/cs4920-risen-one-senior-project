@@ -1,6 +1,12 @@
 .action-buffer {
   margin: 3px 0px 0px 0px;
+  display: flex;
+  flex-direction: row;
   justify-content: center;
+}
+
+.danger-actions {
+  justify-content: space-between;
 }
 
 title {
@@ -14,6 +20,13 @@ title {
 p {
   color: black;
   align-self: flex-end;
+}
+
+.warning-text {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-top: 8px;
 }
 
 .datesList {
@@ -33,10 +46,17 @@ p {
   align-content: center;
   display: grid;
 
-  :hover {
+  &:hover {
     background-color: #e0aa51;
     color: #fff;
     cursor: pointer;
+  }
+}
+
+.danger-confirm {
+  &:hover {
+    background-color: #c62828 !important;
+    color: #fff !important;
   }
 }
 
@@ -53,7 +73,7 @@ p {
   align-content: center;
   display: grid;
 
-  :hover {
+  &:hover {
     background-color: #d2d2d2;
     color: #000;
     cursor: pointer;

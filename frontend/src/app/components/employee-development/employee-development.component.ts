@@ -226,13 +226,6 @@ export class EmployeeDevelopmentComponent implements OnInit {
   // ── Save draft ───────────────────────────────────────────────────────────────
 
   onSaveDraft(): void {
-    if (!this.pdtForm.valid) {
-      Object.keys(this.pdtForm.controls).forEach((key) =>
-        this.pdtForm.get(key)?.markAsTouched()
-      );
-      return;
-    }
-
     this.dialogService.openSpinner();
     const payload = this.buildPayload();
 
@@ -314,17 +307,21 @@ export class EmployeeDevelopmentComponent implements OnInit {
 
   onDeleteRecord(record: PDT): void {
     const confirmRef = this.dialogService.confirmationOpen({
-      width: '400px',
+      width: '550px',
+      panelClass: 'pdt-delete-dialog',
       data: {
         title: 'Delete PDT Record?',
-        body: 'This draft will be permanently deleted. This action cannot be undone.',
+        body: 'This draft will be permanently deleted.',
+        warning: 'This action cannot be undone.',
         confirmText: 'Delete',
         cancelText: 'Cancel',
+        action: 'generic',
+        isDanger: true,
       },
     });
 
-    confirmRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (!confirmed) return;
+    confirmRef.afterClosed().subscribe((result: any) => {
+      if (!result?.confirmation) return;
 
       this.dialogService.openSpinner();
       this.pdtService.deletePDT(record.id).subscribe({
