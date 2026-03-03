@@ -33,6 +33,7 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     localStorage.removeItem('authToken');
     sessionStorage.clear();
+    document.body.classList.add('login-page');
   }
 
   login() {

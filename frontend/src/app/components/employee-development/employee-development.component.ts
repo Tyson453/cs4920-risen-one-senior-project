@@ -16,6 +16,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
 import { PDTService } from '../../services/pdt.service';
 import { DialogService } from '../../services/dialog.service';
@@ -37,6 +38,7 @@ import { PDT } from '../../models/pdt';
     MatIconModule,
     MatProgressSpinnerModule,
     MatDialogModule,
+    MatTooltipModule,
   ],
   templateUrl: './employee-development.component.html',
   styleUrls: ['./employee-development.component.scss'],
@@ -68,16 +70,19 @@ export class EmployeeDevelopmentComponent implements OnInit {
 
   private loadCurrentUser(): void {
     this.currentUser = this.authService.getUser();
+      console.log('Current user loaded:', this.currentUser);
   }
 
   private loadPDTRecords(): void {
     this.isLoading = true;
+    this.dialogService.openSpinner();
     const userId = this.currentUser?.uuid || '';
 
     this.pdtService.getPDTRecords(userId).subscribe({
       next: (records) => {
         this.pdtRecords = records;
         this.isLoading = false;
+        this.dialogService.closeSpinner();
       },
       error: (error) => {
         console.error('Error loading PDT records:', error);
@@ -87,13 +92,14 @@ export class EmployeeDevelopmentComponent implements OnInit {
           'Failed to load Personal Development Training records'
         );
         this.isLoading = false;
+        this.dialogService.closeSpinner();
       },
     });
   }
 
   private createPDTForm(): FormGroup {
     return this.formBuilder.group({
-      empName: [{ value: '', disabled: true }, Validators.required],
+      empName: [{ value: this.getUserName(), disabled: true }, Validators.required],
       shortTermGoals: ['', Validators.required],
       mediumTermGoals: ['', Validators.required],
       longTermGoals: ['', Validators.required],
@@ -104,13 +110,17 @@ export class EmployeeDevelopmentComponent implements OnInit {
     });
   }
 
+  private getUserName(): string {
+    return this.currentUser?.__zone_symbol__value.name || '';
+  }
+
   onCreateNew(): void {
     this.selectedRecord = null;
     this.isCreating = true;
     this.isEditing = false;
 
     this.pdtForm.reset({
-      empName: this.currentUser?.name || '',
+      empName: this.getUserName(),
       shortTermGoals: '',
       mediumTermGoals: '',
       longTermGoals: '',
@@ -127,7 +137,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
     this.isCreating = false;
 
     this.pdtForm.patchValue({
-      empName: record.empName,
+      empName: this.getUserName(),
       shortTermGoals: record.shortTermGoals,
       mediumTermGoals: record.mediumTermGoals,
       longTermGoals: record.longTermGoals,
@@ -150,7 +160,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
 
     const formValue = this.pdtForm.getRawValue();
     const pdtData: Partial<PDT> = {
-      empName: formValue.empName,
+      empName: this.getUserName(),
       shortTermGoals: formValue.shortTermGoals,
       mediumTermGoals: formValue.mediumTermGoals,
       longTermGoals: formValue.longTermGoals,

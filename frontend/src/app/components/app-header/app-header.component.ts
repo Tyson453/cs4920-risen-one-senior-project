@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
 
@@ -16,6 +16,8 @@ export class AppHeaderComponent implements OnInit {
   lead: boolean = false;
   tester: boolean = false;
   pm: boolean = false;
+  showAccountCard: boolean = false;
+  @ViewChild('accountSection') accountSection?: ElementRef;
 
   constructor(
     private router: Router,
@@ -28,5 +30,18 @@ export class AppHeaderComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  toggleAccountCard(event: MouseEvent) {
+    event.stopPropagation();
+    this.showAccountCard = !this.showAccountCard;
+  }
+
+  @HostListener('document:click', ['$event'])
+  handleDocumentClick(event: MouseEvent) {
+    const target = event.target as Node;
+    if (!this.accountSection?.nativeElement.contains(target)) {
+      this.showAccountCard = false;
+    }
   }
 }

@@ -19,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
 import {
   UserApiService,
@@ -79,6 +80,7 @@ interface TeamDeleteState {
     MatProgressSpinnerModule,
     MatDialogModule,
     MatTabsModule,
+    MatTooltipModule,
   ],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],
@@ -93,6 +95,8 @@ export class AdminComponent implements OnInit {
   isLoading = true;
   userToDelete: TeamSummaryUser | null = null;
   showDeleteConfirmation = false;
+  openSpinner = () => {};
+  closeSpinner = () => {};
 
   availableRoles = AVAILABLE_ROLES;
   availableStates = US_STATES;
@@ -129,6 +133,9 @@ export class AdminComponent implements OnInit {
     private router: Router
   ) {
     this.editForm = this.createEditForm();
+    this.openSpinner = () => this.dialogService.openSpinner();
+    this.closeSpinner = () => this.dialogService.closeSpinner();
+
   }
 
   ngOnInit(): void {
@@ -164,6 +171,7 @@ export class AdminComponent implements OnInit {
 
   private loadData(): void {
     this.isLoading = true;
+    this.openSpinner();
     Promise.all([
       this.userService.getUsers() as Promise<TeamSummaryUser[]>,
       firstValueFrom(this.projectApiService.getProjects()) as unknown as Promise<Project[]>,
@@ -175,11 +183,13 @@ export class AdminComponent implements OnInit {
         this.orgTeams = teamData.orgTeams;
         this.pmTeams = teamData.pmTeams;
         this.isLoading = false;
+        this.closeSpinner();
       })
       .catch((error) => {
         console.error('Error loading data:', error);
         this.dialogService.standardError(error, 'Load Error', 'Failed to load admin data');
         this.isLoading = false;
+        this.closeSpinner();
       });
   }
 
@@ -272,7 +282,7 @@ export class AdminComponent implements OnInit {
       };
       // TODO: Call backend API to create user
       this.users.push(newUser);
-      this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '600px', data: { title: 'User Created', text: 'User created successfully' } });
+      this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '600px', data: { title: 'User Created', text: 'User created successfully' } });
       this.onCancelEdit();
     } else if (this.editingUser) {
       const updatePayload: Partial<TeamSummaryUser> = {
@@ -293,7 +303,7 @@ export class AdminComponent implements OnInit {
         const updatedUser: TeamSummaryUser = { ...this.editingUser, ...updatePayload };
         const index = this.users.findIndex((u) => u.uuid === this.editingUser!.uuid);
         if (index !== -1) this.users[index] = updatedUser;
-        this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '600px', data: { title: 'User Updated', text: 'User updated successfully' } });
+        this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '600px', data: { title: 'User Updated', text: 'User updated successfully' } });
         this.onCancelEdit();
       } catch (error) {
         this.dialogService.standardError(error, 'Update User', 'updating the user');
@@ -326,7 +336,7 @@ export class AdminComponent implements OnInit {
     try {
       await this.userService.deleteUser(this.userToDelete.uuid);
       this.users = this.users.filter((u) => u.uuid !== this.userToDelete!.uuid);
-      this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '600px', data: { title: 'User Deleted', text: 'User deleted successfully' } });
+      this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '600px', data: { title: 'User Deleted', text: 'User deleted successfully' } });
       this.onCancelEdit();
       this.showDeleteConfirmation = false;
       this.userToDelete = null;
@@ -371,7 +381,7 @@ export class AdminComponent implements OnInit {
       this.showCreateTeamForm = null;
       this.newTeamNameInput = '';
       await this.loadTeams();
-      this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '400px', data: { title: 'Team Created', text: `"${name}" is ready for members.` } });
+      this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '400px', data: { title: 'Team Created', text: `"${name}" is ready for members.` } });
     } catch (error: any) {
       if (error?.status === 409) {
         this.dialogService.standardError(error, 'Create Team', `a team named "${name}" already exists`);
@@ -444,7 +454,7 @@ export class AdminComponent implements OnInit {
       this.showTeamDeleteConfirm = false;
       this.teamToDelete = null;
       await this.loadTeams();
-      this.dialogService.saveSuccessOpen({ panelClass: 'delete-modal', width: '400px', data: { title: 'Team Deleted', text: `"${displayName}" has been removed.` } });
+      this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '400px', data: { title: 'Team Deleted', text: `"${displayName}" has been removed.` } });
     } catch (error) {
       this.dialogService.standardError(error, 'Delete Team', 'deleting the team');
     }

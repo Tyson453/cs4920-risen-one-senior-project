@@ -3,14 +3,25 @@
   padding: 0;
 }
 
+:root {
+  --primary-bg: #121212;
+  --primary-surface: #212124;
+  --primary-surface-hover: #3f3f3f;
+  --primary-text: #F5F5F5;
+  --secondary-text: #717171;
+  --muted-text: #8b8b8b;
+  --primary-accent: #FFCE1B;
+  --primary-accent-soft: #e0a951;
+  --danger: #f44336;
+  --color-overlay-accent-26: rgba(255, 222, 33, 0.26);
+  --color-overlay-accent-32: rgba(255, 222, 33, 0.32);
+  --login-screen-bg: linear-gradient(135deg, #121212 15%, #FFCE1B 100%);
+}
+
 html,
 body {
   all: unset;
-    background-image: linear-gradient(
-      to right bottom,
-      hsla(48, 100%, 49%, 0.8),
-      hsla(34, 100%, 46%, 0.8)
-    );
+  background: var(--primary-bg);
 }
 
 p {
@@ -88,4 +99,37 @@ tr.expanded {
 
 .mat-sort-header-container {
   justify-content: center;
+}
+
+.header-menu-panel.mat-mdc-menu-panel {
+  background-color: var(--primary-surface) !important;
+  border: 1px solid var(--primary-surface-hover) !important;
+}
+
+.header-menu-panel .mat-mdc-menu-item {
+  background-color: var(--primary-surface) !important;
+  color: var(--primary-text) !important;
+}
+
+.header-menu-panel .mat-mdc-menu-item:is(:hover) {
+  background-color: var(--primary-surface-hover) !important;
+}
+
+.monthly-report-modal .mat-mdc-dialog-surface {
+  background-color: var(--primary-surface) !important;
+}
+
+.monthly-report-modal .mat-mdc-dialog-title,
+.monthly-report-modal .mat-mdc-dialog-content,
+.monthly-report-modal .mat-mdc-button {
+  color: var(--primary-text) !important;
+}
+
+.cdk-overlay-pane.confirmation-modal .mat-mdc-dialog-container .mdc-dialog__surface,
+.confirmation-modal .mat-mdc-dialog-surface,
+.confirmation-modal .mdc-dialog__surface {
+  background-color: var(--primary-surface) !important;
+  border: 1px solid var(--primary-surface-hover) !important;
+  border-radius: 0.5rem !important;
+  color: var(--primary-text) !important;
 }

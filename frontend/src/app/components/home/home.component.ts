@@ -77,6 +77,18 @@ export class HomeComponent {
     this.router.navigate(['/login']);
   }
 
+  openExternal(url: string, event: MouseEvent) {
+    if (this.isReordering) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   toggleReordering() {
     this.isReordering = !this.isReordering;
   }

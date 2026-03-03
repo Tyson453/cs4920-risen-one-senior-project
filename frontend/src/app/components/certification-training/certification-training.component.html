@@ -1,11 +1,71 @@
-<div style="padding:16px;">
-  <h2>Certification & Training</h2>
-  <p>View and manage your certifications and completed training courses.</p>
+<div class="cert-container">
+  <div class="cert-page-header">
+    <div class="cert-page-header-top">
+      <mat-icon class="cert-icon">verified</mat-icon>
+      <h1 class="cert-page-title">Certification & Training</h1>
+      <div class="title-inline-divider" aria-hidden="true"></div>
+      <p class="subtitle">View and manage your certifications and completed training.</p>
+    </div>
+    <div class="cert-page-divider"></div>
+  </div>
 
-  <ul>
-    <li>AWS Certification</li>
-    <li>Angular Training</li>
-    <li>Security Awareness</li>
-  </ul>
+  <div class="card">
+    <div class="cert-toolbar">
+      <div class="search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input 
+          type="text"
+          placeholder="Search certifications or training..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearchChange()"
+        />
+      </div>
+
+      <button type="button" class="primary-btn">
+        <mat-icon class="btn-icon">add</mat-icon>
+        Add
+      </button>
+    </div>
+
+    <div class="cert-list">
+      <div class="cert-item" *ngFor="let item of filteredItems; trackBy: trackById">
+        <div class="cert-item-left">
+          <div class="cert-badge">
+            <mat-icon>{{ item.icon }}</mat-icon>
+          </div>
+          <div class="cert-meta">
+            <div class="cert-name">{{ item.name }}</div>
+            <div class="cert-sub">{{ item.type }} • {{ item.status }}</div>
+          </div>
+        </div>
+        <button type="button" class="ghost-btn">View</button>
+      </div>
+
+      <!-- <div class="cert-item">
+        <div class="cert-item-left">
+          <div class="cert-badge">
+            <mat-icon>school</mat-icon>
+          </div>
+          <div class="cert-meta">
+            <div class="cert-name">Angular Training</div>
+            <div class="cert-sub">Course • Completed</div>
+          </div>
+        </div>
+        <button type="button" class="ghost-btn">View</button>
+      </div>
+
+      <div class="cert-item">
+        <div class="cert-item-left">
+          <div class="cert-badge">
+            <mat-icon>security</mat-icon>
+          </div>
+          <div class="cert-meta">
+            <div class="cert-name">Security Awareness</div>
+            <div class="cert-sub">Course • Due soon</div>
+          </div>
+        </div>
+        <button type="button" class="ghost-btn">View</button>
+      </div> -->
+    </div>
+  </div>
 </div>
-

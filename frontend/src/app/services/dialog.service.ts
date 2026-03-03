@@ -32,9 +32,12 @@ export class DialogService {
    *  Components can pass down data in this config or they can assign the data to dialogState
    */
   saveSuccessOpen(dialogConfig: MatDialogConfig): MatDialogRef<SaveSuccess> {
-    this.saveSuccessDialogRef = this.dialog.open(SaveSuccess, {
+    const config: MatDialogConfig = {
       ...dialogConfig,
-    });
+      panelClass: dialogConfig.panelClass ?? 'monthly-report-modal',
+    };
+
+    this.saveSuccessDialogRef = this.dialog.open(SaveSuccess, config);
 
     this.saveSuccessDialogRef.afterClosed().subscribe((response: unknown) => {
       // Do something in the service level. ( All components )

@@ -1,17 +1,14 @@
 <div class="projects-container">
-  <!-- Loading Spinner -->
-  <div *ngIf="isLoading" class="loading-spinner-container">
-    <mat-spinner></mat-spinner>
-  </div>
-
   <!-- Projects List View -->
   <div *ngIf="!isLoading" class="projects-list-view">
     <div class="list-header">
       <div class="header-content">
         <mat-icon class="header-icon">list</mat-icon>
         <h1>Projects</h1>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="header-description">View all active and inactive projects at Risen One Consulting</p>
       </div>
-      <p class="header-description">View all active and inactive projects at Risen One Consulting</p>
+      <div class="header-divider"></div>
     </div>
 
     <!-- Projects Table -->
@@ -35,7 +32,7 @@
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef>Status</th>
           <td mat-cell *matCellDef="let element">
-            <mat-chip [class]="getStatusClass(element.status)">
+            <mat-chip class="status" [class]="getStatusClass(element.status)">
               {{ element.status }}
             </mat-chip>
           </td>

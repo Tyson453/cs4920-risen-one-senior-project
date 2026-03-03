@@ -1,110 +1,99 @@
 <div class="admin-container">
 
-  <!-- Loading Spinner -->
-  <div *ngIf="isLoading" class="loading-spinner-container">
-    <mat-spinner></mat-spinner>
+  <!-- Header -->
+  <div class="admin-page-header">
+    <div class="admin-page-header-top">
+      <mat-icon class="admin-icon">security</mat-icon>
+      <h1 class="admin-page-title">Admin</h1>
+    </div>
+    <div class="admin-page-divider"></div>
   </div>
 
   <!-- ── Tab view (shown when not editing a user) ──────────────────────────── -->
   <mat-tab-group *ngIf="!isLoading && !editingUser && !isCreatingNewUser" animationDuration="200ms">
 
     <!-- ══ USERS TAB ══════════════════════════════════════════════════════════ -->
-    <mat-tab label="Users">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span class="tab-label-with-icon">
+          <mat-icon>group_add</mat-icon>
+          <span>Users</span>
+        </span>
+      </ng-template>
       <div class="tab-content user-list-view">
-        <div class="list-header">
-          <h1>User Management</h1>
-          <button mat-raised-button color="primary" (click)="onCreateNewUser()">
-            + Create New User
-          </button>
-        </div>
+        <div class="users-tab-card">
+          <div class="users-card-header-row">
+            <div class="users-card-header">User Management</div>
+            <button mat-raised-button color="primary" matTooltip="Create New User" aria-label="Create New User" (click)="onCreateNewUser()">
+              +
+            </button>
+          </div>
+          <div class="users-card-divider"></div>
 
-        <div class="table-wrapper">
-          <table mat-table [dataSource]="users" class="users-table">
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-            </ng-container>
-            <ng-container matColumnDef="email">
-              <th mat-header-cell *matHeaderCellDef>Email</th>
-              <td mat-cell *matCellDef="let element">{{ element.email }}</td>
-            </ng-container>
-            <ng-container matColumnDef="state">
-              <th mat-header-cell *matHeaderCellDef>State</th>
-              <td mat-cell *matCellDef="let element">{{ element.state }}</td>
-            </ng-container>
-            <ng-container matColumnDef="startDate">
-              <th mat-header-cell *matHeaderCellDef>Start Date</th>
-              <td mat-cell *matCellDef="let element">{{ element.startDate }}/{{ element.startYear }}</td>
-            </ng-container>
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let element">
-                <button mat-button color="primary" (click)="onEditUser(element)">Edit</button>
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          </table>
-        </div>
+          <div class="table-wrapper">
+            <table mat-table [dataSource]="users" class="users-table">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Name</th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef>Email</th>
+                <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+              </ng-container>
+              <ng-container matColumnDef="state">
+                <th mat-header-cell *matHeaderCellDef>State</th>
+                <td mat-cell *matCellDef="let element">{{ element.state }}</td>
+              </ng-container>
+              <ng-container matColumnDef="startDate">
+                <th mat-header-cell *matHeaderCellDef>Start Date</th>
+                <td mat-cell *matCellDef="let element">{{ element.startDate }}/{{ element.startYear }}</td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let element" class="action-cell">
+                  <button mat-icon-button class="table-action-icon-button" matTooltip="Edit User" (click)="onEditUser(element)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
 
-        <div *ngIf="users.length === 0" class="empty-state">
-          <p>No users found.</p>
+          <div *ngIf="users.length === 0" class="empty-state">
+            <p>No users found.</p>
+          </div>
         </div>
       </div>
     </mat-tab>
 
     <!-- ══ TEAMS TAB ══════════════════════════════════════════════════════════ -->
-    <mat-tab label="Teams">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span class="tab-label-with-icon">
+          <mat-icon>groups</mat-icon>
+          <span>Teams</span>
+        </span>
+      </ng-template>
       <div class="tab-content teams-container">
-        <h1>Team Management</h1>
+        <div class="teams-tab-card">
+          <div class="teams-card-header-row">
+            <div class="teams-card-header">Organizational Teams</div>
+            <button mat-raised-button color="primary" matTooltip="Create Team" aria-label="Create Team" (click)="onShowCreateTeam('org')">
+              +
+            </button>
+          </div>
+          <div class="teams-card-divider"></div>
 
         <!-- ── Organizational Teams ────────────────────────────────────────── -->
         <section class="team-section">
-          <div class="section-header">
-            <h2>Organizational Teams</h2>
-            <button mat-raised-button color="primary" (click)="onShowCreateTeam('org')">
-              + Create Team
-            </button>
-          </div>
-
-          <!-- Inline create form -->
-          <div *ngIf="showCreateTeamForm === 'org'" class="inline-create-form">
-            <mat-form-field appearance="outline">
-              <mat-label>Team Name</mat-label>
-              <input matInput [(ngModel)]="newTeamNameInput" placeholder="e.g. Engineering" />
-            </mat-form-field>
-            <button mat-raised-button color="primary"
-              (click)="onConfirmCreateTeam('org')"
-              [disabled]="!newTeamNameInput.trim()">
-              Create
-            </button>
-            <button mat-button (click)="onCancelCreateTeam()">Cancel</button>
-          </div>
-
           <div class="table-wrapper">
             <table mat-table [dataSource]="orgTeams" class="teams-table">
               <ng-container matColumnDef="teamName">
                 <th mat-header-cell *matHeaderCellDef>Team Name</th>
                 <td mat-cell *matCellDef="let team">
-                  <ng-container
-                    *ngIf="!(editingTeam?.type === 'org' && editingTeam?.name === (team.teamName ?? null)); else orgRenameInput">
-                    {{ team.teamName ?? 'Unassigned' }}
-                  </ng-container>
-                  <ng-template #orgRenameInput>
-                    <div class="inline-rename">
-                      <mat-form-field appearance="outline" class="rename-field">
-                        <input matInput [(ngModel)]="renameTeamInput" />
-                      </mat-form-field>
-                      <button mat-icon-button color="primary"
-                        (click)="onConfirmRenameTeam()"
-                        [disabled]="!renameTeamInput.trim()">
-                        <mat-icon>check</mat-icon>
-                      </button>
-                      <button mat-icon-button (click)="onCancelEditTeam()">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    </div>
-                  </ng-template>
+                  {{ team.teamName ?? 'Unassigned' }}
                 </td>
               </ng-container>
 
@@ -116,19 +105,22 @@
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Actions</th>
                 <td mat-cell *matCellDef="let team" class="action-cell">
-                  <button mat-button
+                  <button mat-icon-button class="table-action-icon-button"
                     *ngIf="team.teamName !== null"
+                    matTooltip="Rename"
                     (click)="onStartRenameTeam('org', team.teamName)">
-                    Rename
+                    <mat-icon>edit</mat-icon>
                   </button>
-                  <button mat-button color="warn"
+                  <button mat-icon-button class="table-action-icon-button"
                     *ngIf="team.teamName !== null"
+                    matTooltip="Delete"
                     (click)="onDeleteTeam('org', team.teamName)">
-                    Delete
+                    <mat-icon>delete</mat-icon>
                   </button>
-                  <button mat-button color="primary"
+                  <button mat-icon-button class="table-action-icon-button" color="primary"
+                    matTooltip="Manage Members"
                     (click)="onManageMembers('org', team.teamName, team.users)">
-                    Members
+                    <mat-icon>people</mat-icon>
                   </button>
                 </td>
               </ng-container>
@@ -145,51 +137,20 @@
 
         <!-- ── PM Teams ────────────────────────────────────────────────────── -->
         <section class="team-section">
-          <div class="section-header">
-            <h2>PM Teams</h2>
-            <button mat-raised-button color="primary" (click)="onShowCreateTeam('pm')">
-              + Create Team
+          <div class="teams-card-header-row">
+            <div class="teams-card-header">PM Teams</div>
+            <button mat-raised-button color="primary" matTooltip="Create Team" aria-label="Create PM Team" (click)="onShowCreateTeam('pm')">
+              +
             </button>
           </div>
-
-          <!-- Inline create form -->
-          <div *ngIf="showCreateTeamForm === 'pm'" class="inline-create-form">
-            <mat-form-field appearance="outline">
-              <mat-label>Team Name</mat-label>
-              <input matInput [(ngModel)]="newTeamNameInput" placeholder="e.g. PR22 Team" />
-            </mat-form-field>
-            <button mat-raised-button color="primary"
-              (click)="onConfirmCreateTeam('pm')"
-              [disabled]="!newTeamNameInput.trim()">
-              Create
-            </button>
-            <button mat-button (click)="onCancelCreateTeam()">Cancel</button>
-          </div>
+          <div class="teams-card-divider"></div>
 
           <div class="table-wrapper">
             <table mat-table [dataSource]="pmTeams" class="teams-table">
               <ng-container matColumnDef="teamName">
                 <th mat-header-cell *matHeaderCellDef>Team Name</th>
                 <td mat-cell *matCellDef="let team">
-                  <ng-container
-                    *ngIf="!(editingTeam?.type === 'pm' && editingTeam?.name === team.teamName); else pmRenameInput">
-                    {{ team.teamName }}
-                  </ng-container>
-                  <ng-template #pmRenameInput>
-                    <div class="inline-rename">
-                      <mat-form-field appearance="outline" class="rename-field">
-                        <input matInput [(ngModel)]="renameTeamInput" />
-                      </mat-form-field>
-                      <button mat-icon-button color="primary"
-                        (click)="onConfirmRenameTeam()"
-                        [disabled]="!renameTeamInput.trim()">
-                        <mat-icon>check</mat-icon>
-                      </button>
-                      <button mat-icon-button (click)="onCancelEditTeam()">
-                        <mat-icon>close</mat-icon>
-                      </button>
-                    </div>
-                  </ng-template>
+                  {{ team.teamName }}
                 </td>
               </ng-container>
 
@@ -201,9 +162,15 @@
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Actions</th>
                 <td mat-cell *matCellDef="let team" class="action-cell">
-                  <button mat-button (click)="onStartRenameTeam('pm', team.teamName)">Rename</button>
-                  <button mat-button color="warn" (click)="onDeleteTeam('pm', team.teamName)">Delete</button>
-                  <button mat-button color="primary" (click)="onManageMembers('pm', team.teamName, team.users)">Members</button>
+                  <button mat-icon-button class="table-action-icon-button" matTooltip="Rename" (click)="onStartRenameTeam('pm', team.teamName)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button class="table-action-icon-button" color="warn" matTooltip="Delete" (click)="onDeleteTeam('pm', team.teamName)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <button mat-icon-button class="table-action-icon-button" color="primary" matTooltip="Manage Members" (click)="onManageMembers('pm', team.teamName, team.users)">
+                    <mat-icon>people</mat-icon>
+                  </button>
                 </td>
               </ng-container>
 
@@ -216,18 +183,72 @@
             <p>No PM teams found.</p>
           </div>
         </section>
+        </div>
       </div>
     </mat-tab>
 
   </mat-tab-group>
 
-  <!-- ── Edit / Create User form (replaces tabs) ──────────────────────────── -->
-  <div *ngIf="!isLoading && (editingUser || isCreatingNewUser)" class="edit-user-view">
+  <!-- ── Create Team Modal ──────────────────────────────────────────────── -->
+  <div *ngIf="showCreateTeamForm" class="create-team-modal">
+    <div class="modal-overlay" (click)="onCancelCreateTeam()"></div>
+    <div class="modal-content create-team-modal-content" (click)="$event.stopPropagation()">
+      <h1>{{ showCreateTeamForm === 'org' ? 'Create Organizational Team' : 'Create PM Team' }}</h1>
+      <div class="create-team-header-divider"></div>
 
-    <h1 *ngIf="editingUser">Edit User: {{ editingUser.name }}</h1>
-    <h1 *ngIf="isCreatingNewUser">Create New User</h1>
+      <div class="create-team-form">
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Team Name</mat-label>
+          <input matInput [(ngModel)]="newTeamNameInput" [placeholder]="showCreateTeamForm === 'org' ? 'e.g. Engineering' : 'e.g. PR22 Team'" />
+        </mat-form-field>
 
-    <form [formGroup]="editForm" class="edit-form">
+        <div class="create-team-actions">
+          <button mat-raised-button class="cancel-button" type="button" (click)="onCancelCreateTeam()">Cancel</button>
+          <button mat-raised-button class="save-button" type="button" (click)="onConfirmCreateTeam(showCreateTeamForm!)" [disabled]="!newTeamNameInput.trim()">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Rename Team Modal ──────────────────────────────────────────────── --> 
+  <div *ngIf="editingTeam" class="rename-team-modal">
+    <div class="modal-overlay" (click)="onCancelEditTeam()"></div>
+    <div class="modal-content rename-team-modal-content" (click)="$event.stopPropagation()">
+      <h1>{{ editingTeam.type === 'org' ? 'Rename Organizational Team' : 'Rename PM Team' }}</h1>
+      <div class="rename-team-header-divider"></div>
+
+      <div class="rename-team-form">
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Team Name</mat-label>
+          <input matInput [(ngModel)]="renameTeamInput" placeholder="Enter new team name" />
+        </mat-form-field>
+
+        <div class="rename-team-actions">
+          <button mat-raised-button class="cancel-button" type="button" (click)="onCancelEditTeam()">Cancel</button>
+          <button mat-raised-button class="save-button" type="button" (click)="onConfirmRenameTeam()" [disabled]="!renameTeamInput.trim() || renameTeamInput.trim() === editingTeam.name">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit / Create User modal ─────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && (editingUser || isCreatingNewUser)" class="edit-user-modal">
+    <div class="modal-overlay" (click)="onCancelEdit()"></div>
+    <div class="modal-content edit-user-modal-content" (click)="$event.stopPropagation()">
+
+      <h1 *ngIf="editingUser">
+        Edit User: {{ editingUser.name }}
+        <mat-icon class="user-management-title-icon">edit</mat-icon>
+      </h1>
+      <div *ngIf="editingUser" class="edit-user-header-divider"></div>
+
+      <h1 *ngIf="isCreatingNewUser">
+        Create New User
+        <mat-icon class="user-management-title-icon">person_add</mat-icon>
+      </h1>
+      <div *ngIf="isCreatingNewUser" class="edit-user-header-divider"></div>
+
+      <form [formGroup]="editForm" class="edit-form">
       <mat-form-field appearance="outline" class="form-field">
         <mat-label>Name</mat-label>
         <input matInput formControlName="name" />
@@ -293,15 +314,20 @@
         </mat-select>
       </mat-form-field>
 
-      <div class="form-actions">
-        <button mat-raised-button color="primary" type="button" (click)="onSaveEdit()" [disabled]="!editForm.valid">Save</button>
-        <button mat-raised-button type="button" (click)="onCancelEdit()">Cancel</button>
-      </div>
+        <div class="modal-action-row">
+          <div *ngIf="editingUser" class="delete-section">
+            <button mat-button color="warn" type="button" (click)="onDeleteUser()" matTooltip="Delete User">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
 
-      <div *ngIf="editingUser" class="delete-section">
-        <button mat-button color="warn" type="button" (click)="onDeleteUser()">Delete User</button>
-      </div>
-    </form>
+          <div class="form-actions">
+            <button mat-raised-button class="cancel-button" type="button" (click)="onCancelEdit()">Cancel</button>
+            <button mat-raised-button class="save-button" [class.add-user-save]="isCreatingNewUser" type="button" (click)="onSaveEdit()" [disabled]="!editForm.valid">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- ── Delete User Confirmation ─────────────────────────────────────────── -->
@@ -380,7 +406,7 @@
   </div>
 
   <!-- ── Delete Team Confirmation ──────────────────────────────────────────── -->
-  <div *ngIf="showTeamDeleteConfirm" class="delete-confirmation-modal">
+  <div *ngIf="showTeamDeleteConfirm" class="delete-confirmation-modal team-delete-confirmation-modal">
     <div class="modal-overlay" (click)="onCancelTeamDelete()"></div>
     <div class="modal-content">
       <h2>Delete Team</h2>

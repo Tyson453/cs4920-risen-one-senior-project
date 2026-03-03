@@ -9,7 +9,7 @@
   <!--Body of Home page-->
   <body>
     <!--Main Content of Page (Hero)-->
-    <main>
+    <main class="login-page">
       <mat-grid-list id="grid" cols="2" rowHeight="90vh">
         <!--Grid Tile Hero images-->
         <mat-grid-tile>
@@ -48,10 +48,8 @@
                   <div class="error-message" *ngIf="loginError">
                     {{ errorMessage }}
                   </div>
-                  <div class="form-group">
-                    <label for="username">Username:</label>
                     <mat-form-field
-                      appearance="fill"
+                      appearance="outline"
                       class="form-field"
                       [class.error-field]="loginError"
                     >
@@ -60,15 +58,13 @@
                         id="username"
                         name="username"
                         type="text"
+                        placeholder="username*"
                         required
                         [(ngModel)]="username"
                       />
                     </mat-form-field>
-                  </div>
-                  <div class="form-group">
-                    <label for="password">Password:</label>
                     <mat-form-field
-                      appearance="fill"
+                      appearance="outline"
                       class="form-field"
                       [class.error-field]="loginError"
                     >
@@ -77,14 +73,13 @@
                         id="password"
                         name="password"
                         type="password"
+                        placeholder="password*"
                         required
                         [(ngModel)]="password"
                       />
                     </mat-form-field>
-                  </div>
                   <button
                     mat-raised-button
-                    color="primary"
                     type="button"
                     class="login-button"
                     (click)="login()"
