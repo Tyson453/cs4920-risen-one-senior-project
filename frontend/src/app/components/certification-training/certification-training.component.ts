@@ -3,7 +3,7 @@ import { DialogService } from '../../services/dialog.service';
 
 type CertItem = {
   id: string;
-  icon: string;
+  icon: "workspace_premium" | "school";
   name: string;
   type: 'Certification' | 'Course';
   status: string;
@@ -24,7 +24,7 @@ export class CertificationTrainingComponent {
   items: CertItem[] = [
     { id: 'aws', icon: 'workspace_premium', name: 'AWS Certification', type: 'Certification', status: 'Active' },
     { id: 'angular', icon: 'school', name: 'Angular Training', type: 'Course', status: 'Completed' },
-    { id: 'security', icon: 'security', name: 'Security Awareness', type: 'Course', status: 'Due soon' },
+    { id: 'security', icon: 'school', name: 'Security Awareness', type: 'Course', status: 'Due soon' },
   ];
 
   filteredItems: CertItem[] = [...this.items];
