@@ -9,11 +9,6 @@
     <div class="admin-page-divider"></div>
   </div>
 
-  <!-- Loading Spinner -->
-  <div *ngIf="isLoading" class="loading-spinner-container">
-    <mat-spinner></mat-spinner>
-  </div>
-
   <!-- ── Tab view (shown when not editing a user) ──────────────────────────── -->
   <mat-tab-group *ngIf="!isLoading && !editingUser && !isCreatingNewUser" animationDuration="200ms">
 
@@ -215,11 +210,11 @@
     </div>
   </div>
 
-  <!-- ── Rename Team Modal ──────────────────────────────────────────────── -->
+  <!-- ── Rename Team Modal ──────────────────────────────────────────────── --> 
   <div *ngIf="editingTeam" class="rename-team-modal">
     <div class="modal-overlay" (click)="onCancelEditTeam()"></div>
     <div class="modal-content rename-team-modal-content" (click)="$event.stopPropagation()">
-      <h1>{{ editingTeam?.type === 'org' ? 'Rename Organizational Team' : 'Rename PM Team' }}</h1>
+      <h1>{{ editingTeam.type === 'org' ? 'Rename Organizational Team' : 'Rename PM Team' }}</h1>
       <div class="rename-team-header-divider"></div>
 
       <div class="rename-team-form">
@@ -230,7 +225,7 @@
 
         <div class="rename-team-actions">
           <button mat-raised-button class="cancel-button" type="button" (click)="onCancelEditTeam()">Cancel</button>
-          <button mat-raised-button class="save-button" type="button" (click)="onConfirmRenameTeam()" [disabled]="!renameTeamInput.trim() || renameTeamInput.trim() === editingTeam?.name">Save</button>
+          <button mat-raised-button class="save-button" type="button" (click)="onConfirmRenameTeam()" [disabled]="!renameTeamInput.trim() || renameTeamInput.trim() === editingTeam.name">Save</button>
         </div>
       </div>
     </div>

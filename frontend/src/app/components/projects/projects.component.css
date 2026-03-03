@@ -4,13 +4,6 @@
   margin: 0 auto;
 }
 
-.loading-spinner-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-}
-
 .projects-list-view {
   .list-header {
     margin-bottom: 1.25rem;

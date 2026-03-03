@@ -1,71 +1,89 @@
 <div class="employee-development-container">
-  <!-- Loading Spinner -->
-  <div *ngIf="isLoading" class="loading-spinner-container">
-    <mat-spinner></mat-spinner>
-  </div>
-
   <!-- List View -->
   <div *ngIf="!isLoading && !isEditing && !isCreating" class="list-view">
     <div class="list-header">
-      <h1>Personal Development Training</h1>
-      <button mat-raised-button color="primary" (click)="onCreateNew()">
-        <mat-icon>add</mat-icon>
-        Create New PDT
-      </button>
+      <div class="header-content">
+        <mat-icon class="header-icon">trending_up</mat-icon>
+        <h1>Personal Development Training</h1>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="header-description">Track and manage your professional growth goals and action plans.</p>
+      </div>
     </div>
+    <div class="header-divider"></div>
 
     <!-- PDT Records Table -->
-    <div class="table-wrapper">
-      <table mat-table [dataSource]="pdtRecords" class="pdt-table">
-        <!-- Created Date Column -->
-        <ng-container matColumnDef="createdDate">
-          <th mat-header-cell *matHeaderCellDef>Created Date</th>
-          <td mat-cell *matCellDef="let element">{{ element.createdDate }}</td>
-        </ng-container>
+    <mat-card class="list-card">
+      <div class="list-card-header">
+        <h2>PDT Records</h2>
+        <button
+          mat-icon-button
+          class="create-pdt-icon-btn"
+          matTooltip="Create New PDT"
+          aria-label="Create New PDT"
+          (click)="onCreateNew()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      <div class="list-card-divider"></div>
 
-        <!-- Employee Name Column -->
-        <ng-container matColumnDef="empName">
-          <th mat-header-cell *matHeaderCellDef>Employee</th>
-          <td mat-cell *matCellDef="let element">{{ element.empName }}</td>
-        </ng-container>
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="pdtRecords" class="pdt-table">
+          <!-- Created Date Column -->
+          <ng-container matColumnDef="createdDate">
+            <th mat-header-cell *matHeaderCellDef>Created Date</th>
+            <td mat-cell *matCellDef="let element">{{ element.createdDate }}</td>
+          </ng-container>
 
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let element">
-            <button mat-button color="primary" (click)="onEditRecord(element)">
-              <mat-icon>edit</mat-icon>
-              Edit
-            </button>
-            <button mat-button color="warn" (click)="onDeleteRecord(element)">
-              <mat-icon>delete</mat-icon>
-              Delete
-            </button>
-          </td>
-        </ng-container>
+          <!-- Employee Name Column -->
+          <ng-container matColumnDef="empName">
+            <th mat-header-cell *matHeaderCellDef>Employee</th>
+            <td mat-cell *matCellDef="let element">{{ element.empName.value }}</td>
+          </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
-    </div>
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-icon-button class="table-action-icon-button edit-action" aria-label="Edit PDT" (click)="onEditRecord(element)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="table-action-icon-button delete-action" aria-label="Delete PDT" (click)="onDeleteRecord(element)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
 
-    <!-- Empty State -->
-    <div *ngIf="pdtRecords.length === 0" class="empty-state">
-      <mat-icon>summarize</mat-icon>
-      <h2>No Personal Development Training records found</h2>
-      <p>Create your first PDT record to track your professional development goals.</p>
-      <button mat-raised-button color="primary" (click)="onCreateNew()">
-        <mat-icon>add</mat-icon>
-        Create Your First PDT
-      </button>
-    </div>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr *matNoDataRow class="mat-mdc-row no-data-row">
+            <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+              <div class="no-data-content">
+                <mat-icon>summarize</mat-icon>
+                <div class="no-data-title">No Personal Development Training records found</div>
+                <div class="no-data-subtitle">Create your first PDT record to track your professional development goals.</div>
+                <button mat-raised-button class="create-pdt-btn no-data-add-btn" (click)="onCreateNew()">
+                  <mat-icon>add</mat-icon>
+                  Create Your First PDT
+                </button>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </mat-card>
   </div>
 
   <!-- Edit/Create Form View -->
   <div *ngIf="!isLoading && (isEditing || isCreating)" class="form-view">
     <div class="form-header">
-      <h1 *ngIf="isCreating">Create Personal Development Training Record</h1>
-      <h1 *ngIf="isEditing">Edit Personal Development Training Record</h1>
+      <div class="form-header-top">
+        <mat-icon class="form-header-icon">edit_note</mat-icon>
+        <h1 *ngIf="isCreating">Create Personal Development Training Record</h1>
+        <h1 *ngIf="isEditing">Edit Personal Development Training Record</h1>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="form-subtitle">Capture goals, development needs, and signatures in one place.</p>
+      </div>
+      <div class="form-divider"></div>
     </div>
 
     <mat-card class="form-card">
@@ -186,13 +204,13 @@
 
           <!-- Form Actions -->
           <div class="form-actions">
-            <button mat-raised-button type="button" (click)="onCancel()">
+            <button mat-raised-button class="cancel-btn" type="button" (click)="onCancel()">
               <mat-icon>cancel</mat-icon>
               Cancel
             </button>
             <button
               mat-raised-button
-              color="primary"
+              class="save-btn"
               type="button"
               (click)="onSave()"
               [disabled]="!pdtForm.valid"

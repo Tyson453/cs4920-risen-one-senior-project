@@ -36,11 +36,16 @@ export class ProjectsComponent implements OnInit {
     'productOwner',
     'startDate',
   ];
+  openSpinner = () => {};
+  closeSpinner = () => {};
 
   constructor(
     private projectApiService: ProjectApiService,
     private dialogService: DialogService
-  ) {}
+  ) {
+    this.openSpinner = () => this.dialogService.openSpinner();
+    this.closeSpinner = () => this.dialogService.closeSpinner();
+  }
 
   ngOnInit(): void {
     this.loadProjects();
@@ -48,10 +53,12 @@ export class ProjectsComponent implements OnInit {
 
   private loadProjects(): void {
     this.isLoading = true;
+    this.openSpinner();
     this.projectApiService.getProjects().subscribe({
       next: (projects) => {
         this.projects = projects;
         this.isLoading = false;
+        this.closeSpinner();
       },
       error: (error) => {
         console.error('Error loading projects:', error);
@@ -61,6 +68,7 @@ export class ProjectsComponent implements OnInit {
           'Failed to load projects'
         );
         this.isLoading = false;
+        this.closeSpinner();
       },
     });
   }

@@ -15,6 +15,20 @@
   gap: 0.75rem;
 }
 
+.timeoff-page-header-top .time-off-icon {
+  color: var(--primary-accent);
+  font-size: 26px;
+  width: 45px;
+  height: 45px;
+  display: inline-flex; 
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--primary-surface);
+  border: 2px solid var(--primary-accent);
+  box-sizing: border-box;
+}
+
 .timeoff-page-title {
   margin: 0;
   color: var(--primary-text);

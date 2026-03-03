@@ -95,6 +95,8 @@ export class AdminComponent implements OnInit {
   isLoading = true;
   userToDelete: TeamSummaryUser | null = null;
   showDeleteConfirmation = false;
+  openSpinner = () => {};
+  closeSpinner = () => {};
 
   availableRoles = AVAILABLE_ROLES;
   availableStates = US_STATES;
@@ -131,6 +133,9 @@ export class AdminComponent implements OnInit {
     private router: Router
   ) {
     this.editForm = this.createEditForm();
+    this.openSpinner = () => this.dialogService.openSpinner();
+    this.closeSpinner = () => this.dialogService.closeSpinner();
+
   }
 
   ngOnInit(): void {
@@ -166,6 +171,7 @@ export class AdminComponent implements OnInit {
 
   private loadData(): void {
     this.isLoading = true;
+    this.openSpinner();
     Promise.all([
       this.userService.getUsers() as Promise<TeamSummaryUser[]>,
       firstValueFrom(this.projectApiService.getProjects()) as unknown as Promise<Project[]>,
@@ -177,11 +183,13 @@ export class AdminComponent implements OnInit {
         this.orgTeams = teamData.orgTeams;
         this.pmTeams = teamData.pmTeams;
         this.isLoading = false;
+        this.closeSpinner();
       })
       .catch((error) => {
         console.error('Error loading data:', error);
         this.dialogService.standardError(error, 'Load Error', 'Failed to load admin data');
         this.isLoading = false;
+        this.closeSpinner();
       });
   }
 
