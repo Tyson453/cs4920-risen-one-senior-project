@@ -10,14 +10,14 @@
     <div class="list-header">
       <h1>Personal Development Training</h1>
       <div class="list-header-actions">
-        <button mat-raised-button color="primary" (click)="onCreateNew()">
-          <mat-icon>add</mat-icon>
-          Create New PDT
-        </button>
-        <button *ngIf="isSupervisor" mat-stroked-button (click)="onViewPendingApprovals()">
+        <button *ngIf="hasSubordinates" mat-stroked-button (click)="onViewPendingApprovals()">
           <mat-icon>pending_actions</mat-icon>
           Pending Approvals
           <span *ngIf="pendingApprovals.length > 0" class="approval-count-badge">{{ pendingApprovals.length }}</span>
+        </button>
+        <button mat-raised-button color="primary" (click)="onCreateNew()">
+          <mat-icon>add</mat-icon>
+          Create New PDT
         </button>
       </div>
     </div>

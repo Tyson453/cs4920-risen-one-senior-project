@@ -17,6 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth.service';
 import { PDTService } from '../../services/pdt.service';
 import { DialogService } from '../../services/dialog.service';
+import { UserApiService } from '../../services/user.service';
 import { PDT, PDTStatus } from '../../models/pdt';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'view' | 'pending-approvals';
@@ -51,6 +52,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
   pendingApprovals: PDT[] = [];
   isPendingApprovalsLoading = false;
   isSupervisorView = false;
+  hasSubordinates = false;
   supervisorSignature = '';
   changeComments = '';
   showApprovePanel = false;
@@ -63,6 +65,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
     private authService: AuthService,
     private pdtService: PDTService,
     private dialogService: DialogService,
+    private userApiService: UserApiService,
     private formBuilder: FormBuilder
   ) {
     this.pdtForm = this.createPDTForm();
@@ -71,7 +74,11 @@ export class EmployeeDevelopmentComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.currentUser = await this.authService.getUser();
     this.loadPDTRecords();
-    if (this.isSupervisor) { this.loadPendingApprovals(); }
+    if (this.isSupervisor) {
+      const allUsers = await this.userApiService.getUsers();
+      this.hasSubordinates = allUsers.some(u => u.supervisorId === this.currentUser.uuid);
+      if (this.hasSubordinates) { this.loadPendingApprovals(); }
+    }
   }
 
   // ── Computed helpers ─────────────────────────────────────────────────────────

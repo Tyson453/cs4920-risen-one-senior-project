@@ -80,6 +80,28 @@
     }
   }
 
+  .list-header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .approval-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    margin-left: 8px;
+    border-radius: 10px;
+    background-color: #e65100;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
   .table-wrapper {
     overflow-x: auto;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -293,6 +315,51 @@
           opacity: 0.6;
           cursor: not-allowed;
         }
+      }
+    }
+  }
+
+  .supervisor-actions {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid #e0e0e0;
+
+    h3 {
+      margin: 0 0 24px 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .action-group {
+      margin-bottom: 16px;
+    }
+
+    .action-panel {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .form-field {
+        width: 100%;
+
+        mat-icon {
+          color: rgba(0, 0, 0, 0.54);
+        }
+
+        textarea {
+          resize: vertical;
+          min-height: 80px;
+          font-family: inherit;
+          line-height: 1.5;
+        }
+      }
+
+      .action-panel-buttons {
+        display: flex;
+        gap: 12px;
+        align-items: center;
       }
     }
   }
