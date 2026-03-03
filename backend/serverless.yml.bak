@@ -5,11 +5,6 @@ provider:
   name: aws
   runtime: nodejs16.x
   region: us-east-2
-
-  environment:
-    TRAININGS_TABLE: trainings
-    CERTIFICATIONS_TABLE: certifications
-
   iam:
     role:
       statements:
@@ -30,10 +25,6 @@ provider:
             - arn:aws:dynamodb:${self:provider.region}:*:table/dailyStatus/index/*
             - arn:aws:dynamodb:${self:provider.region}:*:table/teams
             - arn:aws:dynamodb:${self:provider.region}:*:table/teams/index/*
-            - arn:aws:dynamodb:${self:provider.region}:*:table/trainings
-            - arn:aws:dynamodb:${self:provider.region}:*:table/trainings/index/*
-            - arn:aws:dynamodb:${self:provider.region}:*:table/certifications
-            - arn:aws:dynamodb:${self:provider.region}:*:table/certifications/index/*
         - Effect: Allow
           Action:
             - dynamodb:ConditionCheckItem
@@ -146,8 +137,7 @@ resources:
           - { 'AttributeName': 'teamName', 'KeyType': 'RANGE' }
         BillingMode: PAY_PER_REQUEST
         TableName: teams
-    TrainingsTable:
-
+        TrainingsTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: trainings
@@ -210,41 +200,7 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
             allowCredentials: true
-  createTraining:
-    handler: src/handlers/create-training.handler
-    events:
-      - http:
-          path: trainings
-          method: post
-          cors: true
-          authorizer: jwtAuthorizer
 
-  getTrainings:
-    handler: src/handlers/get-trainings.handler
-    events:
-      - http:
-          path: trainings/{userId}
-          method: get
-          cors: true
-          authorizer: jwtAuthorizer
-
-  createCertification:
-    handler: src/handlers/create-certification.handler
-    events:
-      - http:
-          path: certifications
-          method: post
-          cors: true
-          authorizer: jwtAuthorizer
-
-  getCertifications:
-    handler: src/handlers/get-certifications.handler
-    events:
-      - http:
-          path: certifications/{userId}
-          method: get
-          cors: true
-          authorizer: jwtAuthorizer
   jwtAuthorizer:
     handler: src/handlers/authorizer.handler
     environment:
