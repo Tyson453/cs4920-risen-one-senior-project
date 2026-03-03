@@ -1,45 +1,46 @@
 
-body{
+body,
+.login-page {
     width: 100vw;
     height: 100vh;
-    background-color: transparent  ;
+    background: var(--login-screen-bg);
     overflow: hidden;
-    background-image: url("/assets/mountain-bg.jpeg");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
 }
 #yellow{
-    color:#e0a951;
+    color: var(--primary-accent-soft);
 }
 
 .example-spacer{
     flex: 1 1 auto;
 }
 #img-container{
+    display: flex;
     justify-content: center;
-    align-items: right;
+    align-items: center;
     height: fit-content;
     width: fit-content;
-    padding: 16px;
-    background-color: #e0a951;
+    padding: clamp(10px, 1.2vw, 16px);
+    background-color: var(--primary-accent-soft);
     border-radius: 100%;
 }
 #img-container2{
-    transform: translateY(-250px);
+    display: flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(clamp(-230px, -16vw, -145px), clamp(-25px, 1vw, 20px));
     justify-content: center;
-    align-items: right;
+    align-items: center;
     height: fit-content;
     width: fit-content;
-    padding: 16px;
-    background-color: #e0a951;
+    padding: clamp(8px, 1vw, 16px);
+    background-color: var(--primary-accent-soft);
     border-radius: 100%;
     z-index: 1;
 }
 #logo2{
-    
-    width: 200px;
-    height: 200px;
+    width: clamp(95px, 12vw, 175px);
+    height: clamp(95px, 12vw, 175px);
     border-radius: 100%;
     background-color: black;
     background-image: url("/assets/RisenOneWhite.png");
@@ -49,8 +50,8 @@ body{
     
 }
 #logo{
-    width: 500px;
-    height: 500px;
+    width: clamp(220px, 30vw, 440px);
+    height: clamp(220px, 30vw, 440px);
     border-radius: 100%;
     background-color: black;
     background-image: url("/assets/eliteemployees.jpeg");
@@ -63,7 +64,12 @@ mat-grid-list{
 }
 
 #hero-img{
-    transform: translateY(10%);
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #tools{
@@ -80,7 +86,8 @@ mat-card {
 
 
 .cta-card {
-    background-color: white;
+    background-color: var(--primary-surface);
+    color: white;
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -88,50 +95,70 @@ mat-card {
 
 .login-form {
     display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
+    justify-items: space-between;
+    margin-top: 20px;
 }
 
 .form-group {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    margin-right: 10px;
-    width: 80px;
 }
 
 .form-field {
-    width: calc(100% - 90px);
+    width: calc(100% - 20px);
+    --mdc-outlined-text-field-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-focus-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-hover-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-focus-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-hover-outline-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-label-text-color: var(--secondary-text);
+    --mdc-outlined-text-field-error-caret-color: var(--primary-text);
 }
 
-mat-form-field {
-    width: 100%;
+.form-field.error-field {
+    --mdc-outlined-text-field-error-outline-color: var(--danger);
+    --mdc-outlined-text-field-error-focus-outline-color: var(--danger);
+    --mdc-outlined-text-field-error-hover-outline-color: var(--danger);
+    --mdc-outlined-text-field-error-label-text-color: var(--danger);
+    --mdc-outlined-text-field-error-caret-color: var(--danger);
 }
 
-mat-form-field .mat-form-field-infix {
-    padding: 0 12px;  /* Ensure padding inside the form field */
+.login-form input {
+    color: white;
+}
+.login-form input::placeholder {
+    color: var(--secondary-text);
 }
 
-mat-input-element {
-    height: 56px;  /* Ensure the height of the input is adequate */
-    line-height: 1.5;  /* Adjust line height if necessary */
+.login-form input:-webkit-autofill,
+.login-form input:-webkit-autofill:hover,
+.login-form input:-webkit-autofill:focus,
+.login-form input:-webkit-autofill:active {
+    color: var(--primary-text) !important;
+    -webkit-text-fill-color: var(--primary-text) !important;
+    caret-color: var(--primary-text);
+    -webkit-box-shadow: 0 0 0 1000px var(--primary-surface) inset !important;
+    box-shadow: 0 0 0 1000px var(--primary-surface) inset !important;
+    transition: background-color 999999s ease-out 0s, color 999999s ease-out 0s;
 }
 
-.login-button {
+.login-form .login-button {
     align-self: center;
-    width: 100px;
+    background-color: var(--primary-accent);
+    font-weight: bold;
+    color: var(--primary-surface);
+    width: calc(100% - 20px);
 }
+
 .login-heading {
     text-align: center;
     font-size: 1.5em; /* Adjust font size as needed to fit on one line */
     margin-bottom: 20px;
     white-space: nowrap; /* Ensure the text stays on one line */
-}
-
-.error-field ::ng-deep .mat-mdc-text-field-wrapper {
-  border: 2px solid red !important;
 }
 
 .error-message {

@@ -4,3 +4,7 @@
     background: rgba(0, 0, 0, 0.0);
   }
 }
+
+::ng-deep .transparent.mat-mdc-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: var(--primary-accent);
+}

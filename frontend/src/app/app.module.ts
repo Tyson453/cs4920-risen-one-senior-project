@@ -64,6 +64,8 @@ import { GenericErrorComponent } from './shared/components/generic-error/generic
 
 import { AppRoutingModule } from './app.routes';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { TimeOffComponent } from './components/time-off/time-off.component';
+import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
 
 @NgModule({
   declarations: [
@@ -79,7 +81,9 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     UpdateDateRangeComponent,
     ReportReviewComponent,
     ReportDialogComponent,
-    TeamSummaryComponent
+    TeamSummaryComponent,
+    TimeOffComponent,
+    CertificationTrainingComponent
   ],
   bootstrap: [AppComponent],
   imports: [
@@ -125,7 +129,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatSortModule,
     MatTableModule,
     AppRoutingModule,
-    DragDropModule
+    DragDropModule,
   ],
   providers: [
     MatSnackBar,

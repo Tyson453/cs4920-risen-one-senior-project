@@ -3,8 +3,8 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-time-off',
-  standalone: true,
-  imports: [FormsModule],
+  standalone: false,
+  // imports: [FormsModule],
   templateUrl: './time-off.component.html',
   styleUrl: './time-off.component.css'
 })

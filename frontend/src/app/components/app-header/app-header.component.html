@@ -9,4 +9,25 @@
   <h3 class="header-text montserrat">
     Risen One Consulting Employee Portal
   </h3>
+
+  <div class="header-right">
+    <div class="account-section" #accountSection>
+      <button
+        type="button"
+        class="account-trigger verticle-alignment-helper"
+        aria-label="Open account panel"
+        (click)="toggleAccountCard($event)">
+        <mat-icon class="account-logo">account_circle</mat-icon>
+      </button>
+
+      <div class="account-card" *ngIf="showAccountCard">
+        <img
+          class="account-card-logo"
+          src="/assets/RisenOneWhite.png"
+          alt="Risen One logo"
+        />
+        <span class="account-card-name">John Doe</span>
+      </div>
+    </div>
+  </div>
 </div>

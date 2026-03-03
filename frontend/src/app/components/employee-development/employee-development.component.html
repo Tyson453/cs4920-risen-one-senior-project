@@ -8,100 +8,118 @@
   <!-- ── List View ─────────────────────────────────────────────────────────── -->
   <div *ngIf="!isLoading && isListView" class="list-view">
     <div class="list-header">
-      <h1>Personal Development Training</h1>
+      <div class="header-content">
+        <mat-icon class="header-icon">trending_up</mat-icon>
+        <h1>Personal Development Training</h1>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="header-description">Track and manage your professional growth goals and action plans.</p>
+      </div>
       <div class="list-header-actions">
         <button *ngIf="hasSubordinates" mat-stroked-button (click)="onViewPendingApprovals()">
           <mat-icon>pending_actions</mat-icon>
           Pending Approvals
           <span *ngIf="pendingApprovals.length > 0" class="approval-count-badge">{{ pendingApprovals.length }}</span>
         </button>
-        <button mat-raised-button color="primary" (click)="onCreateNew()">
-          <mat-icon>add</mat-icon>
-          Create New PDT
-        </button>
       </div>
     </div>
+    <div class="header-divider"></div>
 
     <!-- PDT Records Table -->
-    <div *ngIf="pdtRecords.length > 0" class="table-wrapper">
-      <table mat-table [dataSource]="pdtRecords" class="pdt-table">
+    <mat-card class="list-card">
+      <div class="list-card-header">
+        <h2>PDT Records</h2>
+        <button
+          mat-icon-button
+          class="create-pdt-icon-btn"
+          matTooltip="Create New PDT"
+          aria-label="Create New PDT"
+          (click)="onCreateNew()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      <div class="list-card-divider"></div>
 
-        <!-- Created Date Column -->
-        <ng-container matColumnDef="createdDate">
-          <th mat-header-cell *matHeaderCellDef>Created Date</th>
-          <td mat-cell *matCellDef="let record">{{ record.createdDate }}</td>
-        </ng-container>
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="pdtRecords" class="pdt-table">
+          <!-- Created Date Column -->
+          <ng-container matColumnDef="createdDate">
+            <th mat-header-cell *matHeaderCellDef>Created Date</th>
+            <td mat-cell *matCellDef="let record">{{ record.createdDate }}</td>
+          </ng-container>
 
-        <!-- Employee Name Column -->
-        <ng-container matColumnDef="empName">
-          <th mat-header-cell *matHeaderCellDef>Employee</th>
-          <td mat-cell *matCellDef="let record">{{ record.empName }}</td>
-        </ng-container>
+          <!-- Employee Name Column -->
+          <ng-container matColumnDef="empName">
+            <th mat-header-cell *matHeaderCellDef>Employee</th>
+            <td mat-cell *matCellDef="let record">{{ record.empName }}</td>
+          </ng-container>
 
-        <!-- Status Column -->
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let record">
-            <span class="status-badge" [ngClass]="statusClass(record.status)">
-              {{ statusLabel(record.status) }}
-            </span>
-          </td>
-        </ng-container>
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let record">
+              <span class="status-badge" [ngClass]="statusClass(record.status)">
+                {{ statusLabel(record.status) }}
+              </span>
+            </td>
+          </ng-container>
 
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let record">
-            <!-- Edit: DRAFT or CHANGES_REQUESTED -->
-            <button
-              *ngIf="canEdit(record)"
-              mat-button
-              color="primary"
-              (click)="onEditRecord(record)"
-            >
-              <mat-icon>edit</mat-icon>
-              Edit
-            </button>
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let record">
+              <!-- Edit: DRAFT or CHANGES_REQUESTED -->
+              <button
+                *ngIf="canEdit(record)"
+                mat-icon-button
+                class="table-action-icon-button edit-action"
+                aria-label="Edit PDT"
+                (click)="onEditRecord(record)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
 
-            <!-- View: PENDING_APPROVAL or APPROVED -->
-            <button
-              *ngIf="!canEdit(record)"
-              mat-button
-              color="primary"
-              (click)="onViewRecord(record)"
-            >
-              <mat-icon>visibility</mat-icon>
-              View
-            </button>
+              <!-- View: PENDING_APPROVAL or APPROVED -->
+              <button
+                *ngIf="!canEdit(record)"
+                mat-icon-button
+                class="table-action-icon-button edit-action"
+                aria-label="View PDT"
+                (click)="onViewRecord(record)"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
 
-            <!-- Delete: DRAFT only -->
-            <button
-              *ngIf="canDelete(record)"
-              mat-button
-              color="warn"
-              (click)="onDeleteRecord(record)"
-            >
-              <mat-icon>delete</mat-icon>
-              Delete
-            </button>
-          </td>
-        </ng-container>
+              <!-- Delete: DRAFT only -->
+              <button
+                *ngIf="canDelete(record)"
+                mat-icon-button
+                class="table-action-icon-button delete-action"
+                aria-label="Delete PDT"
+                (click)="onDeleteRecord(record)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="pdtRecords.length === 0" class="empty-state">
-      <mat-icon>summarize</mat-icon>
-      <h2>No Personal Development Training records found</h2>
-      <p>Create your first PDT record to track your professional development goals.</p>
-      <button mat-raised-button color="primary" (click)="onCreateNew()">
-        <mat-icon>add</mat-icon>
-        Create Your First PDT
-      </button>
-    </div>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr *matNoDataRow class="mat-mdc-row no-data-row">
+            <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+              <div class="no-data-content">
+                <mat-icon>summarize</mat-icon>
+                <div class="no-data-title">No Personal Development Training records found</div>
+                <div class="no-data-subtitle">Create your first PDT record to track your professional development goals.</div>
+                <button mat-raised-button class="create-pdt-btn no-data-add-btn" (click)="onCreateNew()">
+                  <mat-icon>add</mat-icon>
+                  Create Your First PDT
+                </button>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </mat-card>
   </div>
 
   <!-- ── Pending Approvals View (supervisor) ──────────────────────────────── -->
@@ -165,14 +183,21 @@
   <!-- ── Create / Edit Form View ───────────────────────────────────────────── -->
   <div *ngIf="!isLoading && isFormView" class="form-view">
     <div class="form-header">
-      <h1>{{ isCreating ? 'Create' : 'Edit' }} Personal Development Training Record</h1>
-      <span
-        *ngIf="selectedRecord"
-        class="status-badge large"
-        [ngClass]="statusClass(selectedRecord.status)"
-      >
-        {{ statusLabel(selectedRecord.status) }}
-      </span>
+      <div class="form-header-top">
+        <mat-icon class="form-header-icon">edit_note</mat-icon>
+        <h1 *ngIf="isCreating">Create Personal Development Training Record</h1>
+        <h1 *ngIf="isEditing">Edit Personal Development Training Record</h1>
+        <span
+          *ngIf="selectedRecord"
+          class="status-badge large"
+          [ngClass]="statusClass(selectedRecord.status)"
+        >
+          {{ statusLabel(selectedRecord.status) }}
+        </span>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="form-subtitle">Capture goals, development needs, and signatures in one place.</p>
+      </div>
+      <div class="form-divider"></div>
     </div>
 
     <!-- Changes Requested Banner -->
@@ -298,7 +323,7 @@
 
           <!-- Form Actions -->
           <div class="form-actions">
-            <button mat-button type="button" (click)="onBackToList()">
+            <button mat-raised-button class="cancel-btn" type="button" (click)="onBackToList()">
               <mat-icon>arrow_back</mat-icon>
               Cancel
             </button>
@@ -313,7 +338,7 @@
             </button>
             <button
               mat-raised-button
-              color="primary"
+              class="save-btn"
               type="button"
               (click)="onSubmitForApproval()"
               [disabled]="!pdtForm.valid"

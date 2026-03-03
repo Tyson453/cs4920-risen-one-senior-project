@@ -2,14 +2,17 @@
 /* TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version. */
 mat-card-header {
   justify-content: space-around;
+  border-radius: 0.5rem;
 }
 
 .error-card {
-  max-width: 30vw;
-  margin: auto auto;
-  background-color: #ffffff;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  background-color: var(--primary-surface);
+  border: 1px solid var(--primary-surface-hover);
   text-align: center;
-  color: #333333;
+  color: var(--primary-text);
   padding-top: 40px;
   padding-bottom: 40px;
   box-shadow: none;
@@ -25,26 +28,25 @@ mat-card-header {
 }
 
 p {
-    color: black;
+    color: var(--primary-text);
     align-self: flex-end;
 }
 
 .cancel {
     height: 2rem;
-    background-color: #eee;
-    color: #000;
-    border-radius: 25px;
+    background-color: var(--primary-surface);
+    color: var(--primary-accent);
+    border: 1px solid var(--primary-accent);
     width: 6em;
     font-size: 0.9rem;
-    font-weight: 350;
-    font-family:'Montserrat', 'sans-serif';
+    font-weight: 500;
     justify-content: center;
     align-content: center;
     display: grid;
   
     :hover {
-      background-color: #d2d2d2;
-      color: #000;
+      background-color: color-mix(in srgb, var(--primary-accent) 16%, var(--primary-surface));
+      color: var(--primary-accent);
       cursor: pointer;
     }
   }

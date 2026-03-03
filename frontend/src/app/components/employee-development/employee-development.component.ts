@@ -14,6 +14,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../services/auth.service';
 import { PDTService } from '../../services/pdt.service';
 import { DialogService } from '../../services/dialog.service';
@@ -36,6 +38,8 @@ type ViewMode = 'list' | 'create' | 'edit' | 'view' | 'pending-approvals';
     MatIconModule,
     MatProgressSpinnerModule,
     FormsModule,
+    MatDialogModule,
+    MatTooltipModule,
   ],
   templateUrl: './employee-development.component.html',
   styleUrls: ['./employee-development.component.scss'],
@@ -95,6 +99,10 @@ export class EmployeeDevelopmentComponent implements OnInit {
     return roles.includes('LEAD') || roles.includes('PM') || roles.includes('ADMIN');
   }
 
+  private getUserName(): string {
+    return this.currentUser?.name || '';
+  }
+
   statusLabel(status: PDTStatus): string {
     const labels: Record<PDTStatus, string> = {
       DRAFT: 'Draft',
@@ -127,12 +135,14 @@ export class EmployeeDevelopmentComponent implements OnInit {
 
   private loadPDTRecords(): void {
     this.isLoading = true;
+    this.dialogService.openSpinner();
     const userId = this.currentUser?.uuid || '';
 
     this.pdtService.getPDTRecords(userId).subscribe({
       next: (records) => {
         this.pdtRecords = records;
         this.isLoading = false;
+        this.dialogService.closeSpinner();
       },
       error: (error) => {
         this.dialogService.standardError(
@@ -141,6 +151,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
           'loading Personal Development Training records'
         );
         this.isLoading = false;
+        this.dialogService.closeSpinner();
       },
     });
   }
@@ -149,7 +160,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
 
   private createPDTForm(): FormGroup {
     return this.formBuilder.group({
-      empName: [{ value: '', disabled: true }, Validators.required],
+      empName: [{ value: this.getUserName(), disabled: true }, Validators.required],
       shortTermGoals: ['', Validators.required],
       mediumTermGoals: ['', Validators.required],
       longTermGoals: ['', Validators.required],
@@ -179,7 +190,7 @@ export class EmployeeDevelopmentComponent implements OnInit {
     this.pdtForm.get('empName')?.disable();
     this.pdtForm.get('superSignature')?.disable();
     this.pdtForm.patchValue({
-      empName: record.empName,
+      empName: this.getUserName(),
       shortTermGoals: record.shortTermGoals,
       mediumTermGoals: record.mediumTermGoals,
       longTermGoals: record.longTermGoals,
