@@ -10,7 +10,7 @@ mat-card-header {
   max-width: none;
   margin: 0;
   background-color: var(--primary-surface);
-  border: 1px solid var(--primary-surface-hover);
+  border: 2px solid var(--primary-surface-hover);
   text-align: center;
   color: var(--primary-text);
   padding-top: 40px;
@@ -36,7 +36,7 @@ p {
     height: 2rem;
     background-color: var(--primary-surface);
     color: var(--primary-accent);
-    border: 1px solid var(--primary-accent);
+    border: 2px solid var(--primary-accent);
     width: 6em;
     font-size: 0.9rem;
     font-weight: 500;

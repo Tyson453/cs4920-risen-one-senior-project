@@ -15,6 +15,10 @@
     <mat-icon type="white">security</mat-icon>
     Admin
   </mat-list-item>
+  <mat-list-item class="settings-item" [routerLink]="'/settings'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon type="white">settings</mat-icon>
+    Settings
+  </mat-list-item>
   <div class="sidenav-spacer"></div>
   <mat-list-item class="logout-item" (click)="logout()">
     <mat-icon class="logout-icon">logout</mat-icon>
