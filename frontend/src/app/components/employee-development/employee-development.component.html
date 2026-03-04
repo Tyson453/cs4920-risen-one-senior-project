@@ -1,13 +1,7 @@
-<mat-tab-group>
+<mat-tab-group class="pdt-tabs" [mat-stretch-tabs]="false" animationDuration="200ms">
 
   <mat-tab label="Personal Development (PDT)">
     <div class="employee-development-container">
-
-  <!-- Loading Spinner -->
-  <div *ngIf="isLoading" class="loading-spinner-container">
-    <mat-spinner></mat-spinner>
-  </div>
-
   <!-- ── List View ─────────────────────────────────────────────────────────── -->
   <div *ngIf="!isLoading && isListView" class="list-view">
     <div class="list-header">
