@@ -1,7 +1,7 @@
 <div class="header-container">
   <img
     id="roc-logo"
-    src="/assets/RisenOneWhite.png"
+    class="roc-logo"
     alt="risen one consulting logo"
     [routerLink]="'/home'"
   />
@@ -22,8 +22,7 @@
 
       <div class="account-card" *ngIf="showAccountCard">
         <img
-          class="account-card-logo"
-          src="/assets/RisenOneWhite.png"
+          class="account-card-logo roc-logo"
           alt="Risen One logo"
         />
         <span class="account-card-name">{{ user?.name }}</span>

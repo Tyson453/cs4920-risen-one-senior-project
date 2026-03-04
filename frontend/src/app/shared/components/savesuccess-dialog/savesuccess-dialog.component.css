@@ -10,7 +10,7 @@
 .mat-mdc-dialog-actions .mat-mdc-button {
 	--mdc-text-button-label-text-color: var(--primary-accent);
 	color: var(--primary-accent) !important;
-	border: 1px solid var(--primary-accent);
+	border: 2px solid var(--primary-accent);
 	border-radius: 0.5rem;
 	background-color: var(--primary-surface) !important;
 }

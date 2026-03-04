@@ -69,7 +69,7 @@
       width: 100%;
       margin: 0;
       background-color: var(--primary-bg);
-      border: 1px solid var(--primary-surface-hover);
+      border: 2px solid var(--primary-surface-hover);
 
       th {
         background-color: var(--primary-surface);
@@ -147,14 +147,14 @@ mat-chip.status-active {
   background-color: color-mix(in srgb, #4caf50 24%, transparent) !important;
   color: #7AAF4C !important;
   --mdc-chip-label-text-color: #7AAF4C;
-  border: 1px solid color-mix(in srgb, #4caf50 52%, transparent);
+  border: 2px solid color-mix(in srgb, #4caf50 52%, transparent);
 }
 
 mat-chip.status-inactive {
   background-color: color-mix(in srgb, #f44336 24%, transparent) !important;
   color: #f52727 !important;
   --mdc-chip-label-text-color: #f52727;
-  border: 1px solid color-mix(in srgb, #f44336 52%, transparent);
+  border: 2px solid color-mix(in srgb, #f44336 52%, transparent);
 }
 
 /* Responsive adjustments */

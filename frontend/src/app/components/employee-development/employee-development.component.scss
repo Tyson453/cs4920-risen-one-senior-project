@@ -63,7 +63,7 @@
 
   .list-card {
     background: var(--primary-surface);
-    border: 1px solid var(--primary-surface-hover);
+    border: 2px solid var(--primary-surface-hover);
     box-shadow: none;
     margin-bottom: 1rem;
     padding: 0.75rem;
@@ -99,7 +99,7 @@
     border-radius: 50%;
     background: var(--primary-accent);
     color: #000;
-    border: 1px solid var(--primary-accent);
+    border: 2px solid var(--primary-accent);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -126,7 +126,7 @@
   .create-pdt-btn {
     background: var(--primary-accent);
     color: #000;
-    border: 1px solid var(--primary-accent);
+    border: 2px solid var(--primary-accent);
     font-weight: 700;
     white-space: nowrap;
     display: inline-flex;
@@ -154,7 +154,7 @@
       width: 100%;
       table-layout: fixed;
       background-color: var(--primary-bg);
-      border: 1px solid var(--primary-surface-hover);
+      border: 2px solid var(--primary-surface-hover);
 
       th {
         color: var(--muted-text);
@@ -209,7 +209,7 @@
     width: 34px;
     height: 34px;
     border-radius: 9999px;
-    border: 1px solid var(--primary-surface-hover);
+    border: 2px solid var(--primary-surface-hover);
     color: var(--muted-text);
     background-color: var(--primary-surface);
     display: inline-flex;
@@ -345,7 +345,7 @@
 
   .form-card {
     background: var(--primary-surface);
-    border: 1px solid var(--primary-surface-hover);
+    border: 2px solid var(--primary-surface-hover);
     box-shadow: none;
 
     mat-card-content {
@@ -405,13 +405,13 @@
       .cancel-btn {
         background: transparent;
         color: var(--primary-accent);
-        border: 1px solid var(--primary-accent);
+        border: 2px solid var(--primary-accent);
       }
 
       .save-btn {
         background: var(--primary-accent);
         color: #000;
-        border: 1px solid var(--primary-accent);
+        border: 2px solid var(--primary-accent);
       }
 
       .save-btn:disabled {
