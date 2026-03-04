@@ -87,6 +87,32 @@ tr.expanded {
   justify-content: center;
 }
 
+/* ── PDT Delete Dialog ────────────────────────────────────────────────────── */
+
+.pdt-delete-dialog .mat-mdc-dialog-surface {
+  padding: 8px;
+}
+
+.pdt-delete-dialog .mat-mdc-dialog-content {
+  padding: 16px 32px 8px !important;
+  color: #333;
+  font-size: 15px;
+}
+
+.pdt-delete-dialog .mdc-dialog__title {
+  padding: 24px 32px 16px !important;
+}
+
+.pdt-delete-dialog .mat-mdc-dialog-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 24px 20px !important;
+  min-height: unset !important;
+}
+
 .header-menu-panel.mat-mdc-menu-panel {
   background-color: var(--primary-surface) !important;
   border: 2px solid var(--primary-surface-hover) !important;
@@ -118,4 +144,25 @@ tr.expanded {
   border: 2px solid var(--primary-surface-hover) !important;
   border-radius: 0.5rem !important;
   color: var(--primary-text) !important;
+}
+/* ======================
+   Angular Material Tabs Fix
+====================== */
+
+.mat-mdc-tab-group {
+  background-color: var(--primary-bg) !important;
+}
+
+.mat-mdc-tab .mdc-tab__text-label {
+  color: var(--primary-text) !important;
+  font-weight: 500;
+}
+
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  color: var(--primary-accent) !important;
+  font-weight: 600;
+}
+
+.mat-mdc-tab-header {
+  border-bottom: 1px solid var(--primary-surface-hover);
 }

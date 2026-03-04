@@ -450,55 +450,50 @@ Opened when user clicks "View" on a PENDING_APPROVAL or APPROVED PDT.
 
 Service: `PDTService` in `services/pdt.service.ts`
 
-**Basic CRUD:**
-- `getPDTRecords(userId: string): Observable<PDT[]>` — Get all PDT records for a user
-- `getPDTRecord(pdtId: string): Observable<PDT>` — Get a specific PDT record
-- `createPDT(pdt: Partial<PDT>): Observable<any>` — Create new PDT (returns `{ success: true, id }`)
-- `updatePDT(pdtId: string, pdt: Partial<PDT>): Observable<any>` — Update existing PDT
-- `deletePDT(pdtId: string): Observable<any>` — Delete PDT (only allowed for DRAFT status)
+**Basic CRUD (implemented — real HTTP calls):**
+- `getPDTRecords(userId: string): Observable<PDT[]>` — GET `/pdt/{userId}`; returns records sorted newest-first
+- `createPDT(pdt: Partial<PDT>): Observable<any>` — POST `/pdt`; backend sets status=DRAFT and generates pdtId; returns `{ success: true, id }`
+- `updatePDT(pdtId: string, pdt: Partial<PDT>): Observable<any>` — PUT `/pdt/{pdtId}`; only allowed for DRAFT/CHANGES_REQUESTED
+- `deletePDT(pdtId: string): Observable<any>` — DELETE `/pdt/{pdtId}`; only allowed for DRAFT
+- `submitPDTForApproval(pdtId: string): Observable<any>` — POST `/pdt/{pdtId}/submit`; transitions DRAFT/CHANGES_REQUESTED → PENDING_APPROVAL
 
-**Approval Workflow:**
-- `submitPDTForApproval(pdtId: string): Observable<any>` — Submit PDT to supervisor; changes status to PENDING_APPROVAL and triggers email
+**Approval Workflow (stubs — future implementation):**
 - `approvePDT(pdtId: string, supervisorSignature: string): Observable<any>` — Supervisor approves PDT; changes status to APPROVED
 - `requestPDTChanges(pdtId: string, changeComments: string): Observable<any>` — Supervisor requests changes; changes status to CHANGES_REQUESTED
 - `sendPDTApprovalEmail(pdtId: string, supervisorEmail: string): Observable<any>` — Send approval email with PDF to supervisor
 - `getPendingApprovals(supervisorId: string): Observable<PDT[]>` — Get all pending PDTs for a supervisor to review
 - `auditDevelopments(userId: string): Observable<any>` — Get audit log of PDT changes
 
-**Current Implementation Status:**
-- All service methods are implemented as **stubs** returning mock data via `of()` Observable
-- No backend integration yet; methods return success immediately
-- Full implementation requires backend Lambda functions and DynamoDB table for PDT records
+### 11.9 Backend Implementation
 
-### 11.9 Backend Requirements (Future Implementation)
+**DynamoDB Table:** `personalDevelopmentTraining`
+- Partition key: `pdtId` (string, UUID generated server-side via `crypto.randomUUID()`)
+- GSI `UserIdIndex` on `userId` — used to query all PDTs for a given employee
+- Table defined in `serverless.yml`; IAM permissions granted to all Lambda functions
 
-When implementing backend:
+**Lambda Functions (implemented in `backend/src/handlers/`):**
 
-1. **DynamoDB Table:** `personalDevelopmentTraining` (or `pdt`)
-   - Partition key: `userId` (string)
-   - Sort key: `pdtId` (string) or `createdTimestamp` (string)
-   - GSI on `status` for filtering pending approvals
-   - GSI on `supervisorId` for supervisor queries
+| Handler | Method | Path | Status guard |
+|---------|--------|------|--------------|
+| `get-pdt-records.js` | GET | `/pdt/{userId}` | None |
+| `create-pdt.js` | POST | `/pdt` | None (always creates as DRAFT) |
+| `update-pdt.js` | PUT | `/pdt/{pdtId}` | Rejects if status ∉ {DRAFT, CHANGES_REQUESTED} |
+| `delete-pdt.js` | DELETE | `/pdt/{pdtId}` | Rejects if status ≠ DRAFT |
+| `submit-pdt.js` | POST | `/pdt/{pdtId}/submit` | Rejects if status ∉ {DRAFT, CHANGES_REQUESTED} |
 
-2. **Lambda Functions:**
-   - `getPDTRecords` — Query PDTs by userId
-   - `createPDT` — Create new PDT record
-   - `updatePDT` — Update existing PDT
-   - `deletePDT` — Delete PDT (with status validation)
-   - `submitForApproval` — Change status and trigger email
-   - `approvePDT` — Supervisor approval action
-   - `requestChanges` — Supervisor request changes action
-   - `sendApprovalEmail` — Send email via SES with PDF attachment
+**Lambda Functions (not yet implemented — future phases):**
+- `approvePDT` — POST `/pdt/{pdtId}/approve` — Supervisor approval; sets superSignature, status → APPROVED
+- `requestChanges` — POST `/pdt/{pdtId}/request-changes` — Sets supervisorComments, status → CHANGES_REQUESTED
+- `sendApprovalEmail` — Send email via SES with PDF attachment
 
-3. **PDF Generation:**
-   - Generate PDF from PDT record data
-   - Include all goals, action plan, and signatures
-   - Attach to approval email
+**PDF Generation (not yet implemented):**
+- Generate PDF from PDT record data including all goals, action plan, and signatures
+- Attach to approval email
 
-4. **Email Notifications:**
-   - Template for "PDT Submitted for Approval" (to supervisor)
-   - Template for "PDT Approved" (to employee)
-   - Template for "Changes Requested on PDT" (to employee)
+**Email Notifications (not yet implemented):**
+- Template for "PDT Submitted for Approval" (to supervisor)
+- Template for "PDT Approved" (to employee)
+- Template for "Changes Requested on PDT" (to employee)
 
 ### 11.10 Current Implementation (Phase 2)
 
@@ -515,7 +510,7 @@ When implementing backend:
 - ✅ "Edit & Resubmit" shortcut from view-only form when status is CHANGES_REQUESTED
 - ✅ Delete confirmation dialog before removing a draft
 - ✅ Loading spinner and success/error dialogs
-- ✅ Responsive design (mobile and desktop)
+- ✅ Responsive design (mobile and desktop); form actions stack vertically on small screens
 - ✅ Routing: `/reports/personal-dev`
 - ✅ PDTService with real HTTP calls (no stubs); normalizes `pdtId` → `id` from backend response
 - ✅ Integration with AuthService (awaits user Promise before loading records) and DialogService
@@ -531,7 +526,10 @@ When implementing backend:
 - ❌ Email notifications via SES
 - ❌ PDF generation and attachment
 - ❌ Audit trail (log of all status transitions)
+- ❌ Role-based access (identifying who is a supervisor for a given employee)
 - ❌ Table filtering by status
+
+**Note:** The employee-side workflow (create → draft → submit → view while pending → edit if changes requested → resubmit) is fully functional end-to-end. The supervisor-side workflow (approve / request changes) requires the supervisor Lambda functions, SES email integration, and role-based routing to be built in a future phase.
 
 ---
 

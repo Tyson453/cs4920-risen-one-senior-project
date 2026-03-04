@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {provideNativeDateAdapter} from '@angular/material/core';
-import { AuthService } from '../../auth.service';
+import { AuthService } from '../../services/auth.service';
 
 
 interface previousRequest {
@@ -15,7 +15,6 @@ interface previousRequest {
   providers: [provideNativeDateAdapter()],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
-  standalone: false,
   template: `
   <input type="text" [(ngModel)]="username" placeholder="Username">
   <input type="password" [(ngModel)]="password" placeholder="Password">

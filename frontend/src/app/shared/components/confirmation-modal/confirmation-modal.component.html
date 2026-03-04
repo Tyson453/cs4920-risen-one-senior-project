@@ -1,17 +1,37 @@
-<h1 class="bold title" mat-dialog-title data-testid="title">{{ data.title }}</h1>
+<h1
+  class="bold title"
+  mat-dialog-title
+  data-testid="title"
+  [style.text-align]="data.isDanger ? 'center' : 'left'"
+>{{ data.title }}</h1>
+
 <div mat-dialog-content>
   <ng-container *ngIf="data.datesSelected && data.datesSelected.length > 0">
     <p data-testid="confirm_body">{{ data.body }}</p>
     <div id="datesList" class="datesList">{{ createList() }}</div>
   </ng-container>
-  <div *ngIf="data.action && (data.action === 'delete-user' || data.action === 'generic') ">
+  <div *ngIf="data.action && (data.action === 'delete-user' || data.action === 'generic')">
     <p style="white-space: pre-line;" data-testid="delete_body">{{ data.body }}</p>
   </div>
+  <div *ngIf="data.warning" class="warning-text">{{ data.warning }}</div>
 </div>
 
-<div mat-dialog-actions class="action-bottom-container action-buffer">
-  <button class="cancel" mat-button (click)="dismiss()" data-testid="dismiss">Cancel</button>
-  <button mat-button class="submit" (click)="confirm()" cdkFocusInitial data-testid="submit">
-    Confirm
+<div
+  mat-dialog-actions
+  class="action-bottom-container action-buffer"
+  [class.danger-actions]="data.isDanger"
+>
+  <button class="cancel" mat-button (click)="dismiss()" data-testid="dismiss">
+    {{ data.cancelText || 'Cancel' }}
+  </button>
+  <button
+    mat-button
+    class="submit"
+    [class.danger-confirm]="data.isDanger"
+    (click)="confirm()"
+    cdkFocusInitial
+    data-testid="submit"
+  >
+    {{ data.confirmText || 'Confirm' }}
   </button>
 </div>
