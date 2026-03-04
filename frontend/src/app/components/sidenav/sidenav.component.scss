@@ -57,6 +57,12 @@
     gap: 0.4rem;
 }
 
+.settings-item ::ng-deep .mdc-list-item__primary-text {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+}
+
 .mat-mdc-list-item {
     color: var(--primary-text) !important;
     padding-top: 1rem;
@@ -72,7 +78,7 @@
 }
 
 .mat-mdc-list-item.active-nav-item {
-    background-color: var(--color-overlay-accent-26);
+    background: var(--color-overlay-accent-26);
     border-left: 4px solid var(--primary-accent);
 }
 

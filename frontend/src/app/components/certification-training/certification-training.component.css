@@ -62,7 +62,7 @@
 
 .card {
   background: var(--primary-surface);
-  border: 1px solid var(--primary-surface-hover);
+  border: 2px solid var(--primary-surface-hover);
   border-radius: 0.5rem;
   padding: 1rem;
   box-shadow: none;
@@ -85,7 +85,7 @@
   min-width: 0;
   padding: 0.625rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--primary-surface-hover);
+  border: 2px solid var(--primary-surface-hover);
   background-color: var(--primary-bg);
   max-width: 100%;
 }
@@ -124,7 +124,7 @@
   gap: 0.75rem;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  border: 1px solid var(--primary-surface-hover);
+  border: 2px solid var(--primary-surface-hover);
   background-color: var(--primary-bg);
 }
 
@@ -140,7 +140,7 @@
   height: 40px;
   border-radius: 0.5rem;
   background: var(--primary-surface);
-  border: 1px solid var(--primary-surface-hover);
+  border: 2px solid var(--primary-surface-hover);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -173,7 +173,7 @@
 .primary-btn {
   background: var(--primary-accent);
   color: #000;
-  border: 1px solid var(--primary-accent);
+  border: 2px solid var(--primary-accent);
   padding: 0.625rem 0.875rem;
   border-radius: 0.5rem;
   cursor: pointer;
@@ -196,7 +196,7 @@
 .ghost-btn {
   background: transparent;
   color: var(--primary-accent);
-  border: 1px solid var(--primary-accent);
+  border: 2px solid var(--primary-accent);
   padding: 0.5rem 0.75rem;
   border-radius: 0.5rem;
   cursor: pointer;

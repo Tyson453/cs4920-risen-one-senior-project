@@ -66,6 +66,7 @@ import { AppRoutingModule } from './app.routes';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
+import { SettingsComponent } from './components/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -83,7 +84,8 @@ import { CertificationTrainingComponent } from './components/certification-train
     ReportDialogComponent,
     TeamSummaryComponent,
     TimeOffComponent,
-    CertificationTrainingComponent
+    CertificationTrainingComponent,
+    SettingsComponent,
   ],
   bootstrap: [AppComponent],
   imports: [
