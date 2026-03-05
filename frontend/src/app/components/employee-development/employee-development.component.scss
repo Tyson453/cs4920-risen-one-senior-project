@@ -54,6 +54,17 @@
     align-items: center;
     gap: 1rem;
 
+    h1 {
+      margin: 0;
+      color: var(--primary-text);
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    > button {
+      color: var(--primary-text);
+    }
+
     .header-content {
       display: flex;
       align-items: center;
@@ -190,6 +201,11 @@
     display: flex;
     gap: 12px;
     align-items: center;
+
+    button {
+      color: var(--primary-text);
+      border-color: var(--primary-text);
+    }
   }
 
   .approval-count-badge {
@@ -451,7 +467,7 @@
   }
 
   &.view-only .form-card {
-    background-color: #fafafa;
+    background: var(--primary-surface);
   }
 
   .pdt-form {
@@ -509,6 +525,17 @@
         border: 2px solid var(--primary-accent);
       }
 
+      .draft-btn {
+        background: transparent;
+        color: var(--primary-text);
+        border: 1px solid var(--primary-text);
+      }
+
+      .draft-btn:disabled {
+        color: var(--secondary-text);
+        border-color: var(--secondary-text);
+      }
+
       .save-btn {
         background: var(--primary-accent);
         color: #000;
@@ -524,13 +551,13 @@
   .supervisor-actions {
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 2px solid #e0e0e0;
+    border-top: 2px solid var(--primary-surface-hover);
 
     h3 {
       margin: 0 0 24px 0;
       font-size: 18px;
       font-weight: 500;
-      color: #333;
+      color: var(--primary-text);
     }
 
     .action-group {
@@ -547,7 +574,7 @@
         width: 100%;
 
         mat-icon {
-          color: rgba(0, 0, 0, 0.54);
+          color: var(--muted-text);
         }
 
         textarea {
@@ -562,6 +589,10 @@
         display: flex;
         gap: 12px;
         align-items: center;
+
+        .mat-mdc-button {
+          color: var(--primary-text);
+        }
       }
     }
   }
@@ -575,6 +606,37 @@
 
 :host ::ng-deep .employee-development-container .mdc-text-field--outlined {
   background-color: var(--primary-bg) !important;
+  border-radius: 4px !important;
+}
+
+// Disabled / read-only fields get a subtly different look
+:host ::ng-deep .employee-development-container .mat-mdc-form-field.mat-form-field-disabled .mdc-text-field--outlined {
+  background-color: var(--primary-surface) !important;
+  opacity: 0.6;
+}
+
+:host ::ng-deep .employee-development-container .mat-mdc-form-field.mat-form-field-disabled .mat-mdc-input-element {
+  cursor: not-allowed !important;
+}
+
+// Table action icon-buttons: fix icon clipping by enforcing consistent sizing
+:host ::ng-deep .table-action-icon-button.mat-mdc-icon-button {
+  --mdc-icon-button-state-layer-size: 34px;
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+
+  .mat-mdc-button-touch-target {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .mat-icon {
+    font-size: 18px !important;
+    width: 18px !important;
+    height: 18px !important;
+    overflow: visible !important;
+  }
 }
 
 :host ::ng-deep .employee-development-container .mdc-notched-outline__leading,
@@ -605,6 +667,29 @@
 
 :host ::ng-deep .employee-development-container .mat-mdc-form-field .mat-mdc-input-element::placeholder {
   color: var(--muted-text) !important;
+}
+
+// Pending-approvals stroked button: force white outline + text for dark theme
+:host ::ng-deep .list-header-actions .mat-mdc-outlined-button {
+  --mdc-outlined-button-outline-color: var(--primary-text);
+  --mdc-outlined-button-label-text-color: var(--primary-text);
+
+  // Prevent icon clipping when the count badge is present
+  .mdc-button__label {
+    display: inline-flex;
+    align-items: center;
+    overflow: visible;
+  }
+
+  .mat-icon {
+    overflow: visible;
+    flex-shrink: 0;
+  }
+}
+
+// View-only "Back to List" mat-button: white text
+:host ::ng-deep .form-view.view-only .mat-mdc-button {
+  color: var(--primary-text);
 }
 
 // ── Responsive ────────────────────────────────────────────────────────────────
