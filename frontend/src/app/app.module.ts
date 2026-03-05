@@ -79,7 +79,7 @@ import { AppRoutingModule } from './app.routes';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
-import { SettingsComponent } from './components/settings/settings.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -102,7 +102,7 @@ import { SettingsComponent } from './components/settings/settings.component';
     EmployeeDevelopmentComponent,
     ProgressSpinnerComponent,
     GenericErrorComponent,
-    SettingsComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,

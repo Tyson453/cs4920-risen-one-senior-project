@@ -4,12 +4,12 @@ import { AuthService } from "../../services/auth.service";
 import { DefaultAccent, DefaultAccentName, DefaultMode, DefaultModeName, Theme, ThemeName, ThemeService } from "../../services/theme.service";
 
 @Component({
-  selector: 'app-settings',
+  selector: 'app-profile',
   standalone: false,
-  templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.css']
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css']
 })
-export class SettingsComponent {
+export class ProfileComponent {
   user: any;
   themes: readonly Theme[] = [];
   defaultAccents: readonly DefaultAccent[] = [];

@@ -11,7 +11,7 @@ import { CertificationTrainingComponent } from './components/certification-train
 import { EmployeeDevelopmentComponent } from './components/employee-development/employee-development.component';
 import { AuthGuard } from './auth.guard';
 import { adminGuard } from './guards/admin.guard';
-import { SettingsComponent } from './components/settings/settings.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -24,7 +24,7 @@ export const routes: Routes = [
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuard, adminGuard] },
   { path: 'certification-training', component: CertificationTrainingComponent, canActivate: [AuthGuard] },
   { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent, canActivate: [AuthGuard] },
-  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
+  { path: 'profile/:userId', component: ProfileComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

@@ -1,14 +1,14 @@
-.settings-container {
+.profile-container {
   padding: 2rem;
   max-width: 1000px;
   margin: 0 auto;
 }
 
-.settings-page-header {
+.profile-page-header {
   margin-bottom: 0.75rem;
 }
 
-.settings-page-header-top {
+.profile-page-header-top {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -16,7 +16,7 @@
   flex-wrap: nowrap;
 }
 
-.settings-page-header-top .settings-icon {
+.profile-page-header-top .profile-icon {
   color: var(--primary-accent);
   font-size: 26px;
   width: 45px;
@@ -30,7 +30,7 @@
   box-sizing: border-box;
 }
 
-.settings-page-title {
+.profile-page-title {
   margin: 0;
   color: var(--primary-text);
   font-size: 2rem;
@@ -39,7 +39,7 @@
   white-space: wrap;
 }
 
-.settings-page-divider {
+.profile-page-divider {
   margin-top: 0.5rem;
   width: 100%;
   height: 2px;
@@ -54,19 +54,21 @@
   box-shadow: none;
 }
 
-.settings-card-header {
+.profile-card-header {
   margin: 0.5rem 1.5rem 0.5rem;
   color: var(--primary-text);
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.settings-card-divider {
+.profile-card-divider {
   margin: 0.5rem 1.5rem;
   width: calc(100% - 3rem);
   height: 2px;
   background-color: var(--primary-surface-hover);
 }
+
+/* Everything below was already generic so no rename needed */
 
 .theme-cards-container {
   display: grid;
@@ -187,21 +189,13 @@
   transform: scaleY(1.15);
 }
 
-.default-accent-strip .accent-pill:nth-child(1) { background: #FFCE1B; } /* yellow (default) */
-.default-accent-strip .accent-pill:nth-child(2) { background: #7F00FF; } /* purple */
-.default-accent-strip .accent-pill:nth-child(3) { background: #ff2bd6; } /* pink */
-.default-accent-strip .accent-pill:nth-child(4) { background: #00ff66; } /* lime */
-.default-accent-strip .accent-pill:nth-child(5) { background: #ff7a00; } /* orange */
-.default-accent-strip .accent-pill:nth-child(6) { background: #2f8f5b; } /* green */
-.default-accent-strip .accent-pill:nth-child(7) { background: #1f6feb; } /* blue */
-
-.theme-name-row{
-  margin-top: 0.65rem;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:0.75rem;
-}
+.default-accent-strip .accent-pill:nth-child(1) { background: #FFCE1B; }
+.default-accent-strip .accent-pill:nth-child(2) { background: #7F00FF; }
+.default-accent-strip .accent-pill:nth-child(3) { background: #ff2bd6; }
+.default-accent-strip .accent-pill:nth-child(4) { background: #00ff66; }
+.default-accent-strip .accent-pill:nth-child(5) { background: #ff7a00; }
+.default-accent-strip .accent-pill:nth-child(6) { background: #2f8f5b; }
+.default-accent-strip .accent-pill:nth-child(7) { background: #1f6feb; }
 
 .mode-toggle {
   background: none;
@@ -248,7 +242,6 @@
 
 .mini-preview-topbar {
   flex: 0 0 auto;
-  height: auto;
   padding: clamp(4px, 0.7vw, 8px);
   display: flex;
   align-items: center;
