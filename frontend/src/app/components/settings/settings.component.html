@@ -1,0 +1,88 @@
+<div class="settings-container">
+  <div class="settings-page-header">
+    <div class="settings-page-header-top">
+      <mat-icon class="settings-icon">settings</mat-icon>
+      <h1 class="settings-page-title">Settings</h1>
+      <div class="title-inline-divider" aria-hidden="true"></div>
+    </div>
+    <div class="settings-page-divider"></div>
+  </div>
+
+  <div class="card">
+    <div class="settings-card-header">Select Theme</div>
+    <div class="settings-card-divider"></div>
+
+    <div class="theme-cards-container">
+      <div *ngFor="let theme of themes; trackBy: trackByThemeId" class="theme-card"
+        [class.active-theme]="currentTheme === theme.id" 
+        [class.is-default]="theme.id === 'default'"
+        role="button" tabindex="0"
+        [attr.aria-pressed]="currentTheme === theme.id" (click)="setTheme(theme.id, theme.defaultMode)">
+        <div class="theme-preview">
+          <div class="theme-preview-placeholder">
+            <div
+              class="theme-preview"
+              [attr.theme]="theme.id !== 'default' ? theme.id : null"
+              [attr.default-mode]="theme.id === 'default' ? currentDefaultMode : null"
+              [attr.default-accent]="theme.id === 'default' ? currentDefaultAccent : null"
+            >
+              <div class="mini-preview">
+                <div class="mini-preview-topbar">
+                  <div class="mini-preview-left">
+                    <span class="mini-preview-dot"></span>
+                    <span class="mini-preview-dot"></span>
+                    <span class="mini-preview-dot"></span>
+                  </div>
+                  <span class="mini-preview-chip"></span>
+                </div>
+
+                <div class="mini-preview-body">
+                  <div class="mini-preview-card">
+                    <div class="mini-preview-title"></div>
+
+                    <div class="mini-preview-lines">
+                      <div class="mini-preview-line w-90"></div>
+                      <div class="mini-preview-line w-70"></div>
+                      <div class="mini-preview-line w-55"></div>
+                    </div>
+
+                    <div class="mini-preview-actions">
+                      <div class="mini-preview-btn primary"></div>
+                      <div class="mini-preview-btn ghost"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="default-accent-strip" *ngIf="theme.id === 'default'" (click)="$event.stopPropagation()">
+          <button *ngFor="let accent of defaultAccents" type="button" class="accent-pill"
+            [class.active]="currentDefaultAccent === accent.id"
+            (click)="setDefaultAccent(accent.id);  $event.stopPropagation()"
+            [attr.aria-label]="'Default accent: ' + accent.name" [attr.title]="accent.name"
+            [disabled]="currentTheme !== 'default'">
+          </button>
+        </div>
+
+        <div class="theme-name-row">
+          <div class="theme-name">
+            {{ theme.name }}
+          </div>
+
+          <button *ngIf="theme.id === 'default'" type="button" class="mode-toggle"
+            (click)="toggleDefaultMode(); $event.stopPropagation()"
+            [attr.aria-label]="'Default mode: ' + currentDefaultMode"
+            [disabled]="currentTheme !== 'default'"
+            [matTooltip]="currentDefaultMode === 'dark' ? 'Switch to light' : 'Switch to dark'"
+            [matTooltipDisabled]="currentTheme !== 'default'">
+            <mat-icon class="mode-icon">
+              {{ currentDefaultMode === 'dark' ? 'dark_mode' : 'light_mode' }}
+            </mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,15 +1,20 @@
 import { NgModule } from '@angular/core';
-import { AppComponent } from './app.component';
-import { AppHeaderComponent } from './components/app-header/app-header.component';
-import { AppFooterComponent } from './components/app-footer/app-footer.component';
-import { SidenavComponent } from './components/sidenav/sidenav.component';
-
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
-import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
-import { LayoutModule } from '@angular/cdk/layout';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+import {
+  provideHttpClient,
+  withInterceptorsFromDi,
+  HTTP_INTERCEPTORS,
+} from '@angular/common/http';
+
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { LayoutModule } from '@angular/cdk/layout';
+
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatNativeDateModule } from '@angular/material/core';
 
 // Material Modules
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -42,22 +47,30 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRippleModule } from '@angular/material/core';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { provideNativeDateAdapter } from '@angular/material/core';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
+
+// Components
+import { AppComponent } from './app.component';
+import { AppHeaderComponent } from './components/app-header/app-header.component';
+import { AppFooterComponent } from './components/app-footer/app-footer.component';
+import { SidenavComponent } from './components/sidenav/sidenav.component';
 
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
+
 import { DailyStatusComponent } from './components/daily-status/daily-status.component';
 import { UpdateDateRangeComponent } from './components/daily-status/update-date-range/update-date-range.component';
 import { ReportReviewComponent } from './components/daily-status/report-review/report-review.component';
 import { ReportDialogComponent } from './components/daily-status/report-dialog/report-dialog.component';
+
 import { TeamSummaryComponent } from './components/team-summary/team-summary.component';
+import { EmployeeDevelopmentComponent } from './components/employee-development/employee-development.component';
 
 import { ProgressSpinnerComponent } from './shared/components/progress-spinner/progress-spinner.component';
 import { GenericErrorComponent } from './shared/components/generic-error/generic-error.component';
@@ -66,36 +79,47 @@ import { AppRoutingModule } from './app.routes';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
+import { SettingsComponent } from './components/settings/settings.component';
 
 @NgModule({
   declarations: [
+    AppComponent,
     AppHeaderComponent,
     AppFooterComponent,
-    HomeComponent,
     SidenavComponent,
+
+    HomeComponent,
     LoginComponent,
-    AppComponent,
-    ProgressSpinnerComponent,
-    GenericErrorComponent,
+
     DailyStatusComponent,
     UpdateDateRangeComponent,
     ReportReviewComponent,
     ReportDialogComponent,
+
     TeamSummaryComponent,
     TimeOffComponent,
-    CertificationTrainingComponent
+    CertificationTrainingComponent,
+    EmployeeDevelopmentComponent,
+    ProgressSpinnerComponent,
+    GenericErrorComponent,
+    SettingsComponent,
   ],
-  bootstrap: [AppComponent],
   imports: [
     BrowserModule,
-    LayoutModule,
-    FormsModule,
-    ReactiveFormsModule,
     BrowserAnimationsModule,
     CommonModule,
+
+    FormsModule,
+    ReactiveFormsModule,
+
+    LayoutModule,
+    DragDropModule,
+
+    // Material
     MatAutocompleteModule,
     MatCheckboxModule,
     MatDatepickerModule,
+    MatNativeDateModule,
     MatFormFieldModule,
     MatInputModule,
     MatRadioModule,
@@ -128,14 +152,15 @@ import { CertificationTrainingComponent } from './components/certification-train
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
+
     AppRoutingModule,
-    DragDropModule,
   ],
   providers: [
     MatSnackBar,
     provideHttpClient(withInterceptorsFromDi()),
     provideNativeDateAdapter(),
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
-  ]
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+  ],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}

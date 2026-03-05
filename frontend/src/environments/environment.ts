@@ -9,6 +9,7 @@ export const environment = {
   // Base URL including the stage path; switch to production URL when deploying
   apiUrl: 'https://9fraib9ale.execute-api.us-east-2.amazonaws.com/dev',
   //apiUrl: 'http://localhost:3000/dev',
+  // apiUrl: 'http://localhost:3000',
   clientId: 'temp',
   calendarId: 'temp',
   adminCalendarId: 'temp',

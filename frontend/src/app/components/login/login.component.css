@@ -87,7 +87,7 @@ mat-card {
 
 .cta-card {
     background-color: var(--primary-surface);
-    color: white;
+    color: var(--primary-text);
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

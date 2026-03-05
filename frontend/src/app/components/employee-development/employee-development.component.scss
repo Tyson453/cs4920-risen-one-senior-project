@@ -117,7 +117,7 @@
 
   .list-card {
     background: var(--primary-surface);
-    border: 1px solid var(--primary-surface-hover);
+    border: 2px solid var(--primary-surface-hover);
     box-shadow: none;
     margin-bottom: 1rem;
     padding: 0.75rem;
@@ -153,7 +153,7 @@
     border-radius: 50%;
     background: var(--primary-accent);
     color: #000;
-    border: 1px solid var(--primary-accent);
+    border: 2px solid var(--primary-accent);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -180,7 +180,7 @@
   .create-pdt-btn {
     background: var(--primary-accent);
     color: #000;
-    border: 1px solid var(--primary-accent);
+    border: 2px solid var(--primary-accent);
     font-weight: 700;
     white-space: nowrap;
     display: inline-flex;
@@ -235,7 +235,7 @@
       width: 100%;
       table-layout: fixed;
       background-color: var(--primary-bg);
-      border: 1px solid var(--primary-surface-hover);
+      border: 2px solid var(--primary-surface-hover);
 
       th {
         color: var(--muted-text);
@@ -290,7 +290,7 @@
     width: 34px;
     height: 34px;
     border-radius: 9999px;
-    border: 1px solid var(--primary-surface-hover);
+    border: 2px solid var(--primary-surface-hover);
     color: var(--muted-text);
     background-color: var(--primary-surface);
     display: inline-flex;
@@ -458,7 +458,7 @@
 
   .form-card {
     background: var(--primary-surface);
-    border: 1px solid var(--primary-surface-hover);
+    border: 2px solid var(--primary-surface-hover);
     box-shadow: none;
 
     mat-card-content {
@@ -522,7 +522,7 @@
       .cancel-btn {
         background: transparent;
         color: var(--primary-accent);
-        border: 1px solid var(--primary-accent);
+        border: 2px solid var(--primary-accent);
       }
 
       .draft-btn {
@@ -539,7 +539,7 @@
       .save-btn {
         background: var(--primary-accent);
         color: #000;
-        border: 1px solid var(--primary-accent);
+        border: 2px solid var(--primary-accent);
       }
 
       .save-btn:disabled {
@@ -809,5 +809,122 @@
     .no-data-subtitle {
       font-size: 0.85rem;
     }
+  }
+}
+
+:host ::ng-deep .pdt-tabs {
+  width: max-content !important;
+  margin: 1rem auto 0 !important;
+}
+
+:host ::ng-deep .pdt-tabs .mat-mdc-tab-body-wrapper {
+  width: 100% !important;
+}
+
+:host ::ng-deep .pdt-tabs .mat-mdc-tab-header {
+  border-bottom: none !important;
+  width: max-content !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+:host ::ng-deep .pdt-tabs .mat-mdc-tab-label-container,
+:host ::ng-deep .pdt-tabs .mat-mdc-tab-list {
+  overflow: visible !important;
+  width: max-content !important;
+  flex: 0 0 auto !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+:host ::ng-deep .pdt-tabs .mat-mdc-tab-labels {
+  width: max-content !important;
+  margin: 0 auto !important;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  padding: 0.35rem;
+  border-radius: 999px;
+
+  background: color-mix(in srgb, var(--primary-surface) 80%, transparent);
+  border: 1px solid var(--primary-surface-hover);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+:host ::ng-deep .pdt-tabs .mat-mdc-tab,
+:host ::ng-deep .pdt-tabs .mdc-tab {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+
+  padding: 0 14px !important;
+  height: 40px !important;
+  border-radius: 999px !important;
+
+  color: var(--muted-text) !important;
+  font-weight: 700;
+  letter-spacing: 0.35px;
+
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+:host ::ng-deep .pdt-tabs .mdc-tab__content {
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .pdt-tabs .mat-mdc-tab:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+  color: var(--primary-text) !important;
+}
+
+:host ::ng-deep .pdt-tabs .mat-mdc-tab.mdc-tab--active {
+  color: var(--primary-text) !important;
+  background: color-mix(in srgb, var(--primary-accent) 18%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--primary-accent) 55%, transparent) inset,
+    0 10px 22px rgba(0, 0, 0, 0.35);
+}
+
+:host ::ng-deep .pdt-tabs .mdc-tab-indicator {
+  display: none !important;
+}
+
+:host ::ng-deep .pdt-tabs .mat-ripple-element,
+:host ::ng-deep .pdt-tabs .mdc-tab__ripple::before,
+:host ::ng-deep .pdt-tabs .mdc-tab__ripple::after {
+  opacity: 0 !important;
+}
+:host ::ng-deep .pdt-tabs .mdc-tab__focus-ring {
+  display: none !important;
+}
+
+:host ::ng-deep .pdt-tabs .mat-mdc-tab:focus-visible {
+  outline: 2px solid var(--primary-accent);
+  outline-offset: 3px;
+  border-radius: 999px;
+}
+
+@media (max-width: 768px) {
+  :host ::ng-deep .pdt-tabs,
+  :host ::ng-deep .pdt-tabs .mat-mdc-tab-header,
+  :host ::ng-deep .pdt-tabs .mat-mdc-tab-label-container,
+  :host ::ng-deep .pdt-tabs .mat-mdc-tab-list,
+  :host ::ng-deep .pdt-tabs .mat-mdc-tab-labels {
+    width: 100% !important;
+  }
+
+  :host ::ng-deep .pdt-tabs .mat-mdc-tab,
+  :host ::ng-deep .pdt-tabs .mdc-tab {
+    flex: 1 1 0 !important;
+    justify-content: center;
   }
 }
