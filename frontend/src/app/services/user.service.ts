@@ -3,12 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export type OnboardingStatus = 'email_sent' | 'email_failed' | 'onboarding_complete';
+
 export interface TeamSummaryUser {
   uuid: string;
   name: string;
   firstName: string;
   lastName: string;
   email: string;
+  username?: string;
   roles: string[];
   assignments: string[];
   state: string;
@@ -23,6 +26,8 @@ export interface TeamSummaryUser {
   notes?: string;
   requestedPTO?: Record<string, any>;
   supervisorId?: string;
+  onboardingStatus?: OnboardingStatus;
+  onboardingCompletedAt?: string;
 }
 
 export interface OrgTeamGroup {
@@ -152,6 +157,20 @@ export class UserApiService {
       this.http.delete(
         `${this.apiUrl}/teams/${type}/${encodeURIComponent(teamName)}/members/${uuid}`
       )
+    );
+  }
+
+  /** POST /create-user — create user with onboarding (temp password + email). Returns created user. */
+  public createUser(payload: Record<string, unknown>): Promise<TeamSummaryUser> {
+    return firstValueFrom(
+      this.http.post<TeamSummaryUser>(`${this.apiUrl}/create-user`, payload)
+    );
+  }
+
+  /** POST /users/{uuid}/resend-onboarding-email — resend onboarding email. Returns updated user. */
+  public resendOnboardingEmail(uuid: string): Promise<TeamSummaryUser> {
+    return firstValueFrom(
+      this.http.post<TeamSummaryUser>(`${this.apiUrl}/users/${uuid}/resend-onboarding-email`, {})
     );
   }
 }

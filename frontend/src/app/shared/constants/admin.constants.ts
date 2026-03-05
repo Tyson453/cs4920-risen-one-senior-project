@@ -2,6 +2,9 @@
  * Admin page constants
  */
 
+/** Show "Onboarding successful" only for users who completed onboarding within this many days. */
+export const ONBOARDING_RECENT_DAYS = 30;
+
 export const AVAILABLE_ROLES = [
   'EMPLOYEE',
   'LEAD',

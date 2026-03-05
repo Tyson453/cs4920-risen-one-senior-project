@@ -40,10 +40,8 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.username, this.password)
       .subscribe({
         next: (success) => {
-          console.log('Subscribe next called with success:', success);
           if (success) {
-            // Navigate to home component if login is successful
-            this.router.navigate(['/home']);
+            // AuthService handles redirect (home or set-password for temp password)
           } else {
             // Handle login failure
             this.loginError = true;

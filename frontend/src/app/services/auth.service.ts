@@ -23,6 +23,11 @@ export class AuthService {
           if (response?.token && response?.user) {
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('currentUser', JSON.stringify(response.user));
+            if (response.user.temporaryPassword) {
+              this.router.navigate(['/set-password']);
+            } else {
+              this.router.navigate(['/home']);
+            }
             return true;
           }
           return false;

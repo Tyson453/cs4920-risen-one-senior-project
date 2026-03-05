@@ -12,10 +12,12 @@ import { EmployeeDevelopmentComponent } from './components/employee-development/
 import { AuthGuard } from './auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { SettingsComponent } from './components/settings/settings.component';
+import { SetPasswordComponent } from './components/set-password/set-password.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'set-password', component: SetPasswordComponent, canActivate: [AuthGuard] },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'daily-status', component: DailyStatusComponent, canActivate: [AuthGuard] },
   { path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard] },
