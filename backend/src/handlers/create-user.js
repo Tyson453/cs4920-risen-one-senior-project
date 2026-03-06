@@ -43,6 +43,13 @@ const REQUIRED_FIELDS = [
 const AWS = require('aws-sdk');
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
+const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Credentials': true,
+    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+    'Access-Control-Allow-Methods': 'POST,OPTIONS',
+    'Content-Type': 'application/json'
+};
 
 module.exports.handler = async (event) => {
     const payload = JSON.parse(event?.body);
@@ -66,12 +73,14 @@ module.exports.handler = async (event) => {
         console.error(e)
         return {
             statusCode: 500,
+            headers: CORS_HEADERS,
             body: { message: "Failed to create user" }
         }
     }
 
     return {
         statusCode: 200,
+        headers: CORS_HEADERS,
         body: JSON.stringify(user)
     }
 }

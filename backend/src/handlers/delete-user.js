@@ -15,6 +15,14 @@ if (process.env.DYNAMODB_ENDPOINT) {
 }
 const dynamoDb = new AWS.DynamoDB.DocumentClient(dynamoDbClientConfig);
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Credentials': true,
+  'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'POST,OPTIONS',
+  'Content-Type': 'application/json'
+};
+
 module.exports.handler = async (event) => {
   try {
     const uuid = event?.pathParameters?.uuid;
@@ -22,6 +30,7 @@ module.exports.handler = async (event) => {
     if (!uuid) {
       return {
         statusCode: 400,
+        headers: CORS_HEADERS,
         body: JSON.stringify({ message: "Missing required path parameter: uuid" }),
       };
     }
@@ -32,7 +41,11 @@ module.exports.handler = async (event) => {
     // Read the user first so we can preserve their org team if needed.
     const existing = await dynamoDb.get({ TableName: usersTable, Key: { uuid } }).promise();
     if (!existing.Item) {
-      return { statusCode: 404, body: JSON.stringify({ message: "User not found" }) };
+      return {
+        statusCode: 404,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ message: "User not found" })
+      };
     }
 
     const orgTeamName = existing.Item.teamName || null;
@@ -62,12 +75,24 @@ module.exports.handler = async (event) => {
       })
       .promise();
 
-    return { statusCode: 204, body: "" };
+    return {
+      statusCode: 204,
+      headers: CORS_HEADERS,
+      body: ""
+    };
   } catch (err) {
     if (err?.code === "ConditionalCheckFailedException") {
-      return { statusCode: 404, body: JSON.stringify({ message: "User not found" }) };
+      return {
+        statusCode: 404,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ message: "User not found" })
+      };
     }
     console.error("delete-user error:", err);
-    return { statusCode: 500, body: JSON.stringify({ message: "Internal server error" }) };
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: "Internal server error" })
+    };
   }
 };

@@ -16,6 +16,14 @@ if (process.env.DYNAMODB_ENDPOINT) {
 }
 const dynamoDb = new AWS.DynamoDB.DocumentClient(dynamoDbClientConfig);
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Credentials': true,
+  'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'POST,OPTIONS',
+  'Content-Type': 'application/json'
+};
+
 const DEV_PASSWORD = 'Password123!';
 
 module.exports.handler = async (event) => {
@@ -195,6 +203,7 @@ module.exports.handler = async (event) => {
 
     return {
       statusCode: 200,
+      headers: CORS_HEADERS,
       body: JSON.stringify({
         message: 'Data imported successfully',
         usersImported: users.length,
@@ -206,6 +215,7 @@ module.exports.handler = async (event) => {
     console.error('Error importing data:', error);
     return {
       statusCode: 500,
+      headers: CORS_HEADERS,
       body: JSON.stringify({ message: 'Failed to import data' })
     };
   }
