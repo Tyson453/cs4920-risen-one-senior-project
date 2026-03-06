@@ -82,6 +82,7 @@ import { CertificationTrainingComponent } from './components/certification-train
 import { SettingsComponent } from './components/settings/settings.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
+import { AuthShellComponent } from './components/auth-shell/auth-shell.component';
 
 @NgModule({
   declarations: [
@@ -156,6 +157,7 @@ import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
+    AuthShellComponent,
 
     AppRoutingModule,
   ],
