@@ -23,7 +23,7 @@ const CORS_HEADERS = {
 };
 
 /**
- * GET /pdt/{userId}
+ * GET /pdt/user/{userId}
  * Returns all PDT records for the given userId, sorted by createdTimestamp descending.
  */
 module.exports.handler = async (event) => {

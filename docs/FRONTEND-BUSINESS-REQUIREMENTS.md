@@ -459,7 +459,7 @@ Opened when user clicks "View" on a PENDING_APPROVAL or APPROVED PDT.
 Service: `PDTService` in `services/pdt.service.ts`
 
 **All methods are real HTTP calls (no stubs):**
-- `getPDTRecords(userId: string): Observable<PDT[]>` — GET `/pdt/{userId}`; returns records sorted newest-first
+- `getPDTRecords(userId: string): Observable<PDT[]>` — GET `/pdt/user/{userId}`; returns records sorted newest-first
 - `createPDT(pdt: Partial<PDT>): Observable<any>` — POST `/pdt`; backend sets status=DRAFT and generates pdtId; returns `{ success: true, id }`
 - `updatePDT(pdtId: string, pdt: Partial<PDT>): Observable<any>` — PUT `/pdt/{pdtId}`; only allowed for DRAFT/CHANGES_REQUESTED
 - `deletePDT(pdtId: string): Observable<any>` — DELETE `/pdt/{pdtId}`; only allowed for DRAFT
@@ -483,7 +483,7 @@ Service: `PDTService` in `services/pdt.service.ts`
 
 | Handler | Method | Path | Status guard |
 |---------|--------|------|--------------|
-| `get-pdt-records.js` | GET | `/pdt/{userId}` | None |
+| `get-pdt-records.js` | GET | `/pdt/user/{userId}` | None |
 | `create-pdt.js` | POST | `/pdt` | None (always creates as DRAFT) |
 | `update-pdt.js` | PUT | `/pdt/{pdtId}` | Rejects if status ∉ {DRAFT, CHANGES_REQUESTED} |
 | `delete-pdt.js` | DELETE | `/pdt/{pdtId}` | Rejects if status ≠ DRAFT |
