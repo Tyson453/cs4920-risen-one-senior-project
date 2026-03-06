@@ -567,7 +567,7 @@ functions:
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:
-          path: pdt/{userId}
+          path: pdt/user/{userId}
           method: get
           authorizer: jwtAuthorizer
           cors:
