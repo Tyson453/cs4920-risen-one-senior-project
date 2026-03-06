@@ -5,6 +5,18 @@ provider:
   name: aws
   runtime: nodejs16.x
   region: us-east-2
+  apiGateway:
+    gatewayResponses:
+      DEFAULT_4XX:
+        statusCode: 401
+        responseHeaders:
+          Access-Control-Allow-Origin: "'*'"
+          Access-Control-Allow-Credentials: "true"
+      DEFAULT_5XX:
+        statusCode: 500
+        responseHeaders:
+          Access-Control-Allow-Origin: "'*'"
+          Access-Control-Allow-Credentials: "true"
 
   environment:
     TRAININGS_TABLE: trainings
@@ -567,7 +579,7 @@ functions:
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:
-          path: pdt/{userId}
+          path: pdt/user/{userId}
           method: get
           authorizer: jwtAuthorizer
           cors:
