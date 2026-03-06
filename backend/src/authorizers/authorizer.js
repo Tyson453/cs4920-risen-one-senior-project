@@ -7,11 +7,24 @@ module.exports.handler = async (event) => {
 
   try {
     const decoded = jwt.verify(token, jwtSecret);
-    return generatePolicy(decoded.uuid, 'Allow', event.methodArn, decoded);
+    const resource = buildWildCardResource(event.methodArn);
+    return generatePolicy(decoded.uuid, 'Allow', resource, decoded);
   } catch (err) {
     return generatePolicy('user', 'Deny', event.methodArn, {});
   }
 };
+
+function buildWildCardResource(methodArn) {
+  const arnParts = methodArn.split(':');
+  const apiGatewayParts = arnParts[5].split('/');
+  
+  const region = arnParts[3];
+  const accountId = arnParts[4];
+  const apiId = apiGatewayParts[0];
+  const stage = apiGatewayParts[1];
+
+  return `arn:aws:execute-api:${region}:${accountId}:${apiId}/${stage}/*/*`;
+}
 
 function generatePolicy(principalId, effect, resource, claims) {
   return {
