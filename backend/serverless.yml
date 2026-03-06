@@ -301,6 +301,7 @@ functions:
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
       SEND_ONBOARDING_EMAIL: 'true'
       SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
+      ALLOW_SEND_EMAIL_LOCAL: ${env:ALLOW_SEND_EMAIL_LOCAL, ''}
     events:
       - http:
           path: create-user
@@ -316,6 +317,7 @@ functions:
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
       SEND_ONBOARDING_EMAIL: 'true'
       SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
+      ALLOW_SEND_EMAIL_LOCAL: ${env:ALLOW_SEND_EMAIL_LOCAL, ''}
     events:
       - http:
           path: users/{uuid}/resend-onboarding-email

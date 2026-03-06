@@ -79,11 +79,14 @@ function sanitizeForResponse(user) {
   return { ...rest, id: rest.uuid };
 }
 
-/** Send onboarding email. In dev: log only, returns actuallySent: false. Set SEND_ONBOARDING_EMAIL=true for SES. */
+/** Send onboarding email. When DYNAMODB_ENDPOINT is set (local), log only unless ALLOW_SEND_EMAIL_LOCAL=true.
+ *  Set ALLOW_SEND_EMAIL_LOCAL=true and valid AWS credentials to test real SES from serverless-offline. */
 async function sendOnboardingEmail(toEmail, username, temporaryPassword, appBaseUrl) {
   const loginUrl = `${appBaseUrl || 'http://localhost:4200'}/login`;
   const body = `Welcome! Your account has been created.\n\nUsername: ${username}\nTemporary password: ${temporaryPassword}\n\nSign in here: ${loginUrl}\n\nYou will be prompted to set a new password on first sign-in.`;
-  if (process.env.SEND_ONBOARDING_EMAIL === 'true') {
+  const isLocal = !!process.env.DYNAMODB_ENDPOINT;
+  const allowLocalSend = process.env.ALLOW_SEND_EMAIL_LOCAL === 'true';
+  if (process.env.SEND_ONBOARDING_EMAIL === 'true' && (!isLocal || allowLocalSend)) {
     try {
       const ses = new AWS.SES({ region: process.env.AWS_REGION || 'us-east-2' });
       await ses.sendEmail({
@@ -100,7 +103,9 @@ async function sendOnboardingEmail(toEmail, username, temporaryPassword, appBase
       return { success: false, error: err.message };
     }
   }
-  console.log('[DEV] Onboarding email (not sent):', { to: toEmail, username, loginUrl, tempPasswordLength: temporaryPassword.length });
+  if (isLocal) {
+    console.log('[DEV] Onboarding email (not sent — local). Use this temp password to sign in:', { to: toEmail, username, loginUrl, tempPassword: temporaryPassword });
+  }
   return { success: true, actuallySent: false };
 }
 
