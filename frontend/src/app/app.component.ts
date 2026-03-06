@@ -1,8 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import {MatToolbarModule} from '@angular/material/toolbar';
-import { MatMenuModule } from '@angular/material/menu';
 import { ThemeService } from './services/theme.service';
 
 @Component({
@@ -14,7 +10,6 @@ export class AppComponent implements OnInit{
   title = 'frontend';
 
   constructor(
-    public router: Router,
     private themeService: ThemeService
   ) {}
 

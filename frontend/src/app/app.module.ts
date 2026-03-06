@@ -80,6 +80,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
 import { SettingsComponent } from './components/settings/settings.component';
+import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
 
 @NgModule({
   declarations: [
@@ -103,6 +105,8 @@ import { SettingsComponent } from './components/settings/settings.component';
     ProgressSpinnerComponent,
     GenericErrorComponent,
     SettingsComponent,
+    AuthLayoutComponent,
+    AppLayoutComponent,
   ],
   imports: [
     BrowserModule,

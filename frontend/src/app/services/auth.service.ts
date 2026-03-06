@@ -63,6 +63,26 @@ export class AuthService {
     return !!localStorage.getItem('authToken');
   }
 
+  getCurrentUserSnapshot(): any | null {
+    try {
+      const stored = localStorage.getItem('currentUser');
+      if (!stored) return null;
+
+      const user = JSON.parse(stored);
+      if (user?.uuid && !user?.id) {
+        user.id = user.uuid;
+      }
+      return user;
+    } catch (err) {
+      console.log('Auth parse error:', err);
+      return null;
+    }
+  }
+
+  hasTemporaryPassword(): boolean {
+    return !!this.getCurrentUserSnapshot()?.temporaryPassword;
+  }
+
   // ✅ keep BOTH names so nothing breaks
   logout() {
     this.signOut();
