@@ -41,6 +41,11 @@ provider:
             - dynamodb:ConditionCheckItem
           Resource:
             - arn:aws:dynamodb:${self:provider.region}:*:table/teams
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource: '*'
 
 plugins:
   - serverless-dynamodb
@@ -294,6 +299,8 @@ functions:
       DAILY_STATUS_TABLE: dailyStatus
       APP_BASE_URL: ${env:APP_BASE_URL, 'http://localhost:4200'}
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+      SEND_ONBOARDING_EMAIL: 'true'
+      SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
     events:
       - http:
           path: create-user
@@ -307,6 +314,8 @@ functions:
       USERS_TABLE: users
       APP_BASE_URL: ${env:APP_BASE_URL, 'http://localhost:4200'}
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+      SEND_ONBOARDING_EMAIL: 'true'
+      SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
     events:
       - http:
           path: users/{uuid}/resend-onboarding-email

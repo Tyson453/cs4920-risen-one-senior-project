@@ -3,7 +3,6 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const AWS = require('aws-sdk');
-const { sendOnboardingEmail } = require('../lib/send-onboarding-email');
 
 const dynamoDbClientConfig = {};
 if (process.env.DYNAMODB_ENDPOINT) {
@@ -36,6 +35,30 @@ function generateTemporaryPassword() {
 function sanitizeForResponse(user) {
   const { password, ...rest } = user;
   return { ...rest, id: rest.uuid };
+}
+
+async function sendOnboardingEmail(toEmail, username, temporaryPassword, appBaseUrl) {
+  const loginUrl = `${appBaseUrl || 'http://localhost:4200'}/login`;
+  const body = `Welcome! Your account has been created.\n\nUsername: ${username}\nTemporary password: ${temporaryPassword}\n\nSign in here: ${loginUrl}\n\nYou will be prompted to set a new password on first sign-in.`;
+  if (process.env.SEND_ONBOARDING_EMAIL === 'true') {
+    try {
+      const ses = new AWS.SES({ region: process.env.AWS_REGION || 'us-east-2' });
+      await ses.sendEmail({
+        Source: process.env.SES_FROM_EMAIL || 'noreply@example.com',
+        Destination: { ToAddresses: [toEmail] },
+        Message: {
+          Subject: { Data: 'Your account – Risen One' },
+          Body: { Text: { Data: body } },
+        },
+      }).promise();
+      return { success: true, actuallySent: true };
+    } catch (err) {
+      console.error('SES send failed:', err);
+      return { success: false };
+    }
+  }
+  console.log('[DEV] Onboarding email (not sent):', { to: toEmail, username, loginUrl, tempPasswordLength: temporaryPassword.length });
+  return { success: true, actuallySent: false };
 }
 
 module.exports.handler = async (event) => {
@@ -93,7 +116,7 @@ module.exports.handler = async (event) => {
       temporaryPasswordPlain,
       appBaseUrl
     );
-    const onboardingStatus = emailResult.success ? 'email_sent' : 'email_failed';
+    const onboardingStatus = emailResult.actuallySent ? 'email_sent' : (emailResult.success ? 'email_skipped' : 'email_failed');
 
     await dynamoDb.update({
       TableName: tableName,

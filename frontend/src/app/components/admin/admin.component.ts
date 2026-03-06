@@ -291,9 +291,12 @@ export class AdminComponent implements OnInit {
       try {
         const created = await this.userService.createUser(payload);
         this.users = [...this.users, created];
-        const statusMsg = created.onboardingStatus === 'email_failed'
-          ? 'User created. Onboarding email could not be sent — use Resend to try again.'
-          : 'User created and onboarding email sent.';
+        const statusMsg =
+          created.onboardingStatus === 'email_failed'
+            ? 'User created. Onboarding email could not be sent — use Resend to try again.'
+            : created.onboardingStatus === 'email_skipped'
+              ? 'User created. In development the onboarding email is not sent; check server logs for the temporary password.'
+              : 'User created and onboarding email sent.';
         this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '600px', data: { title: 'User Created', text: statusMsg } });
         this.onCancelEdit();
       } catch (error) {
@@ -335,6 +338,7 @@ export class AdminComponent implements OnInit {
   getOnboardingStatusLabel(user: TeamSummaryUser): string {
     if (user.onboardingStatus === 'email_sent') return 'Email sent';
     if (user.onboardingStatus === 'email_failed') return 'Email failed to send';
+    if (user.onboardingStatus === 'email_skipped') return 'Not sent (dev)';
     if (user.onboardingStatus === 'onboarding_complete' && this.isRecentlyOnboarded(user)) return 'Onboarding successful';
     return '';
   }
@@ -355,12 +359,18 @@ export class AdminComponent implements OnInit {
       const updated = await this.userService.resendOnboardingEmail(user.uuid);
       const idx = this.users.findIndex((u) => u.uuid === user.uuid);
       if (idx !== -1) this.users = this.users.slice(0, idx).concat(updated, this.users.slice(idx + 1));
+      const sent = updated.onboardingStatus === 'email_sent';
+      const skipped = updated.onboardingStatus === 'email_skipped';
       this.dialogService.saveSuccessOpen({
         panelClass: 'confirmation-modal',
         width: '600px',
         data: {
-          title: updated.onboardingStatus === 'email_sent' ? 'Email sent' : 'Email failed',
-          text: updated.onboardingStatus === 'email_sent' ? 'Onboarding email was sent successfully.' : 'Onboarding email could not be sent. You can try again.',
+          title: sent ? 'Email sent' : skipped ? 'Not sent (dev)' : 'Email failed',
+          text: sent
+            ? 'Onboarding email was sent successfully.'
+            : skipped
+              ? 'In development the email is not sent; check server logs for the temporary password.'
+              : 'Onboarding email could not be sent. You can try again.',
         },
       });
     } catch (error) {

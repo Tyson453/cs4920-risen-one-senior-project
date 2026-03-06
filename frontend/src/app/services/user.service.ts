@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-export type OnboardingStatus = 'email_sent' | 'email_failed' | 'onboarding_complete';
+export type OnboardingStatus = 'email_sent' | 'email_failed' | 'email_skipped' | 'onboarding_complete';
 
 export interface TeamSummaryUser {
   uuid: string;

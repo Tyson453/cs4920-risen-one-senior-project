@@ -3,7 +3,6 @@
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const AWS = require('aws-sdk');
-const { sendOnboardingEmail } = require('../lib/send-onboarding-email');
 
 const USER_FIELDS = [
   'uuid',
@@ -80,6 +79,31 @@ function sanitizeForResponse(user) {
   return { ...rest, id: rest.uuid };
 }
 
+/** Send onboarding email. In dev: log only, returns actuallySent: false. Set SEND_ONBOARDING_EMAIL=true for SES. */
+async function sendOnboardingEmail(toEmail, username, temporaryPassword, appBaseUrl) {
+  const loginUrl = `${appBaseUrl || 'http://localhost:4200'}/login`;
+  const body = `Welcome! Your account has been created.\n\nUsername: ${username}\nTemporary password: ${temporaryPassword}\n\nSign in here: ${loginUrl}\n\nYou will be prompted to set a new password on first sign-in.`;
+  if (process.env.SEND_ONBOARDING_EMAIL === 'true') {
+    try {
+      const ses = new AWS.SES({ region: process.env.AWS_REGION || 'us-east-2' });
+      await ses.sendEmail({
+        Source: process.env.SES_FROM_EMAIL || 'noreply@example.com',
+        Destination: { ToAddresses: [toEmail] },
+        Message: {
+          Subject: { Data: 'Your account – Risen One' },
+          Body: { Text: { Data: body } },
+        },
+      }).promise();
+      return { success: true, actuallySent: true };
+    } catch (err) {
+      console.error('SES send failed:', err);
+      return { success: false, error: err.message };
+    }
+  }
+  console.log('[DEV] Onboarding email (not sent):', { to: toEmail, username, loginUrl, tempPasswordLength: temporaryPassword.length });
+  return { success: true, actuallySent: false };
+}
+
 module.exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify({ message: 'OK' }) };
@@ -87,7 +111,12 @@ module.exports.handler = async (event) => {
 
   let payload;
   try {
-    payload = JSON.parse(event.body || '{}');
+    const raw = event.body;
+    if (raw !== undefined && raw !== null && typeof raw === 'object') {
+      payload = raw;
+    } else {
+      payload = JSON.parse(typeof raw === 'string' ? raw : '{}');
+    }
   } catch (e) {
     return {
       statusCode: 400,
@@ -96,71 +125,85 @@ module.exports.handler = async (event) => {
     };
   }
 
-  const sendOnboardingEmailFlag = payload.sendOnboardingEmail !== false;
-  const user = Object.fromEntries(
-    Object.entries(payload).filter(([key]) => key !== 'sendOnboardingEmail' && USER_FIELDS.includes(key))
-  );
+  try {
+    const sendOnboardingEmailFlag = payload.sendOnboardingEmail !== false;
+    const user = Object.fromEntries(
+      Object.entries(payload).filter(([key]) => key !== 'sendOnboardingEmail' && USER_FIELDS.includes(key))
+    );
 
-  if (sendOnboardingEmailFlag) {
-    if (!REQUIRED_FIELDS_ONBOARDING.every((field) => Object.hasOwn(user, field))) {
+    if (sendOnboardingEmailFlag) {
+      if (!REQUIRED_FIELDS_ONBOARDING.every((field) => Object.hasOwn(user, field))) {
+        return {
+          statusCode: 422,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({ message: 'Failed to create user: payload missing required fields for onboarding' }),
+        };
+      }
+    } else {
+      const requiredWithPassword = [...REQUIRED_FIELDS_ONBOARDING, 'password'];
+      if (!requiredWithPassword.every((field) => Object.hasOwn(user, field))) {
+        return {
+          statusCode: 422,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({ message: 'Failed to create user: payload missing required fields' }),
+        };
+      }
+    }
+
+    const tableName = process.env.USERS_TABLE;
+    const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:4200';
+    if (!tableName) {
       return {
-        statusCode: 422,
+        statusCode: 500,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Failed to create user: payload missing required fields for onboarding' }),
+        body: JSON.stringify({ message: 'Internal server error' }),
       };
     }
-  } else {
-    const requiredWithPassword = [...REQUIRED_FIELDS_ONBOARDING, 'password'];
-    if (!requiredWithPassword.every((field) => Object.hasOwn(user, field))) {
+
+    if (sendOnboardingEmailFlag) {
+      const temporaryPasswordPlain = generateTemporaryPassword();
+      user.password = await bcrypt.hash(temporaryPasswordPlain, 10);
+      user.temporaryPassword = true;
+      let emailResult = { success: true };
+      try {
+        emailResult = await sendOnboardingEmail(
+          user.email,
+          user.username,
+          temporaryPasswordPlain,
+          appBaseUrl
+        );
+      } catch (emailErr) {
+        console.error('Onboarding email error:', emailErr);
+        emailResult = { success: false };
+      }
+      user.onboardingStatus = emailResult.actuallySent ? 'email_sent' : (emailResult.success ? 'email_skipped' : 'email_failed');
+    }
+
+    try {
+      await dynamoDb.put({
+        TableName: tableName,
+        Item: user,
+      }).promise();
+    } catch (e) {
+      console.error('create-user DynamoDB put error:', e);
       return {
-        statusCode: 422,
+        statusCode: 500,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ message: 'Failed to create user: payload missing required fields' }),
+        body: JSON.stringify({ message: 'Failed to create user' }),
       };
-  }
+    }
 
-  const tableName = process.env.USERS_TABLE;
-  const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:4200';
-  if (!tableName) {
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Internal server error' }),
+      body: JSON.stringify(sanitizeForResponse(user)),
     };
-  }
-
-  let onboardingStatus = null;
-  if (sendOnboardingEmailFlag) {
-    const temporaryPasswordPlain = generateTemporaryPassword();
-    user.password = await bcrypt.hash(temporaryPasswordPlain, 10);
-    user.temporaryPassword = true;
-    const emailResult = await sendOnboardingEmail(
-      user.email,
-      user.username,
-      temporaryPasswordPlain,
-      appBaseUrl
-    );
-    onboardingStatus = emailResult.success ? 'email_sent' : 'email_failed';
-    user.onboardingStatus = onboardingStatus;
-  }
-
-  try {
-    await dynamoDb.put({
-      TableName: tableName,
-      Item: user,
-    }).promise();
   } catch (e) {
-    console.error(e);
+    console.error('create-user error:', e);
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Failed to create user' }),
+      body: JSON.stringify({ message: 'Failed to create user', error: (e && e.message) || String(e) }),
     };
   }
-
-  return {
-    statusCode: 200,
-    headers: CORS_HEADERS,
-    body: JSON.stringify(sanitizeForResponse(user)),
-  };
 };
