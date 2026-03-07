@@ -251,7 +251,16 @@ functions:
       - http:
           path: trainings
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: jwtAuthorizer
 
   getTrainings:
@@ -260,7 +269,16 @@ functions:
       - http:
           path: trainings/{userId}
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: jwtAuthorizer
 
   createCertification:
@@ -269,7 +287,16 @@ functions:
       - http:
           path: certifications
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: jwtAuthorizer
 
   getCertifications:
@@ -278,15 +305,24 @@ functions:
       - http:
           path: certifications/{userId}
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: jwtAuthorizer
   jwtAuthorizer:
-    handler: src/handlers/authorizer.handler
+    handler: src/authorizers/authorizer.handler
     environment:
       JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
 
   adminJwtAuthorizer:
-    handler: src/handlers/admin-authorizer.handler
+    handler: src/authorizers/admin-authorizer.handler
     environment:
       JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
 
@@ -301,7 +337,16 @@ functions:
       - http:
           path: import-data
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
 
   createUser:
     handler: src/handlers/create-user.handler
@@ -318,7 +363,16 @@ functions:
       - http:
           path: create-user
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: adminJwtAuthorizer
 
   resendOnboardingEmail:
