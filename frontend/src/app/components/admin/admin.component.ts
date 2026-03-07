@@ -31,6 +31,7 @@ import { ProjectApiService } from '../../services/project-api.service';
 import { DialogService } from '../../services/dialog.service';
 import {
   AVAILABLE_ROLES,
+  ONBOARDING_RECENT_DAYS,
   US_STATES,
 } from '../../shared/constants/admin.constants';
 import { Router } from '@angular/router';
@@ -95,12 +96,13 @@ export class AdminComponent implements OnInit {
   isLoading = true;
   userToDelete: TeamSummaryUser | null = null;
   showDeleteConfirmation = false;
+  resendLoadingUuid: string | null = null;
   openSpinner = () => {};
   closeSpinner = () => {};
 
   availableRoles = AVAILABLE_ROLES;
   availableStates = US_STATES;
-  displayedColumns: string[] = ['name', 'email', 'state', 'startDate', 'actions'];
+  displayedColumns: string[] = ['name', 'email', 'state', 'startDate', 'onboarding', 'actions'];
 
   // ── Teams ──────────────────────────────────────────────────────────────────
   orgTeams: OrgTeamGroup[] = [];
@@ -159,6 +161,7 @@ export class AdminComponent implements OnInit {
   private createEditForm(): FormGroup {
     return this.formBuilder.group({
       name: ['', [Validators.required]],
+      username: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       state: ['', Validators.required],
       startDate: ['', Validators.required],
@@ -221,6 +224,7 @@ export class AdminComponent implements OnInit {
     const startDate = this.parseStartDate(user.startDate, user.startYear);
     this.editForm.patchValue({
       name: user.name,
+      username: user.username ?? '',
       email: user.email,
       state: user.state,
       startDate: startDate,
@@ -236,6 +240,7 @@ export class AdminComponent implements OnInit {
     this.isCreatingNewUser = true;
     this.editForm.reset({
       name: '',
+      username: '',
       email: '',
       state: '',
       startDate: new Date(),
@@ -260,8 +265,10 @@ export class AdminComponent implements OnInit {
     const newStartYear = selectedDate.getFullYear().toString();
 
     if (this.isCreatingNewUser) {
-      const newUser: TeamSummaryUser = {
-        uuid: this.generateUUID(),
+      const uuid = this.generateUUID();
+      const payload = {
+        uuid,
+        username: formValue.username,
         name: formValue.name,
         firstName: formValue.name.split(' ')[0],
         lastName: formValue.name.split(' ').slice(1).join(' '),
@@ -270,8 +277,8 @@ export class AdminComponent implements OnInit {
         startDate: newStartDate,
         startYear: newStartYear,
         roles: formValue.roles,
-        assignments: formValue.assignments,
-        pmTeams: formValue.pmTeams,
+        assignments: formValue.assignments || [],
+        pmTeams: formValue.pmTeams || [],
         supervisorId: formValue.supervisorId ?? undefined,
         birthday: '',
         birthdayNoAcknowledge: false,
@@ -279,11 +286,22 @@ export class AdminComponent implements OnInit {
         maxSickHours: 40,
         notes: '',
         requestedPTO: {},
+        sendOnboardingEmail: true,
       };
-      // TODO: Call backend API to create user
-      this.users.push(newUser);
-      this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '600px', data: { title: 'User Created', text: 'User created successfully' } });
-      this.onCancelEdit();
+      try {
+        const created = await this.userService.createUser(payload);
+        this.users = [...this.users, created];
+        const statusMsg =
+          created.onboardingStatus === 'email_failed'
+            ? 'User created. Onboarding email could not be sent — use Resend to try again.'
+            : created.onboardingStatus === 'email_skipped'
+              ? 'User created. In development the onboarding email is not sent; check server logs for the temporary password.'
+              : 'User created and onboarding email sent.';
+        this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '600px', data: { title: 'User Created', text: statusMsg } });
+        this.onCancelEdit();
+      } catch (error) {
+        this.dialogService.standardError(error, 'Create User', 'creating the user');
+      }
     } else if (this.editingUser) {
       const updatePayload: Partial<TeamSummaryUser> = {
         name: formValue.name,
@@ -315,6 +333,51 @@ export class AdminComponent implements OnInit {
     this.editingUser = null;
     this.isCreatingNewUser = false;
     this.editForm.reset();
+  }
+
+  getOnboardingStatusLabel(user: TeamSummaryUser): string {
+    if (user.onboardingStatus === 'email_sent') return 'Email sent';
+    if (user.onboardingStatus === 'email_failed') return 'Email failed to send';
+    if (user.onboardingStatus === 'email_skipped') return 'Not sent (dev)';
+    if (user.onboardingStatus === 'onboarding_complete' && this.isRecentlyOnboarded(user)) return 'Onboarding successful';
+    return '';
+  }
+
+  isRecentlyOnboarded(user: TeamSummaryUser): boolean {
+    const at = user.onboardingCompletedAt;
+    if (!at) return false;
+    const then = new Date(at).getTime();
+    const now = Date.now();
+    const days = (now - then) / (24 * 60 * 60 * 1000);
+    return days <= ONBOARDING_RECENT_DAYS;
+  }
+
+  async onResendOnboardingEmail(user: TeamSummaryUser): Promise<void> {
+    if (this.resendLoadingUuid) return;
+    this.resendLoadingUuid = user.uuid;
+    try {
+      const updated = await this.userService.resendOnboardingEmail(user.uuid);
+      const idx = this.users.findIndex((u) => u.uuid === user.uuid);
+      if (idx !== -1) this.users = this.users.slice(0, idx).concat(updated, this.users.slice(idx + 1));
+      const sent = updated.onboardingStatus === 'email_sent';
+      const skipped = updated.onboardingStatus === 'email_skipped';
+      this.dialogService.saveSuccessOpen({
+        panelClass: 'confirmation-modal',
+        width: '600px',
+        data: {
+          title: sent ? 'Email sent' : skipped ? 'Not sent (dev)' : 'Email failed',
+          text: sent
+            ? 'Onboarding email was sent successfully.'
+            : skipped
+              ? 'In development the email is not sent; check server logs for the temporary password.'
+              : 'Onboarding email could not be sent. You can try again.',
+        },
+      });
+    } catch (error) {
+      this.dialogService.standardError(error, 'Resend onboarding email', 'sending the email');
+    } finally {
+      this.resendLoadingUuid = null;
+    }
   }
 
   private generateUUID(): string {

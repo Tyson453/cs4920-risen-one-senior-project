@@ -1,0 +1,94 @@
+:host {
+  display: block;
+}
+
+.auth-page {
+  width: 100vw;
+  height: 100vh;
+  background: var(--login-screen-bg);
+  overflow: hidden;
+}
+
+.yellow {
+  color: var(--primary-accent-soft);
+}
+
+mat-grid-list {
+  margin: 32px;
+}
+
+.hero-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: fit-content;
+  width: fit-content;
+  padding: clamp(10px, 1.2vw, 16px);
+  background-color: var(--primary-accent-soft);
+  border-radius: 100%;
+}
+
+.img-container2 {
+  display: flex;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(clamp(-230px, -16vw, -145px), clamp(-25px, 1vw, 20px));
+  justify-content: center;
+  align-items: center;
+  height: fit-content;
+  width: fit-content;
+  padding: clamp(8px, 1vw, 16px);
+  background-color: var(--primary-accent-soft);
+  border-radius: 100%;
+  z-index: 1;
+}
+
+.logo {
+  width: clamp(220px, 30vw, 440px);
+  height: clamp(220px, 30vw, 440px);
+  border-radius: 100%;
+  background-color: black;
+  background-image: url('/assets/eliteemployees.jpeg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.logo2 {
+  width: clamp(95px, 12vw, 175px);
+  height: clamp(95px, 12vw, 175px);
+  border-radius: 100%;
+  background-color: black;
+  background-image: url('/assets/RisenOneWhite.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+mat-card {
+  margin: auto;
+  width: 80%;
+}
+
+.cta-card {
+  background-color: var(--primary-surface);
+  color: var(--primary-text);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.subtitle {
+  color: var(--secondary-text);
+  margin-bottom: 4px;
+}

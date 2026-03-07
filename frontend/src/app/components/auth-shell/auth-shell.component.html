@@ -1,0 +1,28 @@
+<main class="auth-page">
+  <mat-grid-list cols="2" rowHeight="90vh">
+    <mat-grid-tile>
+      <div class="hero-img">
+        <div class="img-container">
+          <div class="logo"></div>
+        </div>
+        <div class="img-container2">
+          <div class="logo2"></div>
+        </div>
+      </div>
+    </mat-grid-tile>
+    <mat-grid-tile>
+      <div class="auth-container">
+        <mat-card class="cta-card">
+          <mat-card-content>
+            <h1>
+              <span>Risen One Consulting <span class="yellow">|</span> Employee Portal</span>
+            </h1>
+            <h2>{{ pageTitle }}</h2>
+            <p class="subtitle" *ngIf="pageSubtitle">{{ pageSubtitle }}</p>
+            <ng-content></ng-content>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-grid-tile>
+  </mat-grid-list>
+</main>
