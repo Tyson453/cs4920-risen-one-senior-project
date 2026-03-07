@@ -160,7 +160,7 @@ export class ProfileComponent {
   }
 
   canEditProfile(): boolean {
-    return this.isCurrentUser() || this.currentUserIsAdmin();
+    return this.currentUserIsAdmin();
   }
 
   get potentialSupervisors(): TeamSummaryUser[] {
