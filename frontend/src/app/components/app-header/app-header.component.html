@@ -21,11 +21,20 @@
       </button>
 
       <div class="account-card" *ngIf="showAccountCard">
-        <img
-          class="account-card-logo roc-logo"
-          alt="Risen One logo"
-        />
-        <span class="account-card-name">{{ user?.name }}</span>
+
+        <div class="account-card-header">
+          <img
+            class="account-card-logo roc-logo"
+            alt="Risen One logo"
+          />
+          <span 
+          class="account-card-name"
+          matTooltip="View profile"
+          [routerLink]="['/profile', user?.id]"
+          (click)="showAccountCard = false">
+            {{ user?.name }}
+          </span>
+        </div>
       </div>
     </div>
   </div>

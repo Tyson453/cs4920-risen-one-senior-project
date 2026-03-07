@@ -34,7 +34,7 @@ import {
   ONBOARDING_RECENT_DAYS,
   US_STATES,
 } from '../../shared/constants/admin.constants';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 interface Project {
   uuid: string;
@@ -82,6 +82,7 @@ interface TeamDeleteState {
     MatDialogModule,
     MatTabsModule,
     MatTooltipModule,
+    RouterModule,
   ],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],

@@ -11,7 +11,7 @@ import { CertificationTrainingComponent } from './components/certification-train
 import { EmployeeDevelopmentComponent } from './components/employee-development/employee-development.component';
 import { AuthGuard } from './auth.guard';
 import { adminGuard } from './guards/admin.guard';
-import { SettingsComponent } from './components/settings/settings.component';
+import { ProfileComponent } from './components/profile/profile.component';
 import { SetPasswordComponent } from './components/set-password/set-password.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
@@ -45,7 +45,7 @@ export const routes: Routes = [
       { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
       { path: 'certification-training', component: CertificationTrainingComponent },
       { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent },
-      { path: 'settings', component: SettingsComponent },
+      { path: 'profile/:userId', component: ProfileComponent },
     ],
   },
   { path: '**', redirectTo: '/login' },

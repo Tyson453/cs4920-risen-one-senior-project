@@ -79,9 +79,7 @@ import { AppRoutingModule } from './app.routes';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
-import { SettingsComponent } from './components/settings/settings.component';
-import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
-import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
+import { ProfileComponent } from './components/profile/profile.component';
 import { AuthShellComponent } from './components/auth-shell/auth-shell.component';
 
 @NgModule({
@@ -105,9 +103,7 @@ import { AuthShellComponent } from './components/auth-shell/auth-shell.component
     EmployeeDevelopmentComponent,
     ProgressSpinnerComponent,
     GenericErrorComponent,
-    SettingsComponent,
-    AuthLayoutComponent,
-    AppLayoutComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,
