@@ -81,6 +81,8 @@ import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AuthShellComponent } from './components/auth-shell/auth-shell.component';
+import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
+import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 
 @NgModule({
   declarations: [
@@ -104,6 +106,8 @@ import { AuthShellComponent } from './components/auth-shell/auth-shell.component
     ProgressSpinnerComponent,
     GenericErrorComponent,
     ProfileComponent,
+    AppLayoutComponent,
+    AuthLayoutComponent,
   ],
   imports: [
     BrowserModule,
