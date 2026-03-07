@@ -1016,3 +1016,15 @@
   font-size: 14px;
   margin: 8px 0 0;
 }
+
+.user-name-text {
+  display: inline-block;
+  color: var(--primary-accent);
+  padding: 2px 6px;
+}
+
+.user-name-text:hover {
+  background-color: var(--primary-surface-hover);
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
