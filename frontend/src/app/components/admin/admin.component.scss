@@ -243,6 +243,12 @@
         margin-right: 4px;
       }
 
+      .onboarding-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+      }
     }
   }
 

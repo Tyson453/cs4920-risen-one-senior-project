@@ -80,6 +80,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TimeOffComponent } from './components/time-off/time-off.component';
 import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { AuthShellComponent } from './components/auth-shell/auth-shell.component';
 
 @NgModule({
   declarations: [
@@ -152,6 +153,7 @@ import { ProfileComponent } from './components/profile/profile.component';
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
+    AuthShellComponent,
 
     AppRoutingModule,
   ],

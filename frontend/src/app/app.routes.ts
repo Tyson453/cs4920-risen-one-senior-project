@@ -12,19 +12,43 @@ import { EmployeeDevelopmentComponent } from './components/employee-development/
 import { AuthGuard } from './auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { ProfileComponent } from './components/profile/profile.component';
+import { SetPasswordComponent } from './components/set-password/set-password.component';
+import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
+import { tempPasswordGuard } from './guards/temp-password.guard';
+import { setPasswordAccessGuard } from './guards/set-password-access.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
-  { path: 'daily-status', component: DailyStatusComponent, canActivate: [AuthGuard] },
-  { path: 'projects', component: ProjectsComponent, canActivate: [AuthGuard] },
-  { path: 'team-summary', component: TeamSummaryComponent, canActivate: [AuthGuard] },
-  { path: 'time-off', component: TimeOffComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminComponent, canActivate: [AuthGuard, adminGuard] },
-  { path: 'certification-training', component: CertificationTrainingComponent, canActivate: [AuthGuard] },
-  { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent, canActivate: [AuthGuard] },
-  { path: 'profile/:userId', component: ProfileComponent, canActivate: [AuthGuard] },
+  {
+    path: '',
+    component: AuthLayoutComponent,
+    children: [
+      { path: 'login', component: LoginComponent },
+      {
+        path: 'set-password',
+        component: SetPasswordComponent,
+        canActivate: [setPasswordAccessGuard],
+      },
+    ],
+  },
+  {
+    path: '',
+    component: AppLayoutComponent,
+    canActivate: [AuthGuard, tempPasswordGuard],
+    children: [
+      { path: 'home', component: HomeComponent },
+      { path: 'daily-status', component: DailyStatusComponent },
+      { path: 'projects', component: ProjectsComponent },
+      { path: 'team-summary', component: TeamSummaryComponent },
+      { path: 'time-off', component: TimeOffComponent },
+      { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
+      { path: 'certification-training', component: CertificationTrainingComponent },
+      { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent },
+      { path: 'profile/:userId', component: ProfileComponent },
+    ],
+  },
+  { path: '**', redirectTo: '/login' },
 ];
 
 @NgModule({

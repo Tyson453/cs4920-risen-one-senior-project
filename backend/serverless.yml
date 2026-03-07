@@ -53,6 +53,11 @@ provider:
             - dynamodb:ConditionCheckItem
           Resource:
             - arn:aws:dynamodb:${self:provider.region}:*:table/teams
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource: '*'
 
 plugins:
   - serverless-dynamodb
@@ -349,6 +354,11 @@ functions:
       USERS_TABLE: users
       PROJECTS_TABLE: projects
       DAILY_STATUS_TABLE: dailyStatus
+      APP_BASE_URL: ${env:APP_BASE_URL, 'http://localhost:4200'}
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+      SEND_ONBOARDING_EMAIL: 'true'
+      SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
+      ALLOW_SEND_EMAIL_LOCAL: ${env:ALLOW_SEND_EMAIL_LOCAL, ''}
     events:
       - http:
           path: create-user
@@ -364,6 +374,52 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: true
           authorizer: adminJwtAuthorizer
+
+  resendOnboardingEmail:
+    handler: src/handlers/resend-onboarding-email.handler
+    environment:
+      USERS_TABLE: users
+      APP_BASE_URL: ${env:APP_BASE_URL, 'http://localhost:4200'}
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+      SEND_ONBOARDING_EMAIL: 'true'
+      SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
+      ALLOW_SEND_EMAIL_LOCAL: ${env:ALLOW_SEND_EMAIL_LOCAL, ''}
+    events:
+      - http:
+          path: users/{uuid}/resend-onboarding-email
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+          authorizer: adminJwtAuthorizer
+
+  setPassword:
+    handler: src/handlers/set-password.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: set-password
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+          authorizer: jwtAuthorizer
 
   getTeamsAdmin:
     handler: src/handlers/get-teams-admin.handler
