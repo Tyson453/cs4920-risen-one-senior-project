@@ -1,32 +1,101 @@
-.form-row {
-    display: flex;
+// Root container
+.daily-status-report-dialog {
+  padding-top: 0.5rem;
 
-    mat-form-field {
-        &:last-child {
-            margin-left: 2rem;
-        }
+  .dialog-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 0.75rem;
+    padding: 0 0.75rem;
+  }
+
+  .dialog-title-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-surface);
+    border: 2px solid var(--primary-accent);
+    box-sizing: border-box;
+
+    mat-icon {
+      color: var(--primary-accent);
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
     }
+  }
+
+  .dialog-title-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .dialog-title-main {
+    color: var(--primary-text);
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+
+  .dialog-title-sub {
+    color: var(--muted-text);
+    font-size: 0.8rem;
+  }
+
+  .dialog-content {
+    padding-top: 0.25rem;
+  }
 }
 
 .mat-mdc-dialog-content {
-    overflow: auto;
+  overflow: auto;
 }
+
 mat-form-field {
   padding: 5px;
 }
 
+.meta-row {
+  margin-bottom: 0.5rem;
+}
+
 .statusText {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    text-align: center;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  font-size: 0.78rem;
+  color: var(--muted-text);
+  line-height: 1.25;
 }
 
 .statusIcon {
-    width: 80px;
-    height: 80px;
-    color: black !important;
-    margin: 5px;
+  width: 64px;
+  height: 64px;
+  margin: 5px 8px 5px 0;
+  font-size: 0.8rem;
+  border-width: 3px;
+  border-style: solid;
+  color: #000;
+
+  &.healthy {
+    border-color: #087f13;
+    background: rgba(8, 127, 19, 0.12);
+  }
+
+  &.attention {
+    border-color: #feba3c;
+    background: rgba(254, 186, 60, 0.12);
+  }
+
+  &.urgent {
+    border-color: #fb1120;
+    background: rgba(251, 17, 32, 0.12);
+  }
 }
 .spinner {
     width: 100%;
@@ -38,7 +107,11 @@ mat-form-field {
   }
 
 .color-circles {
-    margin-bottom: 10px;
+  margin: 4px 0 12px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 1rem;
 }
 
 ::ng-deep .mdc-radio {
@@ -96,11 +169,49 @@ mat-form-field {
 }
 
 .mat-mdc-dialog-actions {
-    gap: 8px;
+  gap: 8px;
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--primary-surface-hover);
+  display: flex;
+  justify-content: flex-end;
 }
 
 .mat-mdc-button-base+.mat-mdc-button-base {
-    margin: 0;
+  margin: 0;
+}
+
+.dialog-actions .cancel-btn {
+  background: transparent;
+  color: var(--primary-accent);
+  border: 2px solid var(--primary-accent);
+}
+
+.dialog-actions .draft-btn {
+  background: transparent;
+  color: var(--primary-text);
+  border: 1px solid var(--primary-text);
+}
+
+.dialog-actions .draft-btn.mat-mdc-button-disabled {
+  color: var(--secondary-text);
+  border-color: var(--secondary-text);
+}
+
+.dialog-actions .submit-btn {
+  background: var(--primary-accent);
+  color: #000;
+  border: 2px solid var(--primary-accent);
+  font-weight: 700;
+}
+
+.project-row {
+  margin-bottom: 0.75rem;
+  align-items: flex-start;
+  gap: 1rem;
+
+  .project-status {
+    max-width: 180px;
+  }
 }
 
 
@@ -119,7 +230,12 @@ mat-form-field {
         padding-right: 7px;
     }
 
+    .color-circles {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
     .project-status {
-        margin-left: 10px;
+      margin-left: 10px;
     }
 }
