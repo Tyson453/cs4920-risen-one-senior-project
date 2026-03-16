@@ -137,6 +137,42 @@ tr.expanded {
   color: var(--primary-text) !important;
 }
 
+/* Daily Status Report dialog – ensure dark theme surface and readable text */
+.daily-status-report-dialog .mat-mdc-dialog-surface,
+.daily-status-report-dialog .mdc-dialog__surface {
+  background-color: var(--primary-surface) !important;
+  border: 2px solid var(--primary-surface-hover) !important;
+  color: var(--primary-text) !important;
+}
+
+.daily-status-report-dialog .mat-mdc-form-field .mat-mdc-input-element,
+.daily-status-report-dialog .mat-mdc-select-value-text {
+  color: #ffffff !important;
+}
+
+.daily-status-report-dialog .mat-mdc-form-field .mdc-floating-label,
+.daily-status-report-dialog .mat-mdc-form-field .mat-mdc-form-field-icon-prefix,
+.daily-status-report-dialog .mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  color: #ffffff !important;
+}
+
+/* Input backgrounds for dark theme (including Name / Date) */
+.daily-status-report-dialog .mat-mdc-form-field .mat-mdc-text-field-wrapper.mdc-text-field--filled,
+.daily-status-report-dialog .mat-mdc-form-field .mdc-text-field--outlined {
+  background-color: var(--primary-bg) !important;
+  border-radius: 4px !important;
+}
+
+.daily-status-report-dialog .mat-mdc-form-field.mat-form-field-disabled .mat-mdc-text-field-wrapper.mdc-text-field--filled {
+  background-color: #000000 !important;
+  opacity: 0.95 !important;
+}
+
+/* Report textarea placeholder – theme-aware muted color */
+.daily-status-report-dialog textarea::placeholder {
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
+}
+
 .cdk-overlay-pane.confirmation-modal .mat-mdc-dialog-container .mdc-dialog__surface,
 .confirmation-modal .mat-mdc-dialog-surface,
 .confirmation-modal .mdc-dialog__surface {

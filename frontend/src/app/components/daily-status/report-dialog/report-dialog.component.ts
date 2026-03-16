@@ -76,7 +76,10 @@ export class ReportDialogComponent implements OnInit, AfterViewInit {
                 let userProjects =
                   this.projects = this.projects.concat(res.filter((project: { uuid: any; projectName: string; status: string }) => user.assignments.includes(project.uuid) && project.status != "Inactive" && !this.projects.find((e: { uuid: any; }) => e.uuid === project.uuid)));
               });
-
+              resolve();
+            }).catch(() => {
+              // If fetching users fails, still resolve so dialog can continue loading.
+              resolve();
             });
         } else {
           this.projects = res.filter((project: { uuid: any; projectName: string; status: string }) => (this.user.assignments ?? []).includes(project.uuid) && project.status != "Inactive");

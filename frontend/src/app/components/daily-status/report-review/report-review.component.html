@@ -9,18 +9,18 @@
                 <td
                     style="padding-right: 15px; border-bottom: none; vertical-align: text-top; max-width: 40%; min-width: 30%">
                     <mat-label><i class="fa fa-user"></i> Submitter</mat-label>
-                    <h4 id="name" name="name" style="color: black;">{{user.name}}</h4>
+                    <h4 id="name" name="name" style="color: white;">{{user.name}}</h4>
                     <mat-label *ngIf="isAdmin"><i class="fa fa-envelope"></i> Submitter's Email</mat-label>
-                    <h4 *ngIf="isAdmin" id="email" name="email" style="color: black;">{{user.email}}</h4>
+                    <h4 *ngIf="isAdmin" id="email" name="email" style="color: white;">{{user.email}}</h4>
                     <mat-label><i class="fa fa-calendar"></i> Date Submitted</mat-label>
-                    <h4 id="date" name="date" style="color: black;">{{report.date}}</h4>
+                    <h4 id="date" name="date" style="color: white;">{{report.date}}</h4>
                     <mat-label><i class="fa fa-cogs"></i> Project(s)</mat-label>
-                    <h4 id="projects" name="projects" style="color: black;">{{report.projectNames.join(', ')}}</h4>
+                    <h4 id="projects" name="projects" style="color: white;">{{report.projectNames.join(', ')}}</h4>
                 </td>
                 <td>
                     <mat-label><i class="fa fa-envelope-open-text"></i> Report</mat-label>
 
-                    <h6 id="reportText" name="reportText" style="color: black;">{{reportText}}</h6>
+                    <h6 id="reportText" name="reportText" style="color: white;">{{reportText}}</h6>
                     <!-- <div style="padding-top: 30%;">
                             <p class="id">Employee ID: {{report.empId}}</p>
                             <p class="id">Report ID: {{report.reportId}}</p>
@@ -34,7 +34,7 @@
                 <td tyle="padding-right: 15px; border-bottom: none; vertical-align: text-top; max-width: 40%; min-width: 30%">
                     <mat-label><i class="fa fa-user"></i> Submitter</mat-label>
                     <h4 id="name" name="name" style="color: black;">{{user.name}}</h4>
-                    
+
                 </td>
                 <td>
                     <mat-label *ngIf="isAdmin"><i class="fa fa-envelope"></i> Submitter's Email</mat-label>

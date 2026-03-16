@@ -75,17 +75,53 @@ export class ReportReviewComponent implements OnInit {
   }
 
   public export(): void {
-    // pdfMake.fonts = {
-    //   Roboto: {
-    //     normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
-    //     bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
-    //   },
-    // }
-    // const doc = new jsPDF();
-    // const reportPDF = this.reportPDF.nativeElement;
-    // var html = htmlToPdfMake(reportPDF.innerHTML);
-    // const docDefinition: any = { content: html };
-    // pdfMake.createPdf(docDefinition).open()
+    const reportElement = this.reportPDF?.nativeElement as HTMLElement | undefined;
+    if (!reportElement) {
+      return;
+    }
+
+    const popup = window.open('', '_blank', 'width=900,height=1000');
+    if (!popup) {
+      return;
+    }
+
+    const title = `${this.user?.name ?? 'Daily Status Report'} - ${this.report?.date ?? ''}`;
+    popup.document.open();
+    popup.document.write(`
+      <html>
+        <head>
+          <title>${title}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 24px;
+              color: #000;
+            }
+            h1, h2, h3, h4, h5, h6 {
+              margin: 0 0 8px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            td {
+              vertical-align: top;
+              padding: 4px 8px;
+            }
+            .label {
+              font-weight: 600;
+              font-size: 0.9rem;
+            }
+          </style>
+        </head>
+        <body>
+          ${reportElement.innerHTML}
+        </body>
+      </html>
+    `);
+    popup.document.close();
+    popup.focus();
+    popup.print();
   }
   //POP-UP FOR SENDING EMAILS AND PASSES CONSTRICTORS SET FROM IT
   public sendEmail(emailData: any): void {

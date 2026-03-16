@@ -616,6 +616,114 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: true
 
+  # ── Daily Status (DSU) ───────────────────────────────────────────────────────
+
+  getDailyStatus:
+    handler: src/handlers/get-daily-status.handler
+    environment:
+      DAILY_STATUS_TABLE: dailyStatus
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-status
+          method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  upsertDailyReport:
+    handler: src/handlers/upsert-daily-report.handler
+    environment:
+      DAILY_STATUS_TABLE: dailyStatus
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-report/{userId}/{date}
+          method: put
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  deleteDailyReport:
+    handler: src/handlers/delete-daily-report.handler
+    environment:
+      DAILY_STATUS_TABLE: dailyStatus
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-report/{userId}/{date}
+          method: delete
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  sendMonthlyDailyStatus:
+    handler: src/handlers/send-monthly-daily-status.handler
+    environment:
+      DAILY_STATUS_TABLE: dailyStatus
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-status/monthly-email
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  sendDailyStatusEmail:
+    handler: src/handlers/send-daily-status-email.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-status/send-report-email
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
   assignTeamMember:
     handler: src/handlers/assign-team-member.handler
     environment:
