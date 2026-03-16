@@ -181,7 +181,7 @@ This is the main implemented feature: employees submit and view **Daily Status U
 
 | Requirement | Visibility | Action |
 |------------|------------|--------|
-| **Add Report** | Only when viewing **own** reports (`realUser === user`) | Opens **Add/Edit Report** dialog (Report Dialog). |
+| **Add Report** | Only when viewing **own** reports (`realUser === user`) | Opens **Add/Edit Report** dialog (Report Dialog). Available both in the empty state and as a primary button in the “Run Report” card header. |
 | **Update Range** | Desktop: inline; Mobile: button that opens modal | Apply date range or open **Update Date Range** modal. |
 | **Return to Overview** | LEAD | Link to `/team/team-daily-status`. |
 | **Return to Overview** | ADMIN | Link to `/admin/admin-daily-status`. |
@@ -210,19 +210,25 @@ This is the main implemented feature: employees submit and view **Daily Status U
 |------------|-------------|
 | **Mode** | **Add:** default to today’s date and empty project text. **Edit:** prefill with existing report (date, project text, project status). |
 | **Display** | User name and date (read-only). One section per **assigned project** (filtered by user’s `assignments`; exclude “Inactive” projects). |
-| **Project sections** | Per project: text area for report text (required), and optionally **Project Status** (Healthy / Attention / Urgent) for LEAD/PM. |
-| **Project status** | Radio options: Healthy (green), Attention (yellow), Urgent (red). Only shown for users with role LEAD or PM. |
+| **Project sections** | Per project: text area for report text (required), and optionally **Project Status** (Healthy / Attention / Urgent) for LEAD/PM. Sections are grouped under a dark-themed dialog with a clear legend explaining each status. |
+| **Project status** | Dropdown options: Healthy (green), Attention (yellow), Urgent (red). Only shown for users with role LEAD or PM. |
 | **Default project** | If user has no assignments, show a single “Onboarding” (or default) project. |
 | **Save Draft** | Submit with `draft: true`; report not emailed; show success “saved as draft”. Only show for new or currently draft reports. |
 | **Submit** | Submit with `draft: false`; save report and send email to team lead; show success “emailed to your team lead”. |
 | **Cancel** | Close dialog without saving. |
-| **Validation** | Submit disabled when form invalid (e.g. missing required report text). Save Draft disabled when form not dirty. |
+| **Validation** | Submit disabled when form invalid (e.g. missing required report text) with visual affordance (reduced emphasis); Save Draft disabled when form not dirty. |
 | **Errors** | On API error, show standard error dialog (e.g. “Error saving report”). |
 
 ### 7.2 API contract (conceptual)
 
 - **Create/update report:** e.g. `createReport(params, userId, date)` with `params`: `{ draft, projects: [{ projectId, reportText, reportStatus? }] }`.
 - **Send email:** `sendEmail({ uuid, text, date })` after successful submit.
+
+### 7.3 Styling / UX
+
+- Dialog uses the same dark-themed surface, typography, and button styles as other application dialogs (e.g. PDT forms).
+- Name and Date fields are rendered as disabled filled text fields with dark backgrounds and high-contrast text for readability.
+- Report text areas and status dropdowns use theme-aware placeholder and label colors that respect the current theme.
 
 ---
 
@@ -238,16 +244,21 @@ This is the main implemented feature: employees submit and view **Daily Status U
 | **Title** | “{user.name}'s Report ({report.date})”. |
 | **Content** | Submitter name; date submitted; project(s); full report text (per project); for leads, project status per project. |
 | **Admin** | If viewer is admin, show submitter’s email. |
-| **Layout** | Desktop: side-by-side metadata and report text; mobile: stacked layout. |
+| **Layout** | Desktop: side-by-side metadata and report text; mobile: stacked layout, using the same dark dialog surface and typography as the Report Dialog. |
 | **Close** | “Close” button closes dialog. |
 | **Delete** | Visible when `role != ''` (e.g. lead/admin/pm). Deletes report and shows success; dialog closes. |
-| **Options menu** | “Options” dropdown: **Edit** (ADMIN or report owner) opens Report Dialog with this report; **Export to PDF** (placeholder; export logic commented out). |
+| **Options menu** | “Options” dropdown: **Edit** (ADMIN or report owner) opens Report Dialog with this report; **Export to PDF** opens a print-ready view of the report so the user can “Save as PDF”. |
 | **Loading** | Show loading indicator until report/user data ready. |
 
 ### 8.2 API
 
 - **Delete:** `deleteReport(userId, date)`.
 - **Edit:** Opens `ReportDialogComponent` with `data: { report, user }`.
+
+### 8.3 Styling / UX
+
+- Dialog uses the `daily-status-report-dialog` panel class to share dark-themed dialog styling with the Report Dialog.
+- Metadata and report text are rendered with high-contrast text colors on a dark surface; action buttons reuse the same filled/outlined patterns as other dialogs.
 
 ---
 
@@ -765,7 +776,7 @@ These are **required from a product/navigation perspective** (links exist on Hom
 | Service area | Methods | Status |
 |---|---|---|
 | **Auth** | login, logout, getUser, role checks | ✅ Real |
-| **Daily reports** | getReportsNew, createReport, deleteReport, getMonthlyList, sendEmail, getAllProjects | ✅ Real |
+| **Daily reports** | getReportsNew, createReport, deleteReport, getMonthlyList, sendEmail, getAllProjects | ✅ Real (wired to new Lambda endpoints for daily status CRUD and email workflows). |
 | **Projects** | getProjects, getProjectInfo, addProject, editProject, deleteProject | ✅ Real |
 | **Users** | getUserInfo, getUsers, updateUser, deleteUser | ✅ Real |
 | **Team Summary** | getTeamsForAdmin(), getTeammates(teamName, pmTeamNames) | ✅ Real (real backend endpoints) |
@@ -777,7 +788,7 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 - **User:** uuid, name, email, roles, assignments, teamName, pmTeams, supervisorId, requestedPTO, maxHours, maxSickHours, etc.
 - **Project:** uuid, projectName, projectFullName, status (Active/Inactive), etc.
-- **Daily report:** uuid, userId, date, projects: [{ projectId, reportText, reportStatus }], reportStatus (boolean submitted flag).
+- **Daily report:** uuid, userId, date (string, e.g. `YYYY/MM/DD` in storage), projects: [{ projectId, reportText, reportStatus }], reportStatus (string flag `"DRAFT"` or `"SUBMITTED"` used to derive UI status), updatedBy, updatedAt, submittedAt.
 - **PDT:** id, empName, shortTermGoals, mediumTermGoals, longTermGoals, developmentNeeds, actionPlan, empSignature, superSignature, createdDate, createdTimestamp, status, supervisorComments, supervisorId, userId.
 - **OrgTeamGroup:** teamName (string | null), users (TeamSummaryUser[]) — represents an organizational team.
 - **PmTeamGroup:** teamId (string), teamName (string), users (TeamSummaryUser[]) — represents a PM team.
