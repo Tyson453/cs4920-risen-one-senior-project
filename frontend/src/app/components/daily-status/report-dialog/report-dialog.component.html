@@ -1,8 +1,18 @@
-<div class="container">
-    <h2 mat-dialog-title>Add Report</h2>
-    <mat-dialog-content>
+<div class="container daily-status-report-dialog">
+    <h2 mat-dialog-title class="dialog-title">
+        <span class="dialog-title-icon">
+            <mat-icon>assignment</mat-icon>
+        </span>
+        <span class="dialog-title-text">
+            <span class="dialog-title-main">Daily Status Report</span>
+            <span class="dialog-title-sub" *ngIf="user">
+                {{ user.name }} • {{ date }}
+            </span>
+        </span>
+    </h2>
+    <mat-dialog-content class="dialog-content">
         <form [formGroup]="reportForm" *ngIf="reportForm">
-            <div fxLayout='row' fxLayout.lt-md="column">
+            <div fxLayout='row' fxLayout.lt-md="column" class="meta-row">
                 <mat-form-field class="name" fxFlex="50">
                     <mat-label>Name</mat-label>
                     <input type="text" matInput formControlName="name" />
@@ -13,20 +23,20 @@
                 </mat-form-field>
             </div>
             <div fxLayout="row" fxLayout.lt-md="column" *ngIf="showProjectStatus" class="color-circles">
-                <div fxFlex="30" fxLayout="row">
-                    <button class="statusIcon" mat-fab disabled style="border: 7px solid green;">Healthy</button>
-                    <div class="statusText">Project is in good standing</div>
+                <div fxFlex="30" fxLayout="column" class="status-pill">
+                    <button class="statusIcon healthy" mat-fab disabled [ngStyle]="{'color': 'rgba(0, 0, 0, 0.7)'}">Healthy</button>
+                    <div class="statusText" [ngStyle]="{'color': 'rgba(255, 255, 255, 0.7)'}">Project is in good standing</div>
                 </div>
-                <div fxFlex="30" fxLayout="row">
-                    <button class="statusIcon" mat-fab disabled style="border: 7px solid yellow;">Attention</button>
-                    <div class="statusText">Needs attention but not urgent</div>
+                <div fxFlex="30" fxLayout="column" class="status-pill">
+                    <button class="statusIcon attention" mat-fab disabled [ngStyle]="{'color': 'rgba(0, 0, 0, 0.7)'}">Attention</button>
+                    <div class="statusText" [ngStyle]="{'color': 'rgba(255, 255, 255, 0.7)'}">Needs attention but not urgent</div>
                 </div>
-                <div fxFlex="30" fxLayout="row">
-                    <button class="statusIcon" mat-fab disabled style="border: 7px solid red;">Urgent</button>
-                    <div class="statusText">Urgent attention needed</div>
+                <div fxFlex="30" fxLayout="column" class="status-pill">
+                    <button class="statusIcon urgent" mat-fab disabled [ngStyle]="{'color': 'rgba(0, 0, 0, 0.7)'}">Urgent</button>
+                    <div class="statusText" [ngStyle]="{'color': 'rgba(255, 255, 255, 0.7)'}">Urgent attention needed</div>
                 </div>
             </div>
-            <div *ngFor="let project of projects" fxLayout='row' fxLayout.lt-md="column">
+            <div *ngFor="let project of projects" fxLayout='row' fxLayout.lt-md="column" class="project-row">
                 <mat-form-field fxFlex="100" appearance="outline">
                     <mat-label>{{project.projectName}}</mat-label>
                     <textarea #projectInput type="text" placeholder="Report text for {{project.projectName}} goes here..." matInput
@@ -34,23 +44,42 @@
                         cdkTextareaAutosize cdkAutosizeMinRows="3" autofocus></textarea>
                 </mat-form-field>
                 <div fxFlex="15" fxLayout="column" class="project-status" *ngIf="showProjectStatus">
-                    <label>Project Status</label>
-                    <mat-radio-group formControlName="{{project.projectName}}.reportStatus" fxLayout="column"
-                        required="true">
-                        <mat-radio-button value="healthy" class="green">Healthy</mat-radio-button>
-                        <mat-radio-button value="attention" class="yellow">Attention</mat-radio-button>
-                        <mat-radio-button value="urgent" class="red">Urgent</mat-radio-button>
-                    </mat-radio-group>
-                    <br>
+                    <mat-form-field appearance="outline" class="project-status-field">
+                        <mat-label>Project Status</mat-label>
+                        <mat-select formControlName="{{project.projectName}}.reportStatus" required="true">
+                            <mat-option value="healthy">Healthy</mat-option>
+                            <mat-option value="attention">Attention</mat-option>
+                            <mat-option value="urgent">Urgent</mat-option>
+                        </mat-select>
+                    </mat-form-field>
                 </div>
             </div>
         </form>
     </mat-dialog-content>
-    <mat-dialog-actions>
-        <button mat-raised-button matDialogClose (click)="close()" data-testid="cancel">Cancel</button>
-        <button mat-raised-button color="primary" [disabled]="!reportForm.dirty" *ngIf="reportForm && (data?.report?.reportStatus == undefined || data?.report?.reportStatus == 'DRAFT')"
-            (click)="submitReport(false)" data-testid="save">Save Draft</button>
-        <button mat-raised-button color="primary" [disabled]="reportForm.invalid" *ngIf="reportForm"
-            (click)="submitReport(true)" data-testid="save">Submit</button>
+    <mat-dialog-actions class="dialog-actions">
+        <button mat-raised-button matDialogClose (click)="close()" data-testid="cancel" class="cancel-btn">
+            Cancel
+        </button>
+        <button
+            mat-raised-button
+            class="draft-btn"
+            [disabled]="!reportForm.dirty"
+            *ngIf="reportForm && (data?.report?.reportStatus == undefined || data?.report?.reportStatus == 'DRAFT')"
+            (click)="submitReport(false)"
+            data-testid="save"
+        >
+            Save Draft
+        </button>
+        <button
+            mat-raised-button
+            color="primary"
+            class="submit-btn"
+            [disabled]="reportForm.invalid"
+            *ngIf="reportForm"
+            (click)="submitReport(true)"
+            data-testid="save"
+        >
+            Submit
+        </button>
     </mat-dialog-actions>
 </div>

@@ -11,7 +11,17 @@
   <!-- Main Card -->
   <mat-card class="daily-status-card" fxFlex="100">
     <mat-card-content>
-      <div class="daily-status-card-header">Run Report</div>
+      <div class="daily-status-card-header-row">
+        <div class="daily-status-card-header">Run Report</div>
+        <button
+          *ngIf="realUser==user"
+          mat-raised-button
+          class="filled add-report-btn"
+          (click)="addReport()"
+          data-testid="header_add_report">
+          Add Report
+        </button>
+      </div>
       <div class="daily-status-card-divider"></div>
       <!-- Date Range -->
       <mat-form-field *ngIf="!mobileView" class="users-right-buffer users-form-size small-input date-range-field" appearance="outline">

@@ -322,6 +322,14 @@ export class AdminComponent implements OnInit {
         const updatedUser: TeamSummaryUser = { ...this.editingUser, ...updatePayload };
         const index = this.users.findIndex((u) => u.uuid === this.editingUser!.uuid);
         if (index !== -1) this.users[index] = updatedUser;
+
+        // NEW: keep session user in sync if we just edited ourselves
+        const current = this.authService.getCurrentUserSnapshot();
+        if (current && current.uuid === updatedUser.uuid) {
+          const newCurrent = { ...current, ...updatedUser };
+          this.authService.setCurrentUser(newCurrent);
+        }
+
         this.dialogService.saveSuccessOpen({ panelClass: 'confirmation-modal', width: '600px', data: { title: 'User Updated', text: 'User updated successfully' } });
         this.onCancelEdit();
       } catch (error) {

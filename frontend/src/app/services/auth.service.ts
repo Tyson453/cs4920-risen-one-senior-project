@@ -107,4 +107,19 @@ export class AuthService {
     const user = await this.getUser();
     return !!user?.roles?.includes('PM');
   }
+
+  /**
+   * Replace the current session user in localStorage.
+   * Use after login and when the logged-in user is updated by an admin.
+   */
+  setCurrentUser(user: any | null): void {
+    if (!user) {
+      localStorage.removeItem('currentUser');
+      return;
+    }
+    if (user.uuid && !user.id) {
+      user.id = user.uuid;
+    }
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
 }
