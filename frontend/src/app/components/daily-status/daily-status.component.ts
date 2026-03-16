@@ -340,7 +340,7 @@ export class DailyStatusComponent implements OnInit {
   public viewReport(element: any): void {
     this.dialog.open(ReportReviewComponent, {
       width: "700px",
-      panelClass: ['animate__animated', 'animate__fadeInDown'],
+      panelClass: ['animate__animated', 'animate__fadeInDown', 'daily-status-report-dialog'],
       data: {
         report: element,
         user: this.user,
