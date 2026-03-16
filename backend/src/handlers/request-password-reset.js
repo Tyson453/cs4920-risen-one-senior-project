@@ -98,12 +98,15 @@ module.exports.handler = async (event) => {
   }
 
   try {
-    const data = await dynamoDb.query({
-      TableName: tableName,
-      IndexName: 'UsernameIndex',
-      KeyConditionExpression: 'username = :username',
-      ExpressionAttributeValues: { ':username': username },
-    }).promise();
+    // Use scan to be resilient to non-unique usernames in local/dev data.
+    const data = await dynamoDb
+      .scan({
+        TableName: tableName,
+        FilterExpression: '#u = :username',
+        ExpressionAttributeNames: { '#u': 'username' },
+        ExpressionAttributeValues: { ':username': username },
+      })
+      .promise();
 
     if (!data.Items || data.Items.length === 0) {
       return {
@@ -114,6 +117,12 @@ module.exports.handler = async (event) => {
     }
 
     const user = data.Items[0];
+    if (data.Items.length > 1) {
+      console.warn(
+        'request-password-reset: multiple users found for username; using first',
+        { username, count: data.Items.length }
+      );
+    }
     const code = generateSixDigitCode();
     const codeHash = await bcrypt.hash(code, 10);
     const now = new Date().toISOString();
