@@ -221,6 +221,15 @@ mat-form-field {
   font-weight: 700;
 }
 
+.dialog-actions .submit-btn.mat-mdc-button-disabled {
+  opacity: 0.5;
+}
+
+.dialog-actions .submit-btn:not(.mat-mdc-button-disabled) {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-accent) 60%, transparent),
+              0 4px 10px rgba(0, 0, 0, 0.45);
+}
+
 .project-row {
   margin-bottom: 0.75rem;
   align-items: flex-start;
