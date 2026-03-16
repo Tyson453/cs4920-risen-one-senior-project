@@ -160,10 +160,11 @@ tr.expanded {
 .daily-status-report-dialog .mat-mdc-form-field .mat-mdc-text-field-wrapper.mdc-text-field--filled,
 .daily-status-report-dialog .mat-mdc-form-field .mdc-text-field--outlined {
   background-color: var(--primary-bg) !important;
+  border-radius: 4px !important;
 }
 
 .daily-status-report-dialog .mat-mdc-form-field.mat-form-field-disabled .mat-mdc-text-field-wrapper.mdc-text-field--filled {
-  background-color: var(--primary-surface) !important;
+  background-color: #000000 !important;
   opacity: 0.95 !important;
 }
 
