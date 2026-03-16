@@ -71,11 +71,27 @@ h3{
   box-sizing: border-box;
 }
 
-.daily-status-card-header {
+.daily-status-card-header-row {
   margin: 0.5rem 1.5rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.daily-status-card-header {
   color: var(--primary-text);
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+.add-report-btn {
+  --mdc-protected-button-container-color: var(--primary-accent);
+  --mdc-protected-button-label-text-color: var(--primary-surface);
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  padding-inline: 1.25rem;
 }
 
 .daily-status-card-divider {

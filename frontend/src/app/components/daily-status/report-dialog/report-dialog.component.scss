@@ -72,7 +72,8 @@ mat-form-field {
   justify-content: center;
   text-align: center;
   font-size: 0.78rem;
-  color: var(--muted-text);
+  /* Match placeholder tone in the textarea */
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
   line-height: 1.25;
 }
 
@@ -84,6 +85,11 @@ mat-form-field {
   border-width: 3px;
   border-style: solid;
   color: #000;
+
+  // Ensure the text label inside the FAB is readable on dark theme
+  .mdc-fab__label {
+    color: #ffffff !important;
+  }
 
   &.healthy {
     border-color: #087f13;

@@ -242,7 +242,7 @@ export class DailyStatusComponent implements OnInit {
   public addReport(): void {
     this.dialog.open(ReportDialogComponent, {
       width: "900px",
-      panelClass: ['animate__animated', 'animate__fadeInDown'],
+      panelClass: ['animate__animated', 'animate__fadeInDown', 'daily-status-report-dialog'],
       disableClose: true
     }).afterClosed().subscribe(() => {
       this.loadData();
