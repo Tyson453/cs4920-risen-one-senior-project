@@ -245,6 +245,50 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
             allowCredentials: true
+  requestPasswordReset:
+    handler: src/handlers/request-password-reset.handler
+    environment:
+      USERS_TABLE: users
+      APP_BASE_URL: ${env:APP_BASE_URL, 'http://localhost:4200'}
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+      SEND_PASSWORD_RESET_EMAIL: 'true'
+      SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
+      ALLOW_SEND_EMAIL_LOCAL: ${env:ALLOW_SEND_EMAIL_LOCAL, ''}
+    events:
+      - http:
+          path: password-reset/request
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  completePasswordReset:
+    handler: src/handlers/complete-password-reset.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: password-reset/complete
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
   createTraining:
     handler: src/handlers/create-training.handler
     events:
