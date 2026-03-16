@@ -61,3 +61,16 @@
   margin-bottom: 15px;
   text-align: center;
 }
+
+.forgot-password-link {
+  margin-top: 12px;
+  color: var(--secondary-text);
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+  color: var(--primary-text);
+}

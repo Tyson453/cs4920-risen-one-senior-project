@@ -13,6 +13,7 @@ import { AuthGuard } from './auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { ProfileComponent } from './components/profile/profile.component';
 import { SetPasswordComponent } from './components/set-password/set-password.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
 import { tempPasswordGuard } from './guards/temp-password.guard';
@@ -25,6 +26,7 @@ export const routes: Routes = [
     component: AuthLayoutComponent,
     children: [
       { path: 'login', component: LoginComponent },
+      { path: 'forgot-password', component: ForgotPasswordComponent },
       {
         path: 'set-password',
         component: SetPasswordComponent,
