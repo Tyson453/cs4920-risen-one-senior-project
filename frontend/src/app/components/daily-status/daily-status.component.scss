@@ -128,6 +128,11 @@ table tbody .mat-mdc-row {
   background: var(--primary-surface);
 }
 
+:host ::ng-deep table .mat-mdc-cell {
+  /* Force high-contrast text regardless of theme vars */
+  color: #ffffff !important;
+}
+
 .no-data-cell {
   text-align: center;
   padding-top: 1.25rem;
