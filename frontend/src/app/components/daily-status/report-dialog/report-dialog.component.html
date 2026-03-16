@@ -24,15 +24,15 @@
             </div>
             <div fxLayout="row" fxLayout.lt-md="column" *ngIf="showProjectStatus" class="color-circles">
                 <div fxFlex="30" fxLayout="column" class="status-pill">
-                    <button class="statusIcon healthy" mat-fab disabled>Healthy</button>
+                    <button class="statusIcon healthy" mat-fab disabled [ngStyle]="{'color': 'rgba(0, 0, 0, 0.7)'}">Healthy</button>
                     <div class="statusText" [ngStyle]="{'color': 'rgba(255, 255, 255, 0.7)'}">Project is in good standing</div>
                 </div>
                 <div fxFlex="30" fxLayout="column" class="status-pill">
-                    <button class="statusIcon attention" mat-fab disabled>Attention</button>
+                    <button class="statusIcon attention" mat-fab disabled [ngStyle]="{'color': 'rgba(0, 0, 0, 0.7)'}">Attention</button>
                     <div class="statusText" [ngStyle]="{'color': 'rgba(255, 255, 255, 0.7)'}">Needs attention but not urgent</div>
                 </div>
                 <div fxFlex="30" fxLayout="column" class="status-pill">
-                    <button class="statusIcon urgent" mat-fab disabled>Urgent</button>
+                    <button class="statusIcon urgent" mat-fab disabled [ngStyle]="{'color': 'rgba(0, 0, 0, 0.7)'}">Urgent</button>
                     <div class="statusText" [ngStyle]="{'color': 'rgba(255, 255, 255, 0.7)'}">Urgent attention needed</div>
                 </div>
             </div>
