@@ -18,6 +18,7 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
 import { tempPasswordGuard } from './guards/temp-password.guard';
 import { setPasswordAccessGuard } from './guards/set-password-access.guard';
+import { GameComponent } from './components/game/game.component'; // ✅ ADDED
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -44,6 +45,9 @@ export const routes: Routes = [
       { path: 'projects', component: ProjectsComponent },
       { path: 'team-summary', component: TeamSummaryComponent },
       { path: 'time-off', component: TimeOffComponent },
+
+      { path: 'game', component: GameComponent }, // ✅ ADDED
+
       { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
       { path: 'certification-training', component: CertificationTrainingComponent },
       { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent },
