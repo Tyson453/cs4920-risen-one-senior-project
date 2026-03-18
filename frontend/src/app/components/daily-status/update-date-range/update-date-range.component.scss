@@ -19,19 +19,3 @@ h2, p {
   align-items: center;
   justify-content: center;
 }
-
-:host ::ng-deep mat-datepicker-toggle {
-  color: var(--muted-text);
-}
-
-// Add a themed circular background behind the calendar icon in the modal
-:host ::ng-deep mat-datepicker-toggle .mat-mdc-icon-button {
-  border-radius: 50%;
-  background-color: color-mix(in srgb, var(--primary-accent) 35%, transparent);
-  width: 32px;
-  height: 32px;
-}
-
-:host ::ng-deep mat-datepicker-toggle .mat-mdc-icon-button .mat-icon {
-  color: #000;
-}

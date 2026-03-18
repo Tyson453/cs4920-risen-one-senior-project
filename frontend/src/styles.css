@@ -202,20 +202,3 @@ tr.expanded {
 .mat-mdc-tab-header {
   border-bottom: 1px solid var(--primary-surface-hover);
 }
-
-/* Global styling for datepicker toggle icons – add a visible circular background */
-.mat-datepicker-toggle .mat-mdc-icon-button.mdc-icon-button.mat-mdc-button-base {
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: color-mix(in srgb, var(--primary-accent) 45%, transparent);
-  margin-right: 4px;
-}
-
-.mat-datepicker-toggle .mat-mdc-icon-button.mdc-icon-button.mat-mdc-button-base .mat-icon {
-  color: #000;
-  opacity: 1;
-}
