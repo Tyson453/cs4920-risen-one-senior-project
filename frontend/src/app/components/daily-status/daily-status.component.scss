@@ -344,7 +344,19 @@ mat-form-field {
 }
 
 .date-range-field mat-datepicker-toggle {
-  color: var(--secondary-text);
+  color: var(--muted-text);
+}
+
+// Give the calendar icon a colored circular background for visibility
+.date-range-field ::ng-deep mat-datepicker-toggle .mat-mdc-icon-button {
+  border-radius: 50%;
+  background-color: color-mix(in srgb, var(--primary-accent) 35%, transparent);
+  width: 32px;
+  height: 32px;
+}
+
+.date-range-field ::ng-deep mat-datepicker-toggle .mat-mdc-icon-button .mat-icon {
+  color: #000;
 }
 
 .date-range-field mat-hint {
