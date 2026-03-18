@@ -5,7 +5,6 @@ import { AuthService } from '../../services/auth.service';
 import { DialogService } from '../../services/dialog.service';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
-
 interface previousRequest {
   value: string;
   viewValue: string;
@@ -20,7 +19,6 @@ type HomeCard = {
   actions: HomeCardAction[];
 };
 
-
 @Component({
   selector: 'app-form',
   providers: [provideNativeDateAdapter()],
@@ -28,8 +26,6 @@ type HomeCard = {
   standalone: false,
   styleUrl: './home.component.css'
 })
-
-
 export class HomeComponent {
   user: any;
   userphoto = "../assets/RisenOneWhite.png"
@@ -40,6 +36,7 @@ export class HomeComponent {
     { id: 'daily-status', icon: 'send', title: 'DAILY STATUS', actions: [{ label: 'Submit', route: '/daily-status' }] },
     { id: 'time-off', icon: 'calendar_month', title: 'TIME OFF', actions: [{ label: 'Submit', route: '/time-off' }] },
     { id: 'projects', icon: 'list', title: 'PROJECTS', actions: [{ label: 'View All', route: '/projects' }] },
+    { id: 'game', icon: 'sports_esports', title: 'GAME', actions: [{ label: 'Open Game', route: '/game' }] },
     { id: 'roc-team', icon: 'people', title: 'ROC TEAM PAGE', actions: [{ label: 'View All', route: '/team-summary' }] },
     { id: 'employee-dev', icon: 'summarize', title: 'EMPLOYEE DEVELOPMENT', actions: [{ label: 'View/Edit', route: '/reports/personal-dev' }] },
     { id: 'cert-training', icon: 'keyboard_double_arrow_up', title: 'CERTIFICATION & TRAINING', actions: [{ label: 'View/Manage', route: '/certification-training' }] },
@@ -62,6 +59,7 @@ export class HomeComponent {
     private authService: AuthService,
     private dialogService: DialogService,
   ) { }
+
   /* Sign In navigation Function */
   ngOnInit() {
     this.loadCardOrder();
@@ -73,6 +71,7 @@ export class HomeComponent {
       this.dialogService.closeSpinner();
     });
   }
+
   signIn() {
     this.router.navigate(['/login']);
   }
@@ -148,6 +147,7 @@ export class HomeComponent {
       .map(id => cardsById.get(id))
       .filter((card): card is HomeCard => !!card);
 
-    this.cards = [...orderedCards];
+    const missingCards = this.cards.filter(card => !orderedCards.some(orderedCard => orderedCard.id === card.id));
+    this.cards = [...orderedCards, ...missingCards];
   }
 }
