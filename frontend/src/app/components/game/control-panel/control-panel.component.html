@@ -1,0 +1,53 @@
+<div class="control-panel">
+  <div class="action-modes">
+    <button
+      mat-flat-button
+      [class.active]="currentMode === 'firefighter'"
+      (click)="setMode('firefighter')"
+      [disabled]="disabled"
+      matTooltip="Place a firefighter to reduce fire over time"
+    >
+      🚒 Firefighter
+    </button>
+    <button
+      mat-flat-button
+      [class.active]="currentMode === 'air_tanker'"
+      (click)="setMode('air_tanker')"
+      [disabled]="disabled"
+      matTooltip="Drop water on a 3x3 area to instantly reduce fire"
+    >
+      💧 Air Tanker
+    </button>
+  </div>
+
+  <div class="action-info">
+    <span class="actions-label">Actions:</span>
+    <span class="actions-count">{{ actionsRemaining }}</span>
+    <span *ngIf="carriedOver > 0" class="carried-over">(+{{ carriedOver }} carried)</span>
+  </div>
+
+  <div class="pending-list" *ngIf="pendingActions.length > 0">
+    <span class="pending-label">Queued:</span>
+    <span *ngFor="let a of pendingActions; let i = index" class="pending-item">
+      {{ a.type === 'place_firefighter' ? '🚒' : '💧' }} ({{ a.x }},{{ a.y }})
+    </span>
+  </div>
+
+  <div class="action-buttons">
+    <button
+      mat-stroked-button
+      (click)="onUndo()"
+      [disabled]="disabled || pendingActions.length === 0"
+    >
+      Undo
+    </button>
+    <button
+      mat-flat-button
+      class="next-turn-btn"
+      (click)="onNextTurn()"
+      [disabled]="disabled"
+    >
+      Next Turn ▶
+    </button>
+  </div>
+</div>

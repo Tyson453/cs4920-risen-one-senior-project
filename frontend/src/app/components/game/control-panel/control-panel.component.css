@@ -1,0 +1,99 @@
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--primary-surface);
+  border-radius: 10px;
+  border: 1px solid var(--primary-surface-hover);
+}
+
+.action-modes {
+  display: flex;
+  gap: 8px;
+}
+
+.action-modes button {
+  flex: 1;
+  background: var(--primary-surface-hover);
+  color: var(--primary-text);
+  border: 2px solid transparent;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.action-modes button.active {
+  border-color: var(--primary-accent);
+  background: var(--primary-bg);
+}
+
+.action-modes button:disabled {
+  opacity: 0.5;
+}
+
+.action-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: var(--primary-text);
+}
+
+.actions-label {
+  color: var(--secondary-text);
+}
+
+.actions-count {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--primary-accent);
+}
+
+.carried-over {
+  font-size: 0.8rem;
+  color: var(--muted-text);
+}
+
+.pending-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: var(--secondary-text);
+}
+
+.pending-label {
+  color: var(--muted-text);
+}
+
+.pending-item {
+  background: var(--primary-bg);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.action-buttons button {
+  flex: 1;
+  color: var(--primary-text);
+}
+
+.action-buttons button[mat-stroked-button] {
+  border-color: var(--primary-surface-hover);
+}
+
+.next-turn-btn {
+  background: var(--primary-accent) !important;
+  color: #121212 !important;
+  font-weight: 600;
+}
+
+.next-turn-btn:disabled {
+  opacity: 0.5;
+}
