@@ -105,16 +105,36 @@ export class GameComponent implements OnDestroy {
     if (!this.gameState || this.gameState.phase !== 'PLANNING') return;
     if (this.gameState.actionsRemaining <= 0) return;
 
+    const coordKey = `${tile.x},${tile.y}`;
+
     if (this.currentMode === 'firefighter') {
+      // Prevent enqueueing multiple firefighter placements on the same tile in a single planning phase
+      const alreadyPlanned = this.pendingActions.some(
+        (action) =>
+          action.type === 'place_firefighter' &&
+          action.x === tile.x &&
+          action.y === tile.y,
+      );
+      if (alreadyPlanned) return;
+
       if (!this.engine.canPlaceFirefighter(this.gameState, tile.x, tile.y)) return;
       this.pendingActions.push({ type: 'place_firefighter', x: tile.x, y: tile.y });
       this.gameState.actionsRemaining--;
-      this.highlightedTiles.add(`${tile.x},${tile.y}`);
+      this.highlightedTiles.add(coordKey);
     } else {
+      // Prevent enqueueing multiple tanker drops on the same tile in a single planning phase
+      const alreadyPlanned = this.pendingActions.some(
+        (action) =>
+          action.type === 'air_tanker' &&
+          action.x === tile.x &&
+          action.y === tile.y,
+      );
+      if (alreadyPlanned) return;
+
       if (!this.engine.canPlaceAirTanker(this.gameState, tile.x, tile.y)) return;
       this.pendingActions.push({ type: 'air_tanker', x: tile.x, y: tile.y });
       this.gameState.actionsRemaining--;
-      this.highlightedTiles.add(`${tile.x},${tile.y}`);
+      this.highlightedTiles.add(coordKey);
     }
   }
 

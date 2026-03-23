@@ -297,6 +297,10 @@ export class GameEngineService {
           tile.intensity = Math.max(0, tile.intensity - GAME_CONSTANTS.TANKER_INTENSITY_REDUCTION) as Intensity;
           if (tile.intensity === 0) {
             tile.state = 'safe';
+            if (state.summary) {
+              state.summary.firesContained++;
+            }
+            state.totalFiresExtinguished++;
           }
         }
         tile.wet = true;

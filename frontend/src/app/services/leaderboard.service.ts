@@ -49,6 +49,10 @@ export class LeaderboardService {
   }
 
   private saveAll(entries: LeaderboardEntry[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
+    } catch {
+      // Ignore storage errors to avoid breaking score submission when localStorage is unavailable or full.
+    }
   }
 }

@@ -31,10 +31,16 @@ export class GameBoardComponent {
   }
 
   onTileMouseEnter(tile: Tile): void {
+    if (this.disabled) {
+      return;
+    }
     this.tileHover.emit(tile);
   }
 
   onTileMouseLeave(): void {
+    if (this.disabled) {
+      return;
+    }
     this.tileHover.emit(null);
   }
 
