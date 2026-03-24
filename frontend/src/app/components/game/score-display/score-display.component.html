@@ -1,0 +1,35 @@
+<div class="score-display">
+  <div class="stat-row">
+    <div class="stat">
+      <span class="stat-label">Turn</span>
+      <span class="stat-value">{{ turn }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Score</span>
+      <span class="stat-value accent">{{ score }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Burned</span>
+      <span class="stat-value" [class.danger]="burnedPercentage > 0.3">{{ burnedPercent }}%</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Time</span>
+      <span class="stat-value">{{ formattedTime }}</span>
+    </div>
+  </div>
+
+  <div class="turn-summary" *ngIf="hasSummary">
+    <span *ngIf="turnSummary.firesSpread > 0" class="summary-bad">
+      +{{ turnSummary.firesSpread }} fires spread
+    </span>
+    <span *ngIf="turnSummary.firesContained > 0" class="summary-good">
+      -{{ turnSummary.firesContained }} contained
+    </span>
+    <span *ngIf="turnSummary.tilesNewlyBurned > 0" class="summary-bad">
+      {{ turnSummary.tilesNewlyBurned }} burned
+    </span>
+    <span *ngIf="turnSummary.firesSpread === 0 && turnSummary.firesContained === 0 && turnSummary.tilesNewlyBurned === 0" class="summary-neutral">
+      No changes this turn
+    </span>
+  </div>
+</div>

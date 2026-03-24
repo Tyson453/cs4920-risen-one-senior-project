@@ -1,0 +1,14 @@
+<div class="board-grid" [style.grid-template-columns]="gridTemplateColumns">
+  <ng-container *ngFor="let row of grid">
+    <app-game-tile
+      *ngFor="let tile of row; trackBy: trackByTile"
+      [tile]="tile"
+      [highlighted]="isTileHighlighted(tile)"
+      [tankerPreview]="isTankerPreview(tile)"
+      [disabled]="disabled"
+      (click)="onTileClick(tile)"
+      (mouseenter)="onTileMouseEnter(tile)"
+      (mouseleave)="onTileMouseLeave()"
+    ></app-game-tile>
+  </ng-container>
+</div>
