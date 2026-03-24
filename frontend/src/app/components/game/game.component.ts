@@ -78,6 +78,7 @@ export class GameComponent implements OnDestroy {
     if (!this.gameState || this.gameState.phase !== 'PLANNING') return;
 
     this.gameState.phase = 'RESOLVING';
+    this.gameState.elapsedTime = Date.now() - this.gameState.startTime;
     this.stopTimer();
 
     this.gameState = this.engine.resolveTurn(this.gameState, this.pendingActions);

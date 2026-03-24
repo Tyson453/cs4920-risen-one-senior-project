@@ -70,7 +70,7 @@
     [carriedOver]="gameState.carriedOverActions"
     [currentMode]="currentMode"
     [disabled]="!isPlanning"
-    [pendingActions]="$any(pendingActions)"
+    [pendingActions]="pendingActions"
     (modeChange)="onModeChange($event)"
     (nextTurn)="nextTurn()"
     (undoAction)="undoAction()"

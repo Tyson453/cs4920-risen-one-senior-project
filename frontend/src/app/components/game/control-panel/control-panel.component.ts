@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActionMode } from '../../../models/game.model';
+import { ActionMode, PlayerAction } from '../../../models/game.model';
 
 @Component({
   selector: 'app-control-panel',
@@ -17,7 +17,7 @@ export class ControlPanelComponent {
   @Input() carriedOver = 0;
   @Input() currentMode: ActionMode = 'firefighter';
   @Input() disabled = false;
-  @Input() pendingActions: { type: string; x: number; y: number }[] = [];
+  @Input() pendingActions: PlayerAction[] = [];
 
   @Output() modeChange = new EventEmitter<ActionMode>();
   @Output() nextTurn = new EventEmitter<void>();

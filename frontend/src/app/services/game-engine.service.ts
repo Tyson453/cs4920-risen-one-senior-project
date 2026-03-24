@@ -8,6 +8,9 @@ import {
 export class GameEngineService {
 
   // --- Seeded PRNG (mulberry32) ---
+  // State advances via the LCG step (a += 0x6D2B79F5); the output is a
+  // separate hash of that advanced state. Carrying `a` (not the output)
+  // as the next state preserves the standard algorithm's full period.
 
   private hashSeed(seed: string): number {
     let h = 0;
@@ -17,17 +20,12 @@ export class GameEngineService {
     return h >>> 0;
   }
 
-  private nextRng(state: number): { value: number; state: number } {
-    let t = (state + 0x6D2B79F5) | 0;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
+  private nextRng(a: number): { value: number; state: number } {
+    a = (a + 0x6D2B79F5) | 0;           // advance state (LCG step)
+    let t = Math.imul(a ^ (a >>> 15), a | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    const next = ((t ^ (t >>> 14)) >>> 0);
-    return { value: next / 4294967296, state: next };
-  }
-
-  private random(gameState: GameState): { value: number; rngState: number } {
-    const { value, state } = this.nextRng(gameState.rngState);
-    return { value, rngState: state };
+    const output = ((t ^ (t >>> 14)) >>> 0);
+    return { value: output / 4294967296, state: a };
   }
 
   // --- Grid Initialization ---
@@ -239,24 +237,23 @@ export class GameEngineService {
     }
     s.burnedPercentage = burnedCount / totalTiles;
 
-    // 10. Store summary and advance turn
+    // 10. Store summary
     s.turnSummary = summary;
-    s.turn++;
-    s.actionsRemaining = s.actionsPerTurn + s.carriedOverActions;
 
-    // 11. Check end conditions
-    if (s.burnedPercentage >= GAME_CONSTANTS.BURNED_THRESHOLD) {
-      s.phase = 'GAME_OVER';
-    } else if (s.elapsedTime >= GAME_CONSTANTS.TIME_LIMIT_MS) {
+    // 11. Check end conditions against the completed turn's state, BEFORE incrementing
+    const hasAnyFire = s.grid.some(row => row.some(t => t.state === 'fire'));
+    const isGameOver =
+      s.burnedPercentage >= GAME_CONSTANTS.BURNED_THRESHOLD ||
+      s.elapsedTime >= GAME_CONSTANTS.TIME_LIMIT_MS ||
+      !hasAnyFire;
+
+    if (isGameOver) {
       s.phase = 'GAME_OVER';
     } else {
+      // Only advance to the next turn when the game continues
+      s.turn++;
+      s.actionsRemaining = s.actionsPerTurn + s.carriedOverActions;
       s.phase = 'PLANNING';
-    }
-
-    // Check if all fires are out and no more fire can spread (win condition)
-    const hasAnyFire = s.grid.some(row => row.some(t => t.state === 'fire'));
-    if (!hasAnyFire && s.phase !== 'GAME_OVER') {
-      s.phase = 'GAME_OVER';
     }
 
     return s;
@@ -297,9 +294,7 @@ export class GameEngineService {
           tile.intensity = Math.max(0, tile.intensity - GAME_CONSTANTS.TANKER_INTENSITY_REDUCTION) as Intensity;
           if (tile.intensity === 0) {
             tile.state = 'safe';
-            if (state.summary) {
-              state.summary.firesContained++;
-            }
+            state.turnSummary.firesContained++;
             state.totalFiresExtinguished++;
           }
         }
@@ -312,7 +307,13 @@ export class GameEngineService {
 
   canPlaceFirefighter(state: GameState, x: number, y: number): boolean {
     const tile = state.grid[y][x];
-    return tile.state !== 'burned' && !tile.unit && state.actionsRemaining > 0;
+    if (tile.state === 'burned' || state.actionsRemaining <= 0) return false;
+    if (!tile.unit) return true;
+    // Allow replacing a firefighter that has been used at least one turn,
+    // but block replacing one that is still at full duration (no point spending
+    // an action to get the exact same state).
+    return tile.unit === 'firefighter' &&
+      (tile.unitTurnsRemaining ?? 0) < GAME_CONSTANTS.FIREFIGHTER_DURATION;
   }
 
   canPlaceAirTanker(state: GameState, x: number, y: number): boolean {
