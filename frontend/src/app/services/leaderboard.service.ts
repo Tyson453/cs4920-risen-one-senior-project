@@ -59,6 +59,10 @@ export class LeaderboardService {
   }
 
   private saveAll(entries: LeaderboardEntry[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
+    } catch {
+      // Swallow storage errors so leaderboard persistence can't break gameplay
+    }
   }
 }
