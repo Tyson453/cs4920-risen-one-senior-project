@@ -1,18 +1,15 @@
 import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 
 import { GameBoardComponent } from './game-board/game-board.component';
 import { ControlPanelComponent } from './control-panel/control-panel.component';
 import { ScoreDisplayComponent } from './score-display/score-display.component';
 import { GameEngineService } from '../../services/game-engine.service';
 import { LeaderboardService } from '../../services/leaderboard.service';
+import { AuthService } from '../../services/auth.service';
 import {
   GameState, Difficulty, ActionMode, PlayerAction,
   Tile, LeaderboardEntry, GAME_CONSTANTS,
@@ -23,13 +20,9 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatInputModule,
     GameBoardComponent,
     ControlPanelComponent,
     ScoreDisplayComponent,
@@ -45,14 +38,14 @@ export class GameComponent implements OnDestroy {
   highlightedTiles = new Set<string>();
   tankerPreviewTiles = new Set<string>();
   leaderboard: LeaderboardEntry[] = [];
-  playerName = '';
-  showNameInput = false;
+  isPersonalBest = false;
 
   private timerInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private engine: GameEngineService,
     private leaderboardService: LeaderboardService,
+    private authService: AuthService,
   ) {
     this.loadLeaderboard();
   }
@@ -70,7 +63,7 @@ export class GameComponent implements OnDestroy {
     this.highlightedTiles.clear();
     this.tankerPreviewTiles.clear();
     this.currentMode = 'firefighter';
-    this.showNameInput = false;
+    this.isPersonalBest = false;
     this.startTimer();
   }
 
@@ -96,7 +89,6 @@ export class GameComponent implements OnDestroy {
   returnToMenu(): void {
     this.stopTimer();
     this.gameState = null;
-    this.showNameInput = false;
     this.loadLeaderboard();
   }
 
@@ -109,29 +101,19 @@ export class GameComponent implements OnDestroy {
     const coordKey = `${tile.x},${tile.y}`;
 
     if (this.currentMode === 'firefighter') {
-      // Prevent enqueueing multiple firefighter placements on the same tile in a single planning phase
       const alreadyPlanned = this.pendingActions.some(
-        (action) =>
-          action.type === 'place_firefighter' &&
-          action.x === tile.x &&
-          action.y === tile.y,
+        a => a.type === 'place_firefighter' && a.x === tile.x && a.y === tile.y,
       );
       if (alreadyPlanned) return;
-
       if (!this.engine.canPlaceFirefighter(this.gameState, tile.x, tile.y)) return;
       this.pendingActions.push({ type: 'place_firefighter', x: tile.x, y: tile.y });
       this.gameState.actionsRemaining--;
       this.highlightedTiles.add(coordKey);
     } else {
-      // Prevent enqueueing multiple tanker drops on the same tile in a single planning phase
       const alreadyPlanned = this.pendingActions.some(
-        (action) =>
-          action.type === 'air_tanker' &&
-          action.x === tile.x &&
-          action.y === tile.y,
+        a => a.type === 'air_tanker' && a.x === tile.x && a.y === tile.y,
       );
       if (alreadyPlanned) return;
-
       if (!this.engine.canPlaceAirTanker(this.gameState, tile.x, tile.y)) return;
       this.pendingActions.push({ type: 'air_tanker', x: tile.x, y: tile.y });
       this.gameState.actionsRemaining--;
@@ -188,22 +170,25 @@ export class GameComponent implements OnDestroy {
 
   private onGameOver(): void {
     if (!this.gameState) return;
-    if (this.leaderboardService.isHighScore(this.gameState.score, this.gameState.difficulty)) {
-      this.showNameInput = true;
-    }
-  }
 
-  submitScore(): void {
-    if (!this.gameState || !this.playerName.trim()) return;
-    this.leaderboardService.addScore({
-      name: this.playerName.trim(),
-      score: this.gameState.score,
-      difficulty: this.gameState.difficulty,
-      turn: this.gameState.turn,
-      date: Date.now(),
-    });
-    this.showNameInput = false;
-    this.loadLeaderboard();
+    const user = this.authService.getCurrentUserSnapshot();
+    if (!user) return;
+
+    const userId: string = user.uuid ?? user.id;
+    const displayName: string = user.name ?? `${user.firstName} ${user.lastName}`;
+
+    if (this.leaderboardService.isPersonalBest(userId, this.gameState.score, this.gameState.difficulty)) {
+      this.isPersonalBest = true;
+      this.leaderboardService.addScore({
+        userId,
+        displayName,
+        score: this.gameState.score,
+        difficulty: this.gameState.difficulty,
+        turn: this.gameState.turn,
+        date: Date.now(),
+      });
+      this.loadLeaderboard();
+    }
   }
 
   private loadLeaderboard(): void {
