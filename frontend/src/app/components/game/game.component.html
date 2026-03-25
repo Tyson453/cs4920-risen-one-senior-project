@@ -37,7 +37,7 @@
     <mat-card-content>
       <div class="lb-entry" *ngFor="let entry of leaderboard; let i = index">
         <span class="lb-rank">{{ i + 1 }}.</span>
-        <span class="lb-name">{{ entry.name }}</span>
+        <span class="lb-name">{{ entry.displayName }}</span>
         <span class="lb-diff">{{ entry.difficulty }}</span>
         <span class="lb-score">{{ entry.score }}</span>
       </div>
@@ -102,18 +102,7 @@
       </div>
     </div>
 
-    <div *ngIf="showNameInput" class="name-input-section">
-      <p class="high-score-msg">🏆 New high score! Enter your name:</p>
-      <div class="name-input-row">
-        <mat-form-field appearance="outline">
-          <input matInput [(ngModel)]="playerName" placeholder="Your name" maxlength="20"
-                 (keyup.enter)="submitScore()" />
-        </mat-form-field>
-        <button mat-flat-button class="submit-btn" (click)="submitScore()" [disabled]="!playerName.trim()">
-          Submit
-        </button>
-      </div>
-    </div>
+    <p *ngIf="isPersonalBest" class="high-score-msg">🏆 New personal best!</p>
 
     <div class="game-over-actions">
       <button mat-flat-button class="play-again-btn" (click)="startGame()">

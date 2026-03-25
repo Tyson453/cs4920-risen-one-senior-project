@@ -48,7 +48,8 @@ export type PlayerAction =
   | { type: 'air_tanker'; x: number; y: number };
 
 export interface LeaderboardEntry {
-  name: string;
+  userId: string;
+  displayName: string;
   score: number;
   difficulty: Difficulty;
   turn: number;

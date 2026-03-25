@@ -12,29 +12,39 @@ export class LeaderboardService {
     return filtered.sort((a, b) => b.score - a.score).slice(0, this.MAX_ENTRIES);
   }
 
+  /**
+   * Upsert a score for the given user + difficulty.
+   * If an entry already exists for this user on this difficulty, it is only
+   * replaced when the new score is strictly higher. This ensures each user
+   * appears at most once per difficulty on the board.
+   */
   addScore(entry: LeaderboardEntry): void {
     const all = this.loadAll();
-    all.push(entry);
-    all.sort((a, b) => b.score - a.score);
+    const existingIndex = all.findIndex(
+      e => e.userId === entry.userId && e.difficulty === entry.difficulty
+    );
 
-    const byDifficulty = new Map<string, LeaderboardEntry[]>();
-    for (const e of all) {
-      const list = byDifficulty.get(e.difficulty) ?? [];
-      list.push(e);
-      byDifficulty.set(e.difficulty, list);
+    if (existingIndex !== -1) {
+      if (entry.score > all[existingIndex].score) {
+        all[existingIndex] = entry;
+      } else {
+        return; // existing score is better — do nothing
+      }
+    } else {
+      all.push(entry);
     }
 
-    const trimmed: LeaderboardEntry[] = [];
-    for (const entries of byDifficulty.values()) {
-      trimmed.push(...entries.slice(0, this.MAX_ENTRIES));
-    }
-
-    this.saveAll(trimmed);
+    this.saveAll(all);
   }
 
-  isHighScore(score: number, difficulty: Difficulty): boolean {
-    const scores = this.getScores(difficulty);
-    return scores.length < this.MAX_ENTRIES || score > (scores[scores.length - 1]?.score ?? 0);
+  /**
+   * Returns true when the given score beats the user's current personal best
+   * for that difficulty (or they have no entry yet).
+   */
+  isPersonalBest(userId: string, score: number, difficulty: Difficulty): boolean {
+    const all = this.loadAll();
+    const existing = all.find(e => e.userId === userId && e.difficulty === difficulty);
+    return !existing || score > existing.score;
   }
 
   private loadAll(): LeaderboardEntry[] {
@@ -49,10 +59,6 @@ export class LeaderboardService {
   }
 
   private saveAll(entries: LeaderboardEntry[]): void {
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
-    } catch {
-      // Ignore storage errors to avoid breaking score submission when localStorage is unavailable or full.
-    }
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
   }
 }
