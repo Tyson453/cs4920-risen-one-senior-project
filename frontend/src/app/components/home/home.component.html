@@ -1,10 +1,10 @@
 <div class="home-container" *ngIf="user">
   <div class="content">
-    <!-- Header -->
     <div class="home-page-header">
       <div class="home-page-header-top">
         <mat-icon class="dashboard-icon">dashboard</mat-icon>
         <h1 class="home-page-title">Home</h1>
+
         <div class="floating-reorder-controls">
           <button
             *ngIf="!isReordering"
@@ -19,14 +19,17 @@
 
           <div *ngIf="isReordering" class="reordering-state">
             <button
-              mat-icon-button type="button"
+              mat-icon-button
+              type="button"
               aria-label="Save reordering"
               matTooltip="Confirm"
               (click)="finishReordering()">
               <mat-icon>check</mat-icon>
             </button>
+
             <button
-              mat-icon-button type="button"
+              mat-icon-button
+              type="button"
               aria-label="Cancel reordering"
               matTooltip="Cancel"
               (click)="cancelReordering()">
@@ -35,10 +38,10 @@
           </div>
         </div>
       </div>
+
       <div class="home-page-divider"></div>
     </div>
 
-    <!-- Cards -->
     <div
       class="home-cards-container"
       cdkDropList
@@ -61,6 +64,7 @@
 
         <mat-icon class="home-icon">{{ card.icon }}</mat-icon>
         <h5>{{ card.title }}</h5>
+        <p>{{ card.description }}</p>
 
         <ng-container *ngFor="let action of card.actions">
           <button
