@@ -134,7 +134,7 @@ export class HomeComponent {
       icon: 'quiz',
       title: 'HOW TO PLAY',
       description: 'Learn rules, controls, and gameplay steps',
-      actions: [{ label: 'Open Guide', route: '/game' }]
+      actions: [{ label: 'Open Guide', route: '/how-to-play' }]
     },
     {
       id: 'notifications',

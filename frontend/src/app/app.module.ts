@@ -83,6 +83,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { AuthShellComponent } from './components/auth-shell/auth-shell.component';
 import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+import { HowToPlayComponent } from './components/how-to-play/how-to-play.component';
 
 @NgModule({
   declarations: [
@@ -108,6 +109,7 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
     ProfileComponent,
     AppLayoutComponent,
     AuthLayoutComponent,
+    HowToPlayComponent,
   ],
   imports: [
     BrowserModule,
