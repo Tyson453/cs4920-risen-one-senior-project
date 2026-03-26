@@ -20,7 +20,6 @@ import { tempPasswordGuard } from './guards/temp-password.guard';
 import { setPasswordAccessGuard } from './guards/set-password-access.guard';
 import { GameComponent } from './components/game/game.component';
 import { HowToPlayComponent } from './components/how-to-play/how-to-play.component';
-import { StatsComponent } from './components/stats/stats.component';
 import { HistoryComponent } from './components/history/history.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { NotificationsComponent } from './components/notifications/notifications.component';
@@ -53,7 +52,6 @@ export const routes: Routes = [
       { path: 'time-off', component: TimeOffComponent },
       { path: 'game', component: GameComponent },
       { path: 'how-to-play', component: HowToPlayComponent },
-      { path: 'stats', component: StatsComponent },
       { path: 'history', component: HistoryComponent },
       { path: 'profile-page', component: ProfilePageComponent },
       { path: 'settings', component: SettingsComponent },
