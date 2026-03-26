@@ -1,51 +1,50 @@
 <mat-nav-list class="sidenav-container">
+  <div class="sidenav-links">
+    <mat-list-item [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
+      <mat-icon>dashboard</mat-icon>
+      <span>Home</span>
+    </mat-list-item>
 
-  <mat-list-item [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
-    <mat-icon>dashboard</mat-icon>
-    <span>Home</span>
-  </mat-list-item>
+    <mat-list-item [routerLink]="'/daily-status'" routerLinkActive="active-nav-item">
+      <mat-icon>update</mat-icon>
+      <span>Daily Status</span>
+    </mat-list-item>
 
-  <mat-list-item [routerLink]="'/daily-status'" routerLinkActive="active-nav-item">
-    <mat-icon>update</mat-icon>
-    <span>Daily Status</span>
-  </mat-list-item>
+    <mat-list-item [routerLink]="'/team-summary'" routerLinkActive="active-nav-item">
+      <mat-icon>group</mat-icon>
+      <span>Team</span>
+    </mat-list-item>
 
-  <mat-list-item [routerLink]="'/team-summary'" routerLinkActive="active-nav-item">
-    <mat-icon>group</mat-icon>
-    <span>Team</span>
-  </mat-list-item>
+    <mat-list-item [routerLink]="'/stats'" routerLinkActive="active-nav-item">
+      <mat-icon>bar_chart</mat-icon>
+      <span>Stats</span>
+    </mat-list-item>
 
-  <mat-list-item [routerLink]="'/stats'" routerLinkActive="active-nav-item">
-    <mat-icon>bar_chart</mat-icon>
-    <span>Stats</span>
-  </mat-list-item>
+    <mat-list-item [routerLink]="'/history'" routerLinkActive="active-nav-item">
+      <mat-icon>history</mat-icon>
+      <span>History</span>
+    </mat-list-item>
 
-  <mat-list-item [routerLink]="'/history'" routerLinkActive="active-nav-item">
-    <mat-icon>history</mat-icon>
-    <span>History</span>
-  </mat-list-item>
+    <mat-list-item [routerLink]="'/profile-page'" routerLinkActive="active-nav-item">
+      <mat-icon>person</mat-icon>
+      <span>Profile</span>
+    </mat-list-item>
 
-  <mat-list-item [routerLink]="'/profile-page'" routerLinkActive="active-nav-item">
-    <mat-icon>person</mat-icon>
-    <span>Profile</span>
-  </mat-list-item>
+    <mat-list-item [routerLink]="'/settings'" routerLinkActive="active-nav-item">
+      <mat-icon>settings</mat-icon>
+      <span>Settings</span>
+    </mat-list-item>
 
-  <mat-list-item [routerLink]="'/settings'" routerLinkActive="active-nav-item">
-    <mat-icon>settings</mat-icon>
-    <span>Settings</span>
-  </mat-list-item>
+    <mat-list-item [routerLink]="'/notifications'" routerLinkActive="active-nav-item">
+      <mat-icon>notifications</mat-icon>
+      <span>Notifications</span>
+    </mat-list-item>
 
-  <mat-list-item [routerLink]="'/notifications'" routerLinkActive="active-nav-item">
-    <mat-icon>notifications</mat-icon>
-    <span>Notifications</span>
-  </mat-list-item>
-
-  <mat-list-item *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item">
-    <mat-icon>security</mat-icon>
-    <span>Admin</span>
-  </mat-list-item>
-
-  <div class="sidenav-spacer"></div>
+    <mat-list-item *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item">
+      <mat-icon>security</mat-icon>
+      <span>Admin</span>
+    </mat-list-item>
+  </div>
 
   <mat-list-item class="logout-item" (click)="logout()">
     <mat-icon class="logout-icon">logout</mat-icon>

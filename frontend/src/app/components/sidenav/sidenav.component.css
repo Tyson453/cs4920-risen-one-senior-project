@@ -29,8 +29,14 @@ mat-list-item:hover {
   border-left: 3px solid #ffc107;
 }
 
-.sidenav-spacer {
+.sidenav-links {
   flex: 1;
+  overflow-y: auto;
+}
+
+.logout-item {
+  flex-shrink: 0;
+  background-color: #121212; /* prevents content from showing through when sticking */
 }
 
 .logout-item .mdc-list-item__primary-text,

@@ -1,5 +1,14 @@
 .content-div {
   display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* SIDEBAR WIDTH FIX */
@@ -7,9 +16,13 @@ app-sidenav {
   width: 240px;        /* 🔥 increase width */
   min-width: 240px;
   background-color: #121212;
+  height: 100%;
+  min-height: 0;
 }
 
 /* MAIN CONTENT */
 .content {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
