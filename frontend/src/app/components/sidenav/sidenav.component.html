@@ -10,9 +10,34 @@
       <span>Daily Status</span>
     </mat-list-item>
 
+    <mat-list-item [routerLink]="'/time-off'" routerLinkActive="active-nav-item">
+      <mat-icon>calendar_month</mat-icon>
+      <span>Time Off</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/projects'" routerLinkActive="active-nav-item">
+      <mat-icon>list</mat-icon>
+      <span>Projects</span>
+    </mat-list-item>
+
     <mat-list-item [routerLink]="'/team-summary'" routerLinkActive="active-nav-item">
       <mat-icon>group</mat-icon>
       <span>Team</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/game'" routerLinkActive="active-nav-item">
+      <mat-icon>sports_esports</mat-icon>
+      <span>Game</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/reports/personal-dev'" routerLinkActive="active-nav-item">
+      <mat-icon>summarize</mat-icon>
+      <span>Employee Development</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/certification-training'" routerLinkActive="active-nav-item">
+      <mat-icon>keyboard_double_arrow_up</mat-icon>
+      <span>Certification & Training</span>
     </mat-list-item>
 
     <mat-list-item [routerLink]="'/history'" routerLinkActive="active-nav-item">
