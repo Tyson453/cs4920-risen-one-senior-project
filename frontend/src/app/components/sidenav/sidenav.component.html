@@ -1,23 +1,74 @@
 <mat-nav-list class="sidenav-container">
-  <mat-list-item class="home-item" [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
-    <mat-icon type="white">dashboard</mat-icon>
-    Home
-  </mat-list-item>
-  <mat-list-item class="daily-status-item" [routerLink]="'/daily-status'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
-    <mat-icon type="white">update</mat-icon>
-    Daily Status
-  </mat-list-item>
-  <mat-list-item class="team-item" [routerLink]="'/team-summary'" routerLinkActive="active-nav-item"[routerLinkActiveOptions]="{ exact: true }">
-    <mat-icon type="white">group</mat-icon>
-    Team
-  </mat-list-item>
-  <mat-list-item class="admin-item" *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
-    <mat-icon type="white">security</mat-icon>
-    Admin
-  </mat-list-item>
-  <div class="sidenav-spacer"></div>
+  <div class="sidenav-links">
+    <mat-list-item [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
+      <mat-icon>dashboard</mat-icon>
+      <span>Home</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/daily-status'" routerLinkActive="active-nav-item">
+      <mat-icon>update</mat-icon>
+      <span>Daily Status</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/time-off'" routerLinkActive="active-nav-item">
+      <mat-icon>calendar_month</mat-icon>
+      <span>Time Off</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/projects'" routerLinkActive="active-nav-item">
+      <mat-icon>list</mat-icon>
+      <span>Projects</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/team-summary'" routerLinkActive="active-nav-item">
+      <mat-icon>group</mat-icon>
+      <span>Team</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/game'" routerLinkActive="active-nav-item">
+      <mat-icon>sports_esports</mat-icon>
+      <span>Game</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/reports/personal-dev'" routerLinkActive="active-nav-item">
+      <mat-icon>summarize</mat-icon>
+      <span>Employee Development</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/certification-training'" routerLinkActive="active-nav-item">
+      <mat-icon>keyboard_double_arrow_up</mat-icon>
+      <span>Certification & Training</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/history'" routerLinkActive="active-nav-item">
+      <mat-icon>history</mat-icon>
+      <span>History</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/profile-page'" routerLinkActive="active-nav-item">
+      <mat-icon>person</mat-icon>
+      <span>Profile</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/settings'" routerLinkActive="active-nav-item">
+      <mat-icon>settings</mat-icon>
+      <span>Settings</span>
+    </mat-list-item>
+
+    <mat-list-item [routerLink]="'/notifications'" routerLinkActive="active-nav-item">
+      <mat-icon>notifications</mat-icon>
+      <span>Notifications</span>
+    </mat-list-item>
+
+    <mat-list-item *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item">
+      <mat-icon>security</mat-icon>
+      <span>Admin</span>
+    </mat-list-item>
+  </div>
+
   <mat-list-item class="logout-item" (click)="logout()">
     <mat-icon class="logout-icon">logout</mat-icon>
-    Logout
+    <span>Logout</span>
   </mat-list-item>
+
 </mat-nav-list>

@@ -22,6 +22,16 @@
   text-align: center;
 }
 
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 20px 0;
+  cursor: pointer;
+  background-color: #ffc107;
+  border: none;
+  border-radius: 5px;
+}
+
 .game-header h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -91,6 +101,11 @@
   font-weight: 600;
   background: var(--primary-accent) !important;
   color: #121212 !important;
+}
+
+.how-to-play-btn {
+  background: var(--primary-surface-hover) !important;
+  color: var(--primary-text) !important;
 }
 
 /* ═══════ Leaderboard ═══════ */
