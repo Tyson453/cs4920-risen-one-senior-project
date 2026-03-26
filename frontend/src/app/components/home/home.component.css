@@ -214,6 +214,10 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.home-card.cdk-drag-dragging {
+  transition: none;
+}
+
 .home-card:hover:not(.is-reordering):not(.cdk-drag-dragging) {
   transform: scale(1.05);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
@@ -282,6 +286,7 @@
   background-color: var(--primary-accent);
   overflow: hidden;
   touch-action: none;
+  transition: none;
 }
 
 .home-card.cdk-drag-dragging,
