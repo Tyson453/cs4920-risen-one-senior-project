@@ -48,6 +48,8 @@ provider:
             - arn:aws:dynamodb:${self:provider.region}:*:table/trainings/index/*
             - arn:aws:dynamodb:${self:provider.region}:*:table/certifications
             - arn:aws:dynamodb:${self:provider.region}:*:table/certifications/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/ptoRequests
+            - arn:aws:dynamodb:${self:provider.region}:*:table/ptoRequests/index/*
         - Effect: Allow
           Action:
             - dynamodb:ConditionCheckItem
@@ -218,6 +220,27 @@ resources:
             KeyType: HASH
         GlobalSecondaryIndexes:
           - IndexName: userIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
+    PtoRequestsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ptoRequests
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: ptoId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ptoId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
@@ -990,6 +1013,114 @@ functions:
     events:
       - http:
           path: pdt/{pdtId}/request-changes
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  # ── PTO / Time Off ───────────────────────────────────────────────────────────
+
+  createPTO:
+    handler: src/handlers/create-pto.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getPTORequests:
+    handler: src/handlers/get-pto-requests.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto/user/{userId}
+          method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getPendingPTO:
+    handler: src/handlers/get-pending-pto.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto/supervisor/pending
+          method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  approvePTO:
+    handler: src/handlers/approve-pto.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto/{ptoId}/approve
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  denyPTO:
+    handler: src/handlers/deny-pto.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto/{ptoId}/deny
           method: post
           authorizer: jwtAuthorizer
           cors:

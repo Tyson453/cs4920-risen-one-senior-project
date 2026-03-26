@@ -1,0 +1,10 @@
+.board-grid {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  background: var(--primary-bg);
+  border-radius: 10px;
+  border: 1px solid var(--primary-surface-hover);
+  max-width: 600px;
+  margin: 0 auto;
+}
