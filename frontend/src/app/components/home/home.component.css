@@ -305,9 +305,7 @@
   transition: transform 180ms ease;
 }
 
-.portal-support-card {
-  grid-column: 2 / 3;
-}
+
 
 .card-header {
   display: flex;
@@ -359,11 +357,7 @@ button:hover {
   display: inline-block;
 }
 
-.home-card:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-  width: 75%;
-  justify-self: center;
-}
+
 
 .message {
   display: flex;
@@ -451,9 +445,6 @@ button:hover {
     display: block;
   }
 
-  .home-card:last-child:nth-child(odd) {
-    width: 100%;
-  }
 }
 
 a,

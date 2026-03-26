@@ -55,10 +55,7 @@
       <div
         *ngFor="let card of cards; trackBy: trackByCardId"
         class="home-card"
-        [ngClass]="[
-          (!isReordering && card.className) ? card.className : '',
-          isReordering ? 'is-draggable is-reordering' : ''
-        ]"
+        [ngClass]="isReordering ? 'is-draggable is-reordering' : ''"
         cdkDrag
         [cdkDragDisabled]="!isReordering">
 

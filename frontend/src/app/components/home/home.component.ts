@@ -17,7 +17,6 @@ type HomeCard = {
   icon: string;
   title: string;
   description: string;
-  className?: string;
   actions: HomeCardAction[];
 };
 
@@ -89,7 +88,6 @@ export class HomeComponent {
       icon: 'help',
       title: 'PORTAL SUPPORT',
       description: 'Request help, enhancements, or bug fixes',
-      className: 'portal-support-card',
       actions: [
         {
           label: 'Request Enhancement',
