@@ -1,10 +1,5 @@
 <!-- START SCREEN -->
 <div *ngIf="!gameState" class="start-screen">
-  <div class="game-top-actions">
-    <button mat-raised-button color="primary" routerLink="/how-to-play">
-      How to Play
-    </button>
-  </div>
   <div class="game-header">
     <h1>🔥 Fire Planner</h1>
     <p class="subtitle">A strategic fire management brain break</p>
@@ -29,6 +24,9 @@
         </div>
       </div>
 
+      <button mat-flat-button class="start-btn how-to-play-btn" routerLink="/how-to-play">
+        How to Play
+      </button>
       <button mat-flat-button class="start-btn" (click)="startGame()">
         Start Game
       </button>

@@ -22,12 +22,6 @@
   text-align: center;
 }
 
-.game-top-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
 button {
   padding: 10px 20px;
   font-size: 16px;
@@ -107,6 +101,11 @@ button {
   font-weight: 600;
   background: var(--primary-accent) !important;
   color: #121212 !important;
+}
+
+.how-to-play-btn {
+  background: var(--primary-surface-hover) !important;
+  color: var(--primary-text) !important;
 }
 
 /* ═══════ Leaderboard ═══════ */
