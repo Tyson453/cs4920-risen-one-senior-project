@@ -1,28 +1,30 @@
 .content-div {
+  width: 100%;
   display: flex;
-  flex: 1;
-  min-height: 0;
-}
-
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  align-items: flex-start;
 }
 
 /* SIDEBAR WIDTH FIX */
 app-sidenav {
-  width: 240px;        /* 🔥 increase width */
+  width: 240px;
   min-width: 240px;
   background-color: #121212;
-  height: 100%;
-  min-height: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
 /* MAIN CONTENT */
 .content {
   flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+}
+
+@media screen and (max-width: 575px) {
+  app-sidenav {
+    display: none;
+  }
+
+  .content {
+    width: 100%;
+  }
 }
