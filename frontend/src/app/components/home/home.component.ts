@@ -100,48 +100,6 @@ export class HomeComponent {
           href: 'https://docs.google.com/forms/d/e/1FAIpQLSdSdcvN0eiqlv3nLDlN1pG7rti_u8oPHLwstBjHaUZUXHxxLg/viewform?usp=publish-editor'
         }
       ]
-    },
-    {
-      id: 'stats-score',
-      icon: 'bar_chart',
-      title: 'STATS / SCORE',
-      description: 'Track your performance and scores',
-      actions: [{ label: 'View Stats', route: '/game' }]
-    },
-    {
-      id: 'game-history',
-      icon: 'history',
-      title: 'GAME HISTORY',
-      description: 'Review previous game activity',
-      actions: [{ label: 'View History', route: '/game' }]
-    },
-    {
-      id: 'profile',
-      icon: 'person',
-      title: 'USER PROFILE',
-      description: 'View and manage your profile details',
-      actions: [{ label: 'View Profile', route: '/profile' }]
-    },
-    {
-      id: 'settings',
-      icon: 'settings',
-      title: 'SETTINGS',
-      description: 'Customize app preferences and controls',
-      actions: [{ label: 'Open Settings', route: '/profile' }]
-    },
-    {
-      id: 'how-to-play',
-      icon: 'quiz',
-      title: 'HOW TO PLAY',
-      description: 'Learn rules, controls, and gameplay steps',
-      actions: [{ label: 'Open Guide', route: '/how-to-play' }]
-    },
-    {
-      id: 'notifications',
-      icon: 'notifications',
-      title: 'NOTIFICATIONS / UPDATES',
-      description: 'Check recent alerts and updates',
-      actions: [{ label: 'View Updates', route: '/projects' }]
     }
   ];
 

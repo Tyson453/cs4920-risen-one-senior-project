@@ -4,6 +4,12 @@
   color: white;
 }
 
+.game-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
 button {
   padding: 10px 20px;
   font-size: 16px;
