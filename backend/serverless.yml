@@ -556,6 +556,8 @@ functions:
     handler: src/handlers/update-user.handler
     environment:
       USERS_TABLE: users
+      PTO_TABLE: ptoRequests
+      PDT_TABLE: personalDevelopmentTraining
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:
