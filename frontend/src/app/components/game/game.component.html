@@ -1,0 +1,127 @@
+<!-- START SCREEN -->
+<div *ngIf="!gameState" class="start-screen">
+  <div class="game-header">
+    <h1>🔥 Fire Planner</h1>
+    <p class="subtitle">A strategic fire management brain break</p>
+  </div>
+
+  <mat-card class="start-card">
+    <mat-card-content>
+      <div class="difficulty-select">
+        <label class="diff-label">Difficulty</label>
+        <div class="diff-buttons">
+          <button
+            mat-flat-button
+            *ngFor="let d of ['easy', 'medium', 'hard']"
+            [class.active]="selectedDifficulty === d"
+            (click)="selectedDifficulty = $any(d)"
+          >
+            {{ d | titlecase }}
+            <span class="diff-size">
+              {{ d === 'easy' ? '6x6' : d === 'medium' ? '8x8' : '10x10' }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <button mat-flat-button class="start-btn how-to-play-btn" routerLink="/how-to-play">
+        How to Play
+      </button>
+      <button mat-flat-button class="start-btn" (click)="startGame()">
+        Start Game
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="leaderboard-card" *ngIf="leaderboard.length > 0">
+    <mat-card-header>
+      <mat-card-title>🏆 Leaderboard</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="lb-entry" *ngFor="let entry of leaderboard; let i = index">
+        <span class="lb-rank">{{ i + 1 }}.</span>
+        <span class="lb-name">{{ entry.displayName }}</span>
+        <span class="lb-diff">{{ entry.difficulty }}</span>
+        <span class="lb-score">{{ entry.score }}</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- GAME SCREEN -->
+<div *ngIf="gameState && !isGameOver" class="game-screen">
+  <app-score-display
+    [turn]="gameState.turn"
+    [score]="gameState.score"
+    [burnedPercentage]="gameState.burnedPercentage"
+    [elapsedTime]="gameState.elapsedTime"
+    [turnSummary]="gameState.turnSummary"
+  ></app-score-display>
+
+  <app-game-board
+    [grid]="gameState.grid"
+    [gridSize]="gameState.gridSize"
+    [highlightedTiles]="highlightedTiles"
+    [tankerPreviewTiles]="tankerPreviewTiles"
+    [disabled]="!isPlanning"
+    (tileClick)="onTileClick($event)"
+    (tileHover)="onTileHover($event)"
+  ></app-game-board>
+
+  <app-control-panel
+    [actionsRemaining]="gameState.actionsRemaining"
+    [carriedOver]="gameState.carriedOverActions"
+    [currentMode]="currentMode"
+    [disabled]="!isPlanning"
+    [pendingActions]="pendingActions"
+    (modeChange)="onModeChange($event)"
+    (nextTurn)="nextTurn()"
+    (undoAction)="undoAction()"
+  ></app-control-panel>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div *ngIf="gameState && isGameOver" class="game-over-screen">
+  <div class="game-over-overlay">
+    <h1 class="game-over-title">Game Over</h1>
+    <p class="game-over-reason">{{ gameOverReason }}</p>
+
+    <div class="final-stats">
+      <div class="final-stat">
+        <span class="final-label">Final Score</span>
+        <span class="final-value accent">{{ gameState.score }}</span>
+      </div>
+      <div class="final-stat">
+        <span class="final-label">Turns</span>
+        <span class="final-value">{{ gameState.turn }}</span>
+      </div>
+      <div class="final-stat">
+        <span class="final-label">Burned</span>
+        <span class="final-value">{{ (gameState.burnedPercentage * 100).toFixed(0) }}%</span>
+      </div>
+      <div class="final-stat">
+        <span class="final-label">Difficulty</span>
+        <span class="final-value">{{ gameState.difficulty | titlecase }}</span>
+      </div>
+    </div>
+
+    <p *ngIf="isPersonalBest" class="high-score-msg">🏆 New personal best!</p>
+
+    <div class="game-over-actions">
+      <button mat-flat-button class="play-again-btn" (click)="startGame()">
+        Play Again
+      </button>
+      <button mat-stroked-button class="menu-btn" (click)="returnToMenu()">
+        Main Menu
+      </button>
+    </div>
+  </div>
+
+  <app-game-board
+    [grid]="gameState.grid"
+    [gridSize]="gameState.gridSize"
+    [highlightedTiles]="highlightedTiles"
+    [tankerPreviewTiles]="tankerPreviewTiles"
+    [disabled]="true"
+  ></app-game-board>
+</div>

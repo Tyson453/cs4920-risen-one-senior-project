@@ -1,110 +1,11 @@
 
-body,
-.login-page {
-    width: 100vw;
-    height: 100vh;
-    background: var(--login-screen-bg);
-    overflow: hidden;
-}
-#yellow{
-    color: var(--primary-accent-soft);
-}
-
-.example-spacer{
-    flex: 1 1 auto;
-}
-#img-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: fit-content;
-    width: fit-content;
-    padding: clamp(10px, 1.2vw, 16px);
-    background-color: var(--primary-accent-soft);
-    border-radius: 100%;
-}
-#img-container2{
-    display: flex;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(clamp(-230px, -16vw, -145px), clamp(-25px, 1vw, 20px));
-    justify-content: center;
-    align-items: center;
-    height: fit-content;
-    width: fit-content;
-    padding: clamp(8px, 1vw, 16px);
-    background-color: var(--primary-accent-soft);
-    border-radius: 100%;
-    z-index: 1;
-}
-#logo2{
-    width: clamp(95px, 12vw, 175px);
-    height: clamp(95px, 12vw, 175px);
-    border-radius: 100%;
-    background-color: black;
-    background-image: url("/assets/RisenOneWhite.png");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    
-}
-#logo{
-    width: clamp(220px, 30vw, 440px);
-    height: clamp(220px, 30vw, 440px);
-    border-radius: 100%;
-    background-color: black;
-    background-image: url("/assets/eliteemployees.jpeg");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-}
-mat-grid-list{
-    margin: 32px;
-}
-
-#hero-img{
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#tools{
-    background-color: black;
-}
-#white{
-    color: white;
-}
-
-mat-card {
-    margin: auto;
-    width: 80%;
-}
-
-
-.cta-card {
-    background-color: var(--primary-surface);
-    color: white;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.login-form {
+.auth-form {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
     justify-items: space-between;
     margin-top: 20px;
-}
-
-.form-group {
-    display: flex;
-    align-items: center;
 }
 
 .form-field {
@@ -127,17 +28,17 @@ mat-card {
     --mdc-outlined-text-field-error-caret-color: var(--danger);
 }
 
-.login-form input {
+.auth-form input {
     color: white;
 }
-.login-form input::placeholder {
+.auth-form input::placeholder {
     color: var(--secondary-text);
 }
 
-.login-form input:-webkit-autofill,
-.login-form input:-webkit-autofill:hover,
-.login-form input:-webkit-autofill:focus,
-.login-form input:-webkit-autofill:active {
+.auth-form input:-webkit-autofill,
+.auth-form input:-webkit-autofill:hover,
+.auth-form input:-webkit-autofill:focus,
+.auth-form input:-webkit-autofill:active {
     color: var(--primary-text) !important;
     -webkit-text-fill-color: var(--primary-text) !important;
     caret-color: var(--primary-text);
@@ -146,7 +47,7 @@ mat-card {
     transition: background-color 999999s ease-out 0s, color 999999s ease-out 0s;
 }
 
-.login-form .login-button {
+.auth-form .primary-button {
     align-self: center;
     background-color: var(--primary-accent);
     font-weight: bold;
@@ -154,16 +55,22 @@ mat-card {
     width: calc(100% - 20px);
 }
 
-.login-heading {
-    text-align: center;
-    font-size: 1.5em; /* Adjust font size as needed to fit on one line */
-    margin-bottom: 20px;
-    white-space: nowrap; /* Ensure the text stays on one line */
-}
-
 .error-message {
   color: red;
   font-size: 14px;
   margin-bottom: 15px;
   text-align: center;
+}
+
+.forgot-password-link {
+  margin-top: 12px;
+  color: var(--secondary-text);
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+  color: var(--primary-text);
 }

@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -12,7 +12,6 @@ import {
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { LayoutModule } from '@angular/cdk/layout';
-import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -54,8 +53,6 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 
-import { AppRoutingModule } from './app.routes';
-
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 // Components
@@ -73,13 +70,24 @@ import { ReportReviewComponent } from './components/daily-status/report-review/r
 import { ReportDialogComponent } from './components/daily-status/report-dialog/report-dialog.component';
 
 import { TeamSummaryComponent } from './components/team-summary/team-summary.component';
-import { TimeOffComponent } from './components/time-off/time-off.component';
-
-import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
 import { EmployeeDevelopmentComponent } from './components/employee-development/employee-development.component';
 
 import { ProgressSpinnerComponent } from './shared/components/progress-spinner/progress-spinner.component';
 import { GenericErrorComponent } from './shared/components/generic-error/generic-error.component';
+
+import { AppRoutingModule } from './app.routes';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { TimeOffComponent } from './components/time-off/time-off.component';
+import { CertificationTrainingComponent } from './components/certification-training/certification-training.component';
+import { ProfileComponent } from './components/profile/profile.component';
+import { AuthShellComponent } from './components/auth-shell/auth-shell.component';
+import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
+import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
+import { HowToPlayComponent } from './components/how-to-play/how-to-play.component';
+import { HistoryComponent } from './components/history/history.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
+import { ProfilePageComponent } from './components/profile-page/profile-page.component';
 
 @NgModule({
   declarations: [
@@ -98,12 +106,18 @@ import { GenericErrorComponent } from './shared/components/generic-error/generic
 
     TeamSummaryComponent,
     TimeOffComponent,
-
     CertificationTrainingComponent,
     EmployeeDevelopmentComponent,
-
     ProgressSpinnerComponent,
     GenericErrorComponent,
+    ProfileComponent,
+    AppLayoutComponent,
+    AuthLayoutComponent,
+    HowToPlayComponent,
+    HistoryComponent,
+    SettingsComponent,
+    NotificationsComponent,
+    ProfilePageComponent,
   ],
   imports: [
     BrowserModule,
@@ -153,6 +167,7 @@ import { GenericErrorComponent } from './shared/components/generic-error/generic
     MatPaginatorModule,
     MatSortModule,
     MatTableModule,
+    AuthShellComponent,
 
     AppRoutingModule,
   ],
@@ -161,6 +176,7 @@ import { GenericErrorComponent } from './shared/components/generic-error/generic
     provideHttpClient(withInterceptorsFromDi()),
     provideNativeDateAdapter(),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    DatePipe,
   ],
   bootstrap: [AppComponent],
 })

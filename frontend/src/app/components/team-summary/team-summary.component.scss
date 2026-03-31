@@ -102,7 +102,7 @@ mat-card-content {
   margin: 0;
   table-layout: fixed;
   background-color: var(--primary-bg);
-  border: 1px solid var(--primary-surface-hover);
+  border: 2px solid var(--primary-surface-hover);
 
   .mat-column-name,
   .mat-column-email,
@@ -162,6 +162,19 @@ mat-expansion-panel {
     margin-top: 1rem;
     color: #666;
   }
+}
+
+
+.user-name-text {
+  display: inline-block;
+  color: var(--primary-accent);
+  padding: 2px 6px;
+}
+
+.user-name-text:hover {
+  background-color: var(--primary-surface-hover);
+  border-radius: 0.5rem;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 575px) {

@@ -11,6 +11,14 @@ const ddb = new AWS.DynamoDB({
 
 const dynamodb = new AWS.DynamoDB.DocumentClient({ service: ddb });
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Credentials': true,
+  'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'POST,OPTIONS',
+  'Content-Type': 'application/json'
+};
+
 module.exports.handler = async (event) => {
   console.log("DYNAMODB_ENDPOINT =", DYNAMODB_ENDPOINT);
 
@@ -19,10 +27,7 @@ module.exports.handler = async (event) => {
     if (!userId) {
       return {
         statusCode: 400,
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Credentials": true,
-        },
+        headers: CORS_HEADERS,
         body: JSON.stringify({ message: "Missing userId in path" }),
       };
     }
@@ -41,20 +46,14 @@ module.exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Credentials": true,
-      },
+      headers: CORS_HEADERS,
       body: JSON.stringify(result.Items || []),
     };
   } catch (err) {
     console.error("get-certifications error:", err);
     return {
       statusCode: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Credentials": true,
-      },
+      headers: CORS_HEADERS,
       body: JSON.stringify({ message: "Internal server error" }),
     };
   }

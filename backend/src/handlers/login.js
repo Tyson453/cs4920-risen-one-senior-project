@@ -38,6 +38,7 @@ function toResponseUser(user) {
   return {
     ...sanitized,
     id: sanitized.uuid,
+    temporaryPassword: !!sanitized.temporaryPassword,
   };
 }
 

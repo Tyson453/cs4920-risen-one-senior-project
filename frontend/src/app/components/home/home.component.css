@@ -119,7 +119,7 @@
   margin-bottom: 2rem;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  color: white;
+  color: var(--primary-text);
   justify-content: flex-start;
   align-items: center;
 }
@@ -188,7 +188,7 @@
   margin: 0;
   font-size: 1.3rem;
   font-weight: bold;
-  color: white;
+  color: var(--primary-text);
 }
 
 .home-cards-container {
@@ -200,7 +200,7 @@
 .home-card {
   grid-column: auto;
   background-color: var(--primary-surface);
-  color: white;
+  color: var(--primary-text);
   padding: 2rem;
   border-radius: 0.5rem;
   min-height: 20vh;
@@ -211,6 +211,16 @@
   margin: 0;
   transform-origin: center bottom;
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-card.cdk-drag-dragging {
+  transition: none;
+}
+
+.home-card:hover:not(.is-reordering):not(.cdk-drag-dragging) {
+  transform: scale(1.05);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
 .home-card.is-draggable {
@@ -276,6 +286,7 @@
   background-color: var(--primary-accent);
   overflow: hidden;
   touch-action: none;
+  transition: none;
 }
 
 .home-card.cdk-drag-dragging,
@@ -289,14 +300,12 @@
 }
 
 .home-card.cdk-drag-animating,
-.home-cards-container.cdk-drop-list-dragging 
+.home-cards-container.cdk-drop-list-dragging
   .home-card:not(.cdk-drag-placeholder):not(.cdk-drag-preview) {
   transition: transform 180ms ease;
 }
 
-.portal-support-card {
-  grid-column: 2 / 3;
-}
+
 
 .card-header {
   display: flex;
@@ -311,6 +320,7 @@ button {
   font-weight: bold;
   color: var(--primary-surface);
   background-color: var(--primary-accent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
@@ -329,7 +339,7 @@ button:hover {
   padding-right: 4rem;
   font-size: 4rem;
   height: 5rem;
-  color: #3f3f3f;
+  color: var(--secondary-text);
 }
 
 .header-card-info-mobile {
@@ -338,17 +348,16 @@ button:hover {
 
 .home-card p {
   text-align: center;
+  color: var(--secondary-text);
+  margin: 0.35rem 0 0.5rem 0;
+  line-height: 1.4;
 }
 
 .inline-block {
   display: inline-block;
 }
 
-.home-card:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-  width: 75%;
-  justify-self: center;
-}
+
 
 .message {
   display: flex;
@@ -383,8 +392,9 @@ button:hover {
   padding-right: 35px;
 }
 
-
-.message, .warning, .danger {
+.message,
+.warning,
+.danger {
   flex-direction: row;
   justify-content: left;
   padding: 15px;
@@ -434,9 +444,13 @@ button:hover {
   .header-card-info-mobile {
     display: block;
   }
+
 }
 
-a, a:hover, a:focus, a:active {
+a,
+a:hover,
+a:focus,
+a:active {
   text-decoration: none;
   color: inherit;
 }

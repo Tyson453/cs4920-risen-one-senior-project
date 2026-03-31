@@ -24,7 +24,7 @@ export class PDTService {
    */
   getPDTRecords(userId: string): Observable<PDT[]> {
     return this.http
-      .get<any[]>(`${this.baseUrl}/${this.pdtPath}/${userId}`)
+      .get<any[]>(`${this.baseUrl}/${this.pdtPath}/user/${userId}`)
       .pipe(map((records) => records.map((r) => this.normalize(r))));
   }
 

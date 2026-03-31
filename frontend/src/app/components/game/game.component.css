@@ -1,0 +1,256 @@
+/* ═══════ Layout Containers ═══════ */
+
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  color: var(--primary-text);
+}
+
+/* ═══════ Start Screen ═══════ */
+
+.start-screen {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.game-header {
+  text-align: center;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 20px 0;
+  cursor: pointer;
+  background-color: #ffc107;
+  border: none;
+  border-radius: 5px;
+}
+
+.game-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--primary-text);
+}
+
+.subtitle {
+  color: var(--muted-text);
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+}
+
+.start-card,
+.leaderboard-card {
+  background: var(--primary-surface) !important;
+  border: 1px solid var(--primary-surface-hover);
+  color: var(--primary-text);
+}
+
+.difficulty-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.diff-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-text);
+}
+
+.diff-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.diff-buttons button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  background: var(--primary-surface-hover);
+  color: var(--primary-text);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+.diff-buttons button.active {
+  border-color: var(--primary-accent);
+}
+
+.diff-size {
+  font-size: 0.7rem;
+  color: var(--muted-text);
+}
+
+.start-btn {
+  width: 100%;
+  padding: 12px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600;
+  background: var(--primary-accent) !important;
+  color: #121212 !important;
+}
+
+.how-to-play-btn {
+  background: var(--primary-surface-hover) !important;
+  color: var(--primary-text) !important;
+}
+
+/* ═══════ Leaderboard ═══════ */
+
+.leaderboard-card mat-card-title {
+  font-size: 1rem;
+  color: var(--primary-text);
+}
+
+.lb-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--primary-surface-hover);
+}
+
+.lb-entry:last-child {
+  border-bottom: none;
+}
+
+.lb-rank {
+  width: 24px;
+  text-align: right;
+  color: var(--muted-text);
+  font-weight: 600;
+}
+
+.lb-name {
+  flex: 1;
+  color: var(--primary-text);
+}
+
+.lb-diff {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--primary-surface-hover);
+  color: var(--secondary-text);
+}
+
+.lb-score {
+  font-weight: 700;
+  color: var(--primary-accent);
+  min-width: 50px;
+  text-align: right;
+}
+
+/* ═══════ Game Screen ═══════ */
+
+.game-screen {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ═══════ Game Over ═══════ */
+
+.game-over-screen {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.game-over-overlay {
+  background: var(--primary-surface);
+  border-radius: 12px;
+  border: 1px solid var(--primary-surface-hover);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.game-over-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--primary-text);
+}
+
+.game-over-reason {
+  color: var(--secondary-text);
+  margin: 0 0 20px;
+}
+
+.final-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.final-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.final-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--muted-text);
+  letter-spacing: 0.05em;
+}
+
+.final-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-text);
+}
+
+.final-value.accent {
+  color: var(--primary-accent);
+}
+
+.high-score-msg {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-accent);
+  margin-bottom: 12px;
+}
+
+.game-over-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.play-again-btn {
+  background: var(--primary-accent) !important;
+  color: #121212 !important;
+  font-weight: 600;
+  padding: 8px 24px !important;
+}
+
+.menu-btn {
+  color: var(--primary-text) !important;
+  border-color: var(--primary-surface-hover) !important;
+  padding: 8px 24px !important;
+}

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { RocConstants } from '../shared/constants/roc-constants';
-import { of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -23,12 +23,12 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   getAllReports(date: string) {
-    // return this.http.get<any>(this.reportUrl+date.replace('/', '-').replace('/', '-'));
+    // Legacy endpoint not implemented on new backend; kept as stub.
     return of([]);
   }
 
   getReports(userId: string) {
-    // return this.http.get<any>(this.url + '/portal/reports/' + userId);
+    // Legacy endpoint not implemented on new backend; use getReportsNew instead.
     return of([]);
   }
 
@@ -38,12 +38,17 @@ export class ApiService {
     startRange: string,
     endRange: string
   ) {
-    // return this.http.get<any>(`${this.url}/getDailyStatus?id=${userId}&limit=${pageSize}&start=${startRange}&end=${endRange}`);
-    return of([]);
+    const params = {
+      id: userId,
+      limit: pageSize,
+      start: startRange,
+      end: endRange,
+    };
+    return this.http.get<any>(`${this.url}/daily-status`, { params });
   }
 
   addUserToReportsTable(params: any) {
-    // return this.http.post<any>(this.reportUrl, params)
+    // New backend initializes reports on first upsert, so this is effectively a no-op.
     return of({ success: true });
   }
 
@@ -55,38 +60,42 @@ export class ApiService {
     date1: string,
     date2: string
   ) {
-    // return this.http.post<any>(this.url + '/monthlyEmailByUser/' + userId + "/" + requester + "/" + month + "/" + year+ "/" + date1+ "/" + date2, "");
-    return of({ success: true });
+    const body = {
+      userId,
+      requesterId: requester,
+      month,
+      year,
+      date1,
+      date2,
+    };
+    return this.http.post<any>(`${this.url}/daily-status/monthly-email`, body);
   }
 
   getAllProjects() {
-    // return this.http.get<any>(this.url + '/portal/' + this.projects);
-    return of([]);
+    // Prefer ProjectApiService for projects; kept for backward compatibility where used.
+    return this.http.get<any>(this.url + '/projects');
   }
 
   sendEmail(requestParams: any) {
-    // return this.http.post<any>(this.url + "/send-report-email", requestParams);
-    return of({ success: true });
+    return this.http.post<any>(this.url + '/daily-status/send-report-email', requestParams);
   }
 
   sendYearlyReportEmail(requestParams: any) {
-    // return this.http.post<any>(this.url + "/send-yearly-report-email", requestParams);
+    // Not implemented on backend; keep as stub.
     return of({ success: true });
   }
 
   sendPostReviewEmail(requestParams: any) {
-    // return this.http.post<any>(this.url + "/send-post-review-email", requestParams);
+    // Not implemented on backend; keep as stub.
     return of({ success: true });
   }
 
   createReport(requestParams: any, userId: string, date: string) {
-    // return this.http.put<any>(this.url + '/dailyReport/' + userId + "/" + date, requestParams);
-    return of({ success: true });
+    return this.http.put<any>(`${this.url}/daily-report/${userId}/${date}`, requestParams);
   }
 
   //Old call, need to adjust to new or delete
   deleteReport(userId: string, date: string) {
-    // return this.http.delete<any>(this.url + '/dailyReport/' + userId + "/" + date);
-    return of({ success: true });
+    return this.http.delete<any>(`${this.url}/daily-report/${userId}/${date}`);
   }
 }

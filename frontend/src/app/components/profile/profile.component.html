@@ -1,0 +1,312 @@
+<div class="profile-container">
+  <div class="profile-page-header">
+    <div class="profile-page-header-top">
+      <mat-icon class="profile-icon">settings</mat-icon>
+      <h1 class="profile-page-title">
+        <ng-container *ngIf="isCurrentUser(); else otherProfile">
+          My Profile
+        </ng-container>
+        <ng-template #otherProfile>
+          <ng-container *ngIf="profileData; else loadingProfile">
+            {{ profileData.name || '' }}'s Profile
+          </ng-container>
+          <ng-template #loadingProfile>
+          </ng-template>
+        </ng-template>
+      </h1>
+      <div class="title-inline-divider" aria-hidden="true"></div>
+    </div>
+    <div class="profile-page-divider"></div>
+  </div>
+
+  <div class="card profile-details-card" *ngIf="profileData">
+    <div class="profile-card-header-row">
+      <div class="profile-card-header">
+        {{ canEditProfile() ? 'Edit Profile' : 'Profile Details' }}
+      </div>
+
+      <button
+        *ngIf="canEditProfile() && !isEditingProfile"
+        mat-raised-button
+        class="profile-edit-toggle-btn"
+        type="button"
+        (click)="startProfileEdit()"
+      >
+        Edit
+      </button>
+    </div>
+
+    <div class="profile-card-divider"></div>
+
+    <!-- READ ONLY -->
+    <div *ngIf="!isEditingProfile" class="profile-details-grid">
+      <div class="profile-detail-item">
+        <div class="profile-detail-label">Name</div>
+        <div class="profile-detail-value">{{ profileData.name || '—' }}</div>
+      </div>
+
+      <div class="profile-detail-item">
+        <div class="profile-detail-label">Email</div>
+        <div class="profile-detail-value">{{ profileData.email || '—' }}</div>
+      </div>
+
+      <div class="profile-detail-item">
+        <div class="profile-detail-label">State</div>
+        <div class="profile-detail-value">{{ profileData.state || '—' }}</div>
+      </div>
+
+      <div class="profile-detail-item">
+        <div class="profile-detail-label">Start Date</div>
+        <div class="profile-detail-value">
+          {{ profileData.startDate || '—' }}
+          <ng-container *ngIf="profileData.startYear">/{{ profileData.startYear }}</ng-container>
+        </div>
+      </div>
+
+      <div class="profile-detail-item full-width">
+        <div class="profile-detail-label">Roles</div>
+        <div class="profile-detail-value">
+          {{ profileData.roles?.length ? profileData.roles.join(', ') : '—' }}
+        </div>
+      </div>
+
+      <div class="profile-detail-item full-width">
+        <div class="profile-detail-label">Projects</div>
+        <div class="profile-detail-value">
+          {{ getProjectNames(profileData.assignments) }}
+        </div>
+      </div>
+
+      <div class="profile-detail-item">
+        <div class="profile-detail-label">PM Teams</div>
+        <div class="profile-detail-value">
+          {{ getPmTeamNames(profileData.pmTeams) }}
+        </div>
+      </div>
+
+      <div class="profile-detail-item">
+        <div class="profile-detail-label">Supervisor</div>
+        <div class="profile-detail-value">
+          {{ getSupervisorName(profileData.supervisorId) }}
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT -->
+    <form
+      *ngIf="isEditingProfile"
+      [formGroup]="profileEditForm"
+      class="profile-edit-form"
+    >
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" />
+        <mat-error *ngIf="profileEditForm.get('name')?.hasError('required')">
+          Name is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" />
+        <mat-error *ngIf="profileEditForm.get('email')?.hasError('required')">
+          Email is required
+        </mat-error>
+        <mat-error *ngIf="profileEditForm.get('email')?.hasError('email')">
+          Invalid email format
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>State</mat-label>
+        <mat-select formControlName="state">
+          <mat-option *ngFor="let state of availableStates" [value]="state">
+            {{ state }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="profileEditForm.get('state')?.hasError('required')">
+          State is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="profilePicker" formControlName="startDate" />
+        <mat-datepicker-toggle matSuffix [for]="profilePicker"></mat-datepicker-toggle>
+        <mat-datepicker #profilePicker></mat-datepicker>
+        <mat-error *ngIf="profileEditForm.get('startDate')?.hasError('required')">
+          Start Date is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        *ngIf="currentUserIsAdmin()"
+        appearance="outline"
+        class="form-field full-width"
+      >
+        <mat-label>Roles</mat-label>
+        <mat-select formControlName="roles" multiple>
+          <mat-option *ngFor="let role of availableRoles" [value]="role">
+            {{ role }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field
+        *ngIf="currentUserIsAdmin()"
+        appearance="outline"
+        class="form-field full-width"
+      >
+        <mat-label>Projects</mat-label>
+        <mat-select formControlName="assignments" multiple>
+          <mat-option *ngFor="let project of projects" [value]="project.uuid">
+            {{ project.projectName }} - {{ getProjectStatusLabel(project.status) }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field
+        *ngIf="currentUserIsAdmin()"
+        appearance="outline"
+        class="form-field"
+      >
+        <mat-label>PM Teams</mat-label>
+        <mat-select formControlName="pmTeams" multiple>
+          <mat-option value="Project Alpha">Project Alpha</mat-option>
+          <mat-option value="Project Beta">Project Beta</mat-option>
+          <mat-option value="Project Gamma">Project Gamma</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field
+        *ngIf="currentUserIsAdmin()"
+        appearance="outline"
+        class="form-field"
+      >
+        <mat-label>Supervisor</mat-label>
+        <mat-select formControlName="supervisorId">
+          <mat-option [value]="null">— None —</mat-option>
+          <mat-option *ngFor="let sup of potentialSupervisors" [value]="sup.uuid">
+            {{ sup.name }} ({{ sup.roles.join(', ') }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="profile-form-actions">
+        <button
+          mat-raised-button
+          class="cancel-button"
+          type="button"
+          (click)="cancelProfileEdit()"
+        >
+          Cancel
+        </button>
+
+        <button
+          mat-raised-button
+          class="save-button"
+          type="button"
+          (click)="saveProfileEdit()"
+          [disabled]="!profileEditForm.valid"
+        >
+          Save
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="isCurrentUser()" class="card">
+    <div class="profile-card-header">Select Theme</div>
+    <div class="profile-card-divider"></div>
+
+    <div class="theme-cards-container">
+      <div
+        *ngFor="let theme of themes; trackBy: trackByThemeId"
+        class="theme-card"
+        [class.active-theme]="currentTheme === theme.id"
+        [class.is-default]="theme.id === 'default'"
+        role="button"
+        tabindex="0"
+        [attr.aria-pressed]="currentTheme === theme.id"
+        (click)="setTheme(theme.id, theme.defaultMode)"
+      >
+        <div class="theme-preview">
+          <div class="theme-preview-placeholder">
+            <div
+              class="theme-preview"
+              [attr.theme]="theme.id !== 'default' ? theme.id : null"
+              [attr.default-mode]="theme.id === 'default' ? currentDefaultMode : null"
+              [attr.default-accent]="theme.id === 'default' ? currentDefaultAccent : null"
+            >
+              <div class="mini-preview">
+                <div class="mini-preview-topbar">
+                  <div class="mini-preview-left">
+                    <span class="mini-preview-dot"></span>
+                    <span class="mini-preview-dot"></span>
+                    <span class="mini-preview-dot"></span>
+                  </div>
+                  <span class="mini-preview-chip"></span>
+                </div>
+
+                <div class="mini-preview-body">
+                  <div class="mini-preview-card">
+                    <div class="mini-preview-title"></div>
+
+                    <div class="mini-preview-lines">
+                      <div class="mini-preview-line w-90"></div>
+                      <div class="mini-preview-line w-70"></div>
+                      <div class="mini-preview-line w-55"></div>
+                    </div>
+
+                    <div class="mini-preview-actions">
+                      <div class="mini-preview-btn primary"></div>
+                      <div class="mini-preview-btn ghost"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="default-accent-strip"
+          *ngIf="theme.id === 'default'"
+          (click)="$event.stopPropagation()"
+        >
+          <button
+            *ngFor="let accent of defaultAccents"
+            type="button"
+            class="accent-pill"
+            [class.active]="currentDefaultAccent === accent.id"
+            (click)="setDefaultAccent(accent.id); $event.stopPropagation()"
+            [attr.aria-label]="'Default accent: ' + accent.name"
+            [attr.title]="accent.name"
+            [disabled]="currentTheme !== 'default'"
+          ></button>
+        </div>
+
+        <div class="theme-name-row">
+          <div class="theme-name">
+            {{ theme.name }}
+          </div>
+
+          <button
+            *ngIf="theme.id === 'default'"
+            type="button"
+            class="mode-toggle"
+            (click)="toggleDefaultMode(); $event.stopPropagation()"
+            [attr.aria-label]="'Default mode: ' + currentDefaultMode"
+            [disabled]="currentTheme !== 'default'"
+            [matTooltip]="currentDefaultMode === 'dark' ? 'Switch to light' : 'Switch to dark'"
+            [matTooltipDisabled]="currentTheme !== 'default'"
+          >
+            <mat-icon class="mode-icon">
+              {{ currentDefaultMode === 'dark' ? 'dark_mode' : 'light_mode' }}
+            </mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

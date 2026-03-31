@@ -1,47 +1,396 @@
 <div class="timeoff-container">
-  <div class="timeoff-page-header">
-    <div class="timeoff-page-header-top">
-      <mat-icon class="time-off-icon">beach_access</mat-icon>
-      <h1 class="timeoff-page-title">
-        Request Time Off
-      </h1>
-      <div class="title-inline-divider" aria-hidden="true"></div>
-      <p class="subtitle">Submit a request for vacation or leave.</p>
-    </div>
-    <div class="timeoff-page-divider"></div>
-  </div>
 
-  <div class="card">
-    <div class="row">
-      <div class="field">
-        <label>Start Date</label>
-        <input 
-          type="date"
-          class="start"
-          [min]="today"
-          [max]="endDate || null"
-          [(ngModel)]="startDate" 
-          (change)="onStartChange()"
-        />
+  <!-- ── List View ─────────────────────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && isListView" class="list-view">
+    <div class="list-header">
+      <div class="header-content">
+        <mat-icon class="header-icon">beach_access</mat-icon>
+        <h1>Time Off</h1>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="header-description">Submit and track your PTO and sick leave requests.</p>
       </div>
-
-      <div class="field">
-        <label>End Date</label>
-        <input 
-          type="date"
-          class="end"
-          [min]="startDate || today"
-          [(ngModel)]="endDate"
-          (change)="onEndChange()"
-        />
+      <div class="list-header-actions">
+        <button *ngIf="hasSubordinates" mat-stroked-button (click)="onViewPendingApprovals()">
+          <mat-icon>pending_actions</mat-icon>
+          Pending Approvals
+          <span *ngIf="pendingApprovals.length > 0" class="approval-count-badge">{{ pendingApprovals.length }}</span>
+        </button>
       </div>
     </div>
+    <div class="header-divider"></div>
 
-    <div class="field">
-      <label>Reason</label>
-      <textarea rows="3" placeholder="Optional"></textarea>
+    <mat-card class="list-card">
+      <div class="list-card-header">
+        <h2>My Requests</h2>
+        <button
+          mat-icon-button
+          class="create-pto-icon-btn"
+          matTooltip="New Time Off Request"
+          aria-label="New Time Off Request"
+          (click)="onCreateNew()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      <div class="list-card-divider"></div>
+
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="ptoRequests" class="pto-table">
+
+          <ng-container matColumnDef="startDate">
+            <th mat-header-cell *matHeaderCellDef>Start Date</th>
+            <td mat-cell *matCellDef="let req">{{ req.startDate }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="endDate">
+            <th mat-header-cell *matHeaderCellDef>End Date</th>
+            <td mat-cell *matCellDef="let req">{{ req.endDate }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let req">{{ req.type }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let req">
+              <span class="status-badge" [ngClass]="statusClass(req.status)">
+                {{ statusLabel(req.status) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let req">
+              <button
+                mat-icon-button
+                class="table-action-icon-button edit-action"
+                aria-label="View Request"
+                matTooltip="View"
+                (click)="onViewRequest(req)"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr *matNoDataRow class="mat-mdc-row no-data-row">
+            <td class="mat-mdc-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+              <div class="no-data-content">
+                <mat-icon>event_available</mat-icon>
+                <div class="no-data-title">No time off requests found</div>
+                <div class="no-data-subtitle">Submit your first request to track your PTO and sick leave.</div>
+                <button mat-raised-button class="create-pto-btn no-data-add-btn" (click)="onCreateNew()">
+                  <mat-icon>add</mat-icon>
+                  Submit Your First Request
+                </button>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- ── Pending Approvals View (supervisor) ──────────────────────────────── -->
+  <div *ngIf="!isLoading && isPendingApprovalsView" class="list-view">
+    <div class="list-header">
+      <div class="header-content">
+        <mat-icon class="header-icon">pending_actions</mat-icon>
+        <h1>Pending PTO Approvals</h1>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="header-description">Review and action time off requests from your team.</p>
+      </div>
+      <div class="list-header-actions">
+        <button mat-stroked-button (click)="onBackToList()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to My Requests
+        </button>
+      </div>
+    </div>
+    <div class="header-divider"></div>
+
+    <div *ngIf="isPendingApprovalsLoading" class="loading-spinner-container">
+      <mat-spinner></mat-spinner>
     </div>
 
-    <button type="button" class="primary-btn">Submit Request</button>
+    <mat-card *ngIf="!isPendingApprovalsLoading" class="list-card">
+      <div class="list-card-header">
+        <h2>Pending Requests</h2>
+      </div>
+      <div class="list-card-divider"></div>
+
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="pendingApprovals" class="pto-table">
+
+          <ng-container matColumnDef="employeeName">
+            <th mat-header-cell *matHeaderCellDef>Employee</th>
+            <td mat-cell *matCellDef="let req">{{ req.employeeName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="startDate">
+            <th mat-header-cell *matHeaderCellDef>Start Date</th>
+            <td mat-cell *matCellDef="let req">{{ req.startDate }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="endDate">
+            <th mat-header-cell *matHeaderCellDef>End Date</th>
+            <td mat-cell *matCellDef="let req">{{ req.endDate }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let req">{{ req.type }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let req">
+              <span class="status-badge" [ngClass]="statusClass(req.status)">
+                {{ statusLabel(req.status) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let req">
+              <button
+                mat-icon-button
+                class="table-action-icon-button edit-action"
+                aria-label="Review Request"
+                matTooltip="Review"
+                (click)="onReviewRequest(req)"
+              >
+                <mat-icon>rate_review</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="pendingColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: pendingColumns"></tr>
+          <tr *matNoDataRow class="mat-mdc-row no-data-row">
+            <td class="mat-mdc-cell no-data-cell" [attr.colspan]="pendingColumns.length">
+              <div class="no-data-content">
+                <mat-icon>check_circle</mat-icon>
+                <div class="no-data-title">No pending approvals</div>
+                <div class="no-data-subtitle">You have no time off requests awaiting your review.</div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </mat-card>
   </div>
+
+  <!-- ── Create Form View ────────────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && isCreateView" class="form-view">
+    <div class="form-header">
+      <div class="form-header-top">
+        <mat-icon class="form-header-icon">event_note</mat-icon>
+        <h1>New Time Off Request</h1>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="form-subtitle">Submit a request for vacation or leave.</p>
+      </div>
+      <div class="form-divider"></div>
+    </div>
+
+    <mat-card class="form-card">
+      <mat-card-content>
+        <form [formGroup]="ptoForm" class="pto-form">
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Employee Name</mat-label>
+            <input matInput [value]="currentUser?.name || ''" disabled />
+            <mat-icon matPrefix>person</mat-icon>
+          </mat-form-field>
+
+          <div class="date-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Start Date</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+              <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+              <mat-icon matPrefix>event</mat-icon>
+              <mat-error *ngIf="ptoForm.get('startDate')?.hasError('required')">
+                Start date is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>End Date</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+              <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+              <mat-icon matPrefix>event</mat-icon>
+              <mat-error *ngIf="ptoForm.get('endDate')?.hasError('required')">
+                End date is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="type">
+              <mat-option value="PTO">PTO (Vacation)</mat-option>
+              <mat-option value="SICK">Sick Leave</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>category</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Reason (optional)</mat-label>
+            <textarea
+              matInput
+              formControlName="reason"
+              rows="3"
+              placeholder="Optional notes for your supervisor"
+            ></textarea>
+            <mat-icon matPrefix>notes</mat-icon>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-raised-button class="cancel-btn" type="button" (click)="onBackToList()">
+              <mat-icon>arrow_back</mat-icon>
+              Cancel
+            </button>
+            <button
+              mat-raised-button
+              class="save-btn"
+              type="button"
+              (click)="onSubmitRequest()"
+              [disabled]="!ptoForm.valid"
+            >
+              <mat-icon>send</mat-icon>
+              Submit Request
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- ── View-Only (read-only detail + supervisor actions) ────────────────── -->
+  <div *ngIf="!isLoading && isViewOnly && selectedRequest" class="form-view view-only">
+    <div class="form-header">
+      <div class="form-header-top">
+        <mat-icon class="form-header-icon">rate_review</mat-icon>
+        <h1>Time Off Request</h1>
+        <span class="status-badge large" [ngClass]="statusClass(selectedRequest.status)">
+          {{ statusLabel(selectedRequest.status) }}
+        </span>
+        <div class="title-inline-divider" aria-hidden="true"></div>
+        <p class="form-subtitle">Reviewing time off request details.</p>
+      </div>
+      <div class="form-divider"></div>
+    </div>
+
+    <!-- Denial Reason Banner -->
+    <div
+      *ngIf="selectedRequest.status === 'DENIED' && selectedRequest.denialReason"
+      class="denial-banner"
+    >
+      <mat-icon>block</mat-icon>
+      <div>
+        <strong>Denial Reason:</strong>
+        <p>{{ selectedRequest.denialReason }}</p>
+      </div>
+    </div>
+
+    <mat-card class="form-card">
+      <mat-card-content>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <label>Employee</label>
+            <span>{{ selectedRequest.employeeName }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Type</label>
+            <span>{{ selectedRequest.type }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Start Date</label>
+            <span>{{ selectedRequest.startDate }}</span>
+          </div>
+          <div class="detail-item">
+            <label>End Date</label>
+            <span>{{ selectedRequest.endDate }}</span>
+          </div>
+          <div class="detail-item full-width" *ngIf="selectedRequest.reason">
+            <label>Reason</label>
+            <span>{{ selectedRequest.reason }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Submitted</label>
+            <span>{{ selectedRequest.createdDate }}</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button class="cancel-btn" type="button" (click)="onBackToList()">
+            <mat-icon>arrow_back</mat-icon>
+            Back to List
+          </button>
+        </div>
+
+        <!-- ── Supervisor Actions ──────────────────────────────────────── -->
+        <div
+          *ngIf="isSupervisorView && selectedRequest.status === 'PENDING'"
+          class="supervisor-actions"
+        >
+          <h3>Supervisor Actions</h3>
+
+          <div class="action-group">
+            <button
+              *ngIf="!showDenyPanel"
+              mat-raised-button
+              class="save-btn"
+              (click)="onApprovePTO()"
+            >
+              <mat-icon>check_circle</mat-icon>
+              Approve
+            </button>
+          </div>
+
+          <div class="action-group">
+            <button
+              mat-raised-button
+              color="warn"
+              (click)="showDenyPanel = !showDenyPanel"
+            >
+              <mat-icon>cancel</mat-icon>
+              {{ showDenyPanel ? 'Cancel' : 'Deny' }}
+            </button>
+            <div *ngIf="showDenyPanel" class="action-panel">
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>Reason for denial (optional)</mat-label>
+                <textarea
+                  matInput
+                  [(ngModel)]="denyReason"
+                  [ngModelOptions]="{standalone: true}"
+                  rows="3"
+                  placeholder="Provide a reason for denying this request..."
+                ></textarea>
+                <mat-icon matPrefix>feedback</mat-icon>
+              </mat-form-field>
+              <div class="action-panel-buttons">
+                <button
+                  mat-raised-button
+                  color="warn"
+                  (click)="onDenyPTO()"
+                >
+                  Confirm Denial
+                </button>
+                <button mat-button (click)="showDenyPanel = false">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
 </div>

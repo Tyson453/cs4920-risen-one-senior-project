@@ -1,21 +1,7 @@
+@import "../theme.scss";
 * {
   margin: 0;
   padding: 0;
-}
-
-:root {
-  --primary-bg: #121212;
-  --primary-surface: #212124;
-  --primary-surface-hover: #3f3f3f;
-  --primary-text: #F5F5F5;
-  --secondary-text: #717171;
-  --muted-text: #8b8b8b;
-  --primary-accent: #FFCE1B;
-  --primary-accent-soft: #e0a951;
-  --danger: #f44336;
-  --color-overlay-accent-26: rgba(255, 222, 33, 0.26);
-  --color-overlay-accent-32: rgba(255, 222, 33, 0.32);
-  --login-screen-bg: linear-gradient(135deg, #121212 15%, #FFCE1B 100%);
 }
 
 html,
@@ -129,7 +115,7 @@ tr.expanded {
 
 .header-menu-panel.mat-mdc-menu-panel {
   background-color: var(--primary-surface) !important;
-  border: 1px solid var(--primary-surface-hover) !important;
+  border: 2px solid var(--primary-surface-hover) !important;
 }
 
 .header-menu-panel .mat-mdc-menu-item {
@@ -151,11 +137,47 @@ tr.expanded {
   color: var(--primary-text) !important;
 }
 
+/* Daily Status Report dialog – ensure dark theme surface and readable text */
+.daily-status-report-dialog .mat-mdc-dialog-surface,
+.daily-status-report-dialog .mdc-dialog__surface {
+  background-color: var(--primary-surface) !important;
+  border: 2px solid var(--primary-surface-hover) !important;
+  color: var(--primary-text) !important;
+}
+
+.daily-status-report-dialog .mat-mdc-form-field .mat-mdc-input-element,
+.daily-status-report-dialog .mat-mdc-select-value-text {
+  color: #ffffff !important;
+}
+
+.daily-status-report-dialog .mat-mdc-form-field .mdc-floating-label,
+.daily-status-report-dialog .mat-mdc-form-field .mat-mdc-form-field-icon-prefix,
+.daily-status-report-dialog .mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  color: #ffffff !important;
+}
+
+/* Input backgrounds for dark theme (including Name / Date) */
+.daily-status-report-dialog .mat-mdc-form-field .mat-mdc-text-field-wrapper.mdc-text-field--filled,
+.daily-status-report-dialog .mat-mdc-form-field .mdc-text-field--outlined {
+  background-color: var(--primary-bg) !important;
+  border-radius: 4px !important;
+}
+
+.daily-status-report-dialog .mat-mdc-form-field.mat-form-field-disabled .mat-mdc-text-field-wrapper.mdc-text-field--filled {
+  background-color: #000000 !important;
+  opacity: 0.95 !important;
+}
+
+/* Report textarea placeholder – theme-aware muted color */
+.daily-status-report-dialog textarea::placeholder {
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
+}
+
 .cdk-overlay-pane.confirmation-modal .mat-mdc-dialog-container .mdc-dialog__surface,
 .confirmation-modal .mat-mdc-dialog-surface,
 .confirmation-modal .mdc-dialog__surface {
   background-color: var(--primary-surface) !important;
-  border: 1px solid var(--primary-surface-hover) !important;
+  border: 2px solid var(--primary-surface-hover) !important;
   border-radius: 0.5rem !important;
   color: var(--primary-text) !important;
 }

@@ -20,16 +20,13 @@ export class AppHeaderComponent implements OnInit {
   @ViewChild('accountSection') accountSection?: ElementRef;
 
   constructor(
-    private router: Router,
     private authService: AuthService
   ) {}
 
-  ngOnInit() {}
-
-  // ✅ Logout function for menu
-  logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+  ngOnInit() {
+      this.authService.getUser().then((user: any) => {
+      this.user = user;
+    });
   }
 
   toggleAccountCard(event: MouseEvent) {

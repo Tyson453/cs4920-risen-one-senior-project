@@ -5,6 +5,18 @@ provider:
   name: aws
   runtime: nodejs16.x
   region: us-east-2
+  apiGateway:
+    gatewayResponses:
+      DEFAULT_4XX:
+        statusCode: 401
+        responseHeaders:
+          Access-Control-Allow-Origin: "'*'"
+          Access-Control-Allow-Credentials: "true"
+      DEFAULT_5XX:
+        statusCode: 500
+        responseHeaders:
+          Access-Control-Allow-Origin: "'*'"
+          Access-Control-Allow-Credentials: "true"
 
   environment:
     TRAININGS_TABLE: trainings
@@ -36,11 +48,18 @@ provider:
             - arn:aws:dynamodb:${self:provider.region}:*:table/trainings/index/*
             - arn:aws:dynamodb:${self:provider.region}:*:table/certifications
             - arn:aws:dynamodb:${self:provider.region}:*:table/certifications/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/ptoRequests
+            - arn:aws:dynamodb:${self:provider.region}:*:table/ptoRequests/index/*
         - Effect: Allow
           Action:
             - dynamodb:ConditionCheckItem
           Resource:
             - arn:aws:dynamodb:${self:provider.region}:*:table/teams
+        - Effect: Allow
+          Action:
+            - ses:SendEmail
+            - ses:SendRawEmail
+          Resource: '*'
 
 plugins:
   - serverless-dynamodb
@@ -207,6 +226,27 @@ resources:
             Projection:
               ProjectionType: ALL
 
+    PtoRequestsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ptoRequests
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: ptoId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ptoId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+
 functions:
   login:
     handler: src/handlers/login.handler
@@ -228,13 +268,66 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
             allowCredentials: true
+  requestPasswordReset:
+    handler: src/handlers/request-password-reset.handler
+    environment:
+      USERS_TABLE: users
+      APP_BASE_URL: ${env:APP_BASE_URL, 'http://localhost:4200'}
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+      SEND_PASSWORD_RESET_EMAIL: 'true'
+      SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
+      ALLOW_SEND_EMAIL_LOCAL: ${env:ALLOW_SEND_EMAIL_LOCAL, ''}
+    events:
+      - http:
+          path: password-reset/request
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  completePasswordReset:
+    handler: src/handlers/complete-password-reset.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: password-reset/complete
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
   createTraining:
     handler: src/handlers/create-training.handler
     events:
       - http:
           path: trainings
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: jwtAuthorizer
 
   getTrainings:
@@ -243,7 +336,16 @@ functions:
       - http:
           path: trainings/{userId}
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: jwtAuthorizer
 
   createCertification:
@@ -252,7 +354,16 @@ functions:
       - http:
           path: certifications
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: jwtAuthorizer
 
   getCertifications:
@@ -261,15 +372,24 @@ functions:
       - http:
           path: certifications/{userId}
           method: get
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: jwtAuthorizer
   jwtAuthorizer:
-    handler: src/handlers/authorizer.handler
+    handler: src/authorizers/authorizer.handler
     environment:
       JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
 
   adminJwtAuthorizer:
-    handler: src/handlers/admin-authorizer.handler
+    handler: src/authorizers/admin-authorizer.handler
     environment:
       JWT_SECRET: ${env:JWT_SECRET, 'dev-secret-change-in-production'}
 
@@ -284,7 +404,16 @@ functions:
       - http:
           path: import-data
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
 
   createUser:
     handler: src/handlers/create-user.handler
@@ -292,12 +421,72 @@ functions:
       USERS_TABLE: users
       PROJECTS_TABLE: projects
       DAILY_STATUS_TABLE: dailyStatus
+      APP_BASE_URL: ${env:APP_BASE_URL, 'http://localhost:4200'}
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+      SEND_ONBOARDING_EMAIL: 'true'
+      SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
+      ALLOW_SEND_EMAIL_LOCAL: ${env:ALLOW_SEND_EMAIL_LOCAL, ''}
     events:
       - http:
           path: create-user
           method: post
-          cors: true
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
           authorizer: adminJwtAuthorizer
+
+  resendOnboardingEmail:
+    handler: src/handlers/resend-onboarding-email.handler
+    environment:
+      USERS_TABLE: users
+      APP_BASE_URL: ${env:APP_BASE_URL, 'http://localhost:4200'}
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+      SEND_ONBOARDING_EMAIL: 'true'
+      SES_FROM_EMAIL: ${env:SES_FROM_EMAIL, 'noreply@example.com'}
+      ALLOW_SEND_EMAIL_LOCAL: ${env:ALLOW_SEND_EMAIL_LOCAL, ''}
+    events:
+      - http:
+          path: users/{uuid}/resend-onboarding-email
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+          authorizer: adminJwtAuthorizer
+
+  setPassword:
+    handler: src/handlers/set-password.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: set-password
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+          authorizer: jwtAuthorizer
 
   getTeamsAdmin:
     handler: src/handlers/get-teams-admin.handler
@@ -494,6 +683,114 @@ functions:
               - X-Amz-User-Agent
             allowCredentials: true
 
+  # ── Daily Status (DSU) ───────────────────────────────────────────────────────
+
+  getDailyStatus:
+    handler: src/handlers/get-daily-status.handler
+    environment:
+      DAILY_STATUS_TABLE: dailyStatus
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-status
+          method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  upsertDailyReport:
+    handler: src/handlers/upsert-daily-report.handler
+    environment:
+      DAILY_STATUS_TABLE: dailyStatus
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-report/{userId}/{date}
+          method: put
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  deleteDailyReport:
+    handler: src/handlers/delete-daily-report.handler
+    environment:
+      DAILY_STATUS_TABLE: dailyStatus
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-report/{userId}/{date}
+          method: delete
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  sendMonthlyDailyStatus:
+    handler: src/handlers/send-monthly-daily-status.handler
+    environment:
+      DAILY_STATUS_TABLE: dailyStatus
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-status/monthly-email
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  sendDailyStatusEmail:
+    handler: src/handlers/send-daily-status-email.handler
+    environment:
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: daily-status/send-report-email
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
   assignTeamMember:
     handler: src/handlers/assign-team-member.handler
     environment:
@@ -567,7 +864,7 @@ functions:
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:
-          path: pdt/{userId}
+          path: pdt/user/{userId}
           method: get
           authorizer: jwtAuthorizer
           cors:
@@ -716,6 +1013,114 @@ functions:
     events:
       - http:
           path: pdt/{pdtId}/request-changes
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  # ── PTO / Time Off ───────────────────────────────────────────────────────────
+
+  createPTO:
+    handler: src/handlers/create-pto.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      USERS_TABLE: users
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getPTORequests:
+    handler: src/handlers/get-pto-requests.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto/user/{userId}
+          method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getPendingPTO:
+    handler: src/handlers/get-pending-pto.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto/supervisor/pending
+          method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  approvePTO:
+    handler: src/handlers/approve-pto.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto/{ptoId}/approve
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  denyPTO:
+    handler: src/handlers/deny-pto.handler
+    environment:
+      PTO_TABLE: ptoRequests
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: pto/{ptoId}/deny
           method: post
           authorizer: jwtAuthorizer
           cors:

@@ -23,7 +23,7 @@ const CORS_HEADERS = {
 };
 
 function sanitizeUser(user) {
-  const { password, username, ...safe } = user;
+  const { password, ...safe } = user;
   return { ...safe, id: safe.uuid };
 }
 

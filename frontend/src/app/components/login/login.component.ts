@@ -1,13 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import {provideNativeDateAdapter} from '@angular/material/core';
 import { AuthService } from '../../services/auth.service';
-
-
-interface previousRequest {
-  value: string;
-  viewValue: string;
-}
 
 
 @Component({
@@ -15,11 +8,6 @@ interface previousRequest {
   providers: [provideNativeDateAdapter()],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
-  template: `
-  <input type="text" [(ngModel)]="username" placeholder="Username">
-  <input type="password" [(ngModel)]="password" placeholder="Password">
-  <button (click)="login()">Login</button>
-`
 })
 export class LoginComponent implements OnInit {
   username: string = ''; // Initialize with an empty string
@@ -27,12 +15,11 @@ export class LoginComponent implements OnInit {
   loginError: boolean = false;
   errorMessage: string = '';
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService) { }
 
   ngOnInit() {
     localStorage.removeItem('authToken');
     sessionStorage.clear();
-    document.body.classList.add('login-page');
   }
 
   login() {
@@ -40,10 +27,8 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.username, this.password)
       .subscribe({
         next: (success) => {
-          console.log('Subscribe next called with success:', success);
           if (success) {
-            // Navigate to home component if login is successful
-            this.router.navigate(['/home']);
+            // AuthService handles redirect (home or set-password for temp password)
           } else {
             // Handle login failure
             this.loginError = true;

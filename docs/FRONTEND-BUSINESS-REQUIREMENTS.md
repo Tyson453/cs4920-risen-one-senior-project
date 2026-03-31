@@ -12,7 +12,9 @@ The ROC Employee Portal is an internal web application for:
 - **Daily status reporting (DSU)** — employees submit daily updates by project; leads/admins can view and manage team reports.
 - **Navigation** to multiple functional areas from a home dashboard (some routes are not yet implemented).
 
-The app uses **Angular** with **Angular Material**, a **serverless AWS backend** (Lambda + DynamoDB), and role-based access (**EMPLOYEE**, **LEAD**, **PM**, **ADMIN**, **INTERIM_LEAD**).
+The app uses **Angular** with **Angular Material**, a **serverless AWS backend** (Lambda + DynamoDB), and role-based access (**EMPLOYEE**, **LEAD**, **PM**, **ADMIN**, **INTERIM_LEAD**, **TESTER**).
+
+Implemented feature areas include: authentication, daily status reporting, employee development (PDT) with full supervisor approval workflow, team summary, and a certification & training page (partial).
 
 ---
 
@@ -127,18 +129,18 @@ These components wrap all authenticated content (hidden on `/login`).
 | **User greeting** | “Welcome, {user.name}” (desktop and mobile variants). |
 | **Profile link** | User photo/avatar is clickable and navigates to `/profile/{user.uuid}`. *Route/component not implemented.* |
 | **Loading** | Show progress spinner while resolving user (e.g. `getUser()`). |
-| **Dashboard cards** | Six (or more) action cards; each has icon, title, and primary action. |
+| **Dashboard cards** | Six (or more) action cards; each has icon, title, and primary action. Cards support **drag-and-drop reordering** with order persisted to `localStorage`. |
 
 ### 5.2 Dashboard card actions (required behavior)
 
 | Card | Title | Button / link | Route / behavior |
 |------|--------|----------------|-------------------|
-| 1 | DAILY STATUS | “Submit” | Navigate to `/daily-status`. |
-| 2 | EMPLOYEE DEVELOPMENT | “View/Edit” | Navigate to `/reports/personal-dev`. *Not implemented.* |
+| 1 | DAILY STATUS | “Submit” | Navigate to `/daily-status`. ✅ Implemented. |
+| 2 | EMPLOYEE DEVELOPMENT | “View/Edit” | Navigate to `/reports/personal-dev`. ✅ Implemented. |
 | 3 | TIME OFF | “Submit” | Navigate to `/time-off`. *Not implemented.* |
-| 4 | ROC TEAM PAGE | “View All” | Navigate to `/team-summary`. *Not implemented.* |
-| 5 | PROJECTS | “View All” | Navigate to `/dashboard`. *Not implemented.* |
-| 6 | CERTIFICATION & TRAINING | “View/Manage” | Navigate to `/certification`. *Not implemented.* |
+| 4 | ROC TEAM PAGE | “View All” | Navigate to `/team-summary`. ✅ Implemented. |
+| 5 | PROJECTS | “View All” | Navigate to `/projects`. *Not implemented.* |
+| 6 | CERTIFICATION & TRAINING | “View/Manage” | Navigate to `/certification-training`. ✅ Route exists; UI is stub (real data not wired). |
 | 7 | PORTAL SUPPORT | “Request Enhancement” / “Report a Bug” | External links (e.g. mailto or ticket system); hrefs currently empty. |
 
 All of the above **routes and labels** are required from a product perspective; which cards to implement in the first phase of the redesign is a scope decision.
@@ -179,7 +181,7 @@ This is the main implemented feature: employees submit and view **Daily Status U
 
 | Requirement | Visibility | Action |
 |------------|------------|--------|
-| **Add Report** | Only when viewing **own** reports (`realUser === user`) | Opens **Add/Edit Report** dialog (Report Dialog). |
+| **Add Report** | Only when viewing **own** reports (`realUser === user`) | Opens **Add/Edit Report** dialog (Report Dialog). Available both in the empty state and as a primary button in the “Run Report” card header. |
 | **Update Range** | Desktop: inline; Mobile: button that opens modal | Apply date range or open **Update Date Range** modal. |
 | **Return to Overview** | LEAD | Link to `/team/team-daily-status`. |
 | **Return to Overview** | ADMIN | Link to `/admin/admin-daily-status`. |
@@ -208,19 +210,25 @@ This is the main implemented feature: employees submit and view **Daily Status U
 |------------|-------------|
 | **Mode** | **Add:** default to today’s date and empty project text. **Edit:** prefill with existing report (date, project text, project status). |
 | **Display** | User name and date (read-only). One section per **assigned project** (filtered by user’s `assignments`; exclude “Inactive” projects). |
-| **Project sections** | Per project: text area for report text (required), and optionally **Project Status** (Healthy / Attention / Urgent) for LEAD/PM. |
-| **Project status** | Radio options: Healthy (green), Attention (yellow), Urgent (red). Only shown for users with role LEAD or PM. |
+| **Project sections** | Per project: text area for report text (required), and optionally **Project Status** (Healthy / Attention / Urgent) for LEAD/PM. Sections are grouped under a dark-themed dialog with a clear legend explaining each status. |
+| **Project status** | Dropdown options: Healthy (green), Attention (yellow), Urgent (red). Only shown for users with role LEAD or PM. |
 | **Default project** | If user has no assignments, show a single “Onboarding” (or default) project. |
 | **Save Draft** | Submit with `draft: true`; report not emailed; show success “saved as draft”. Only show for new or currently draft reports. |
 | **Submit** | Submit with `draft: false`; save report and send email to team lead; show success “emailed to your team lead”. |
 | **Cancel** | Close dialog without saving. |
-| **Validation** | Submit disabled when form invalid (e.g. missing required report text). Save Draft disabled when form not dirty. |
+| **Validation** | Submit disabled when form invalid (e.g. missing required report text) with visual affordance (reduced emphasis); Save Draft disabled when form not dirty. |
 | **Errors** | On API error, show standard error dialog (e.g. “Error saving report”). |
 
 ### 7.2 API contract (conceptual)
 
 - **Create/update report:** e.g. `createReport(params, userId, date)` with `params`: `{ draft, projects: [{ projectId, reportText, reportStatus? }] }`.
 - **Send email:** `sendEmail({ uuid, text, date })` after successful submit.
+
+### 7.3 Styling / UX
+
+- Dialog uses the same dark-themed surface, typography, and button styles as other application dialogs (e.g. PDT forms).
+- Name and Date fields are rendered as disabled filled text fields with dark backgrounds and high-contrast text for readability.
+- Report text areas and status dropdowns use theme-aware placeholder and label colors that respect the current theme.
 
 ---
 
@@ -236,16 +244,21 @@ This is the main implemented feature: employees submit and view **Daily Status U
 | **Title** | “{user.name}'s Report ({report.date})”. |
 | **Content** | Submitter name; date submitted; project(s); full report text (per project); for leads, project status per project. |
 | **Admin** | If viewer is admin, show submitter’s email. |
-| **Layout** | Desktop: side-by-side metadata and report text; mobile: stacked layout. |
+| **Layout** | Desktop: side-by-side metadata and report text; mobile: stacked layout, using the same dark dialog surface and typography as the Report Dialog. |
 | **Close** | “Close” button closes dialog. |
 | **Delete** | Visible when `role != ''` (e.g. lead/admin/pm). Deletes report and shows success; dialog closes. |
-| **Options menu** | “Options” dropdown: **Edit** (ADMIN or report owner) opens Report Dialog with this report; **Export to PDF** (placeholder; export logic commented out). |
+| **Options menu** | “Options” dropdown: **Edit** (ADMIN or report owner) opens Report Dialog with this report; **Export to PDF** opens a print-ready view of the report so the user can “Save as PDF”. |
 | **Loading** | Show loading indicator until report/user data ready. |
 
 ### 8.2 API
 
 - **Delete:** `deleteReport(userId, date)`.
 - **Edit:** Opens `ReportDialogComponent` with `data: { report, user }`.
+
+### 8.3 Styling / UX
+
+- Dialog uses the `daily-status-report-dialog` panel class to share dark-themed dialog styling with the Report Dialog.
+- Metadata and report text are rendered with high-contrast text colors on a dark surface; action buttons reuse the same filled/outlined patterns as other dialogs.
 
 ---
 
@@ -427,22 +440,28 @@ Opened when user clicks "View" on a PENDING_APPROVAL or APPROVED PDT.
 | **Supervisor comments** | If status is CHANGES_REQUESTED, display supervisor's comments in a highlighted section. |
 | **Actions** | "Back to List" button. If CHANGES_REQUESTED, show "Edit" button to allow employee to make changes. |
 
-### 11.7 Supervisor Actions (Next Phase)
+### 11.7 Supervisor Actions
 
-**Prerequisites now in place:**
+**Prerequisites in place:**
 - ✅ Real authentication — login stores user object (roles, supervisorId) in session
 - ✅ Role checks read real session data (`adminCheck`, `leadCheck`, etc.)
 - ✅ `supervisorId` field supported in backend (`create-user.js`, `update-user.js`) and assignable via Admin UI
-- ✅ Backend Lambda functions for employee-side PDT CRUD are implemented
+- ✅ Backend Lambda functions for employee-side and supervisor-side PDT workflow are implemented
 
-**Remaining to implement:**
+**Implemented:**
 
 | Requirement | Description |
 |------------|-------------|
-| **Supervisor view** | Supervisors can see a list of pending PDT approvals from their direct reports. |
-| **Review PDT** | Supervisor can view the full PDT record. |
-| **Approve** | Supervisor can approve the PDT; this adds their signature and changes status to APPROVED. Requires typing their full name as signature. |
-| **Request Changes** | Supervisor can request changes; requires entering comments. Changes status to CHANGES_REQUESTED and notifies employee. |
+| **Supervisor view** | ✅ Users with LEAD, PM, or ADMIN roles see a "Pending Approvals" button in the page header with a count badge. Clicking toggles a separate table of PENDING_APPROVAL records from their direct reports. |
+| **Review PDT** | ✅ Supervisor clicks "Review" on any pending record; the full PDT form opens in read-only mode. |
+| **Approve** | ✅ Inline approve panel beneath the read-only form; supervisor types their full name as signature and confirms. Status transitions PENDING_APPROVAL → APPROVED. |
+| **Request Changes** | ✅ Inline request-changes panel (mutually exclusive with approve panel); supervisor enters comments and confirms. Status transitions PENDING_APPROVAL → CHANGES_REQUESTED. |
+| **Backend detection** | ✅ Backend (`get-pending-approvals.js`) scans the table for PENDING_APPROVAL records where `supervisorId` matches the JWT user's uuid. `submit-pdt.js` looks up and stores `supervisorId` from the users table at submission time. |
+
+**Not yet implemented:**
+
+| Requirement | Description |
+|------------|-------------|
 | **Email notifications** | When PDT is submitted for approval, supervisor receives email with PDF attachment and link to review. |
 | **Audit trail** | All status changes and actions are logged with timestamp and user ID. |
 
@@ -450,18 +469,18 @@ Opened when user clicks "View" on a PENDING_APPROVAL or APPROVED PDT.
 
 Service: `PDTService` in `services/pdt.service.ts`
 
-**Basic CRUD (implemented — real HTTP calls):**
-- `getPDTRecords(userId: string): Observable<PDT[]>` — GET `/pdt/{userId}`; returns records sorted newest-first
+**All methods are real HTTP calls (no stubs):**
+- `getPDTRecords(userId: string): Observable<PDT[]>` — GET `/pdt/user/{userId}`; returns records sorted newest-first
 - `createPDT(pdt: Partial<PDT>): Observable<any>` — POST `/pdt`; backend sets status=DRAFT and generates pdtId; returns `{ success: true, id }`
 - `updatePDT(pdtId: string, pdt: Partial<PDT>): Observable<any>` — PUT `/pdt/{pdtId}`; only allowed for DRAFT/CHANGES_REQUESTED
 - `deletePDT(pdtId: string): Observable<any>` — DELETE `/pdt/{pdtId}`; only allowed for DRAFT
-- `submitPDTForApproval(pdtId: string): Observable<any>` — POST `/pdt/{pdtId}/submit`; transitions DRAFT/CHANGES_REQUESTED → PENDING_APPROVAL
+- `submitPDTForApproval(pdtId: string): Observable<any>` — POST `/pdt/{pdtId}/submit`; transitions DRAFT/CHANGES_REQUESTED → PENDING_APPROVAL; backend looks up and stores `supervisorId` from the users table
+- `getPendingApprovals(): Observable<PDT[]>` — GET `/pdt/supervisor/pending`; returns PENDING_APPROVAL records where `supervisorId` matches JWT user
+- `approvePDT(pdtId: string, supervisorSignature: string): Observable<any>` — POST `/pdt/{pdtId}/approve`; sets superSignature, transitions → APPROVED
+- `requestPDTChanges(pdtId: string, comments: string): Observable<any>` — POST `/pdt/{pdtId}/request-changes`; sets supervisorComments, transitions → CHANGES_REQUESTED
 
-**Approval Workflow (stubs — future implementation):**
-- `approvePDT(pdtId: string, supervisorSignature: string): Observable<any>` — Supervisor approves PDT; changes status to APPROVED
-- `requestPDTChanges(pdtId: string, changeComments: string): Observable<any>` — Supervisor requests changes; changes status to CHANGES_REQUESTED
+**Not yet implemented:**
 - `sendPDTApprovalEmail(pdtId: string, supervisorEmail: string): Observable<any>` — Send approval email with PDF to supervisor
-- `getPendingApprovals(supervisorId: string): Observable<PDT[]>` — Get all pending PDTs for a supervisor to review
 - `auditDevelopments(userId: string): Observable<any>` — Get audit log of PDT changes
 
 ### 11.9 Backend Implementation
@@ -475,16 +494,17 @@ Service: `PDTService` in `services/pdt.service.ts`
 
 | Handler | Method | Path | Status guard |
 |---------|--------|------|--------------|
-| `get-pdt-records.js` | GET | `/pdt/{userId}` | None |
+| `get-pdt-records.js` | GET | `/pdt/user/{userId}` | None |
 | `create-pdt.js` | POST | `/pdt` | None (always creates as DRAFT) |
 | `update-pdt.js` | PUT | `/pdt/{pdtId}` | Rejects if status ∉ {DRAFT, CHANGES_REQUESTED} |
 | `delete-pdt.js` | DELETE | `/pdt/{pdtId}` | Rejects if status ≠ DRAFT |
-| `submit-pdt.js` | POST | `/pdt/{pdtId}/submit` | Rejects if status ∉ {DRAFT, CHANGES_REQUESTED} |
+| `submit-pdt.js` | POST | `/pdt/{pdtId}/submit` | Rejects if status ∉ {DRAFT, CHANGES_REQUESTED}; looks up and stores supervisorId |
+| `get-pending-approvals.js` | GET | `/pdt/supervisor/pending` | Scans for PENDING_APPROVAL where supervisorId matches JWT uuid |
+| `approve-pdt.js` | POST | `/pdt/{pdtId}/approve` | Rejects if status ≠ PENDING_APPROVAL; sets superSignature, status → APPROVED |
+| `request-pdt-changes.js` | POST | `/pdt/{pdtId}/request-changes` | Rejects if status ≠ PENDING_APPROVAL; sets supervisorComments, status → CHANGES_REQUESTED |
 
 **Lambda Functions (not yet implemented — future phases):**
-- `approvePDT` — POST `/pdt/{pdtId}/approve` — Supervisor approval; sets superSignature, status → APPROVED
-- `requestChanges` — POST `/pdt/{pdtId}/request-changes` — Sets supervisorComments, status → CHANGES_REQUESTED
-- `sendApprovalEmail` — Send email via SES with PDF attachment
+- `sendApprovalEmail` — Send email via SES with PDF attachment when PDT is submitted for approval
 
 **PDF Generation (not yet implemented):**
 - Generate PDF from PDT record data including all goals, action plan, and signatures
@@ -515,21 +535,22 @@ Service: `PDTService` in `services/pdt.service.ts`
 - ✅ PDTService with real HTTP calls (no stubs); normalizes `pdtId` → `id` from backend response
 - ✅ Integration with AuthService (awaits user Promise before loading records) and DialogService
 - ✅ DynamoDB table `personalDevelopmentTraining` defined in `serverless.yml`
-- ✅ Five Lambda functions covering employee-side CRUD and submit workflow
-- ✅ Backend status validation (update/delete/submit enforce allowed statuses server-side)
+- ✅ Eight Lambda functions covering full employee and supervisor workflow (see section 11.9)
+- ✅ Backend status validation (update/delete/submit/approve/request-changes enforce allowed statuses server-side)
 - ✅ Real authentication — session reads actual user roles and `supervisorId`
 - ✅ `supervisorId` assignable via Admin UI; stored in DynamoDB user record
+- ✅ **Supervisor-facing UI:** "Pending Approvals" button with count badge for users with LEAD/PM/ADMIN roles
+- ✅ **Supervisor pending list:** Table showing PENDING_APPROVAL records from direct reports
+- ✅ **Inline Approve panel:** Supervisor enters typed signature; transitions PDT to APPROVED
+- ✅ **Inline Request Changes panel:** Supervisor enters comments; transitions PDT to CHANGES_REQUESTED (panels are mutually exclusive)
 
 **What is NOT implemented (next phase):**
-- ❌ Supervisor-facing UI: pending approvals list, approve action, request-changes action
-- ❌ Backend Lambda functions: `approvePDT`, `requestChanges`, `sendApprovalEmail`
-- ❌ Email notifications via SES
+- ❌ Email notifications via SES (on submit, approve, or changes requested)
 - ❌ PDF generation and attachment
 - ❌ Audit trail (log of all status transitions)
-- ❌ Role-based access (identifying who is a supervisor for a given employee)
 - ❌ Table filtering by status
 
-**Note:** The employee-side workflow (create → draft → submit → view while pending → edit if changes requested → resubmit) is fully functional end-to-end. The supervisor-side workflow (approve / request changes) requires the supervisor Lambda functions, SES email integration, and role-based routing to be built in a future phase.
+**Note:** The full end-to-end workflow — employee creates/edits/submits, supervisor approves or requests changes, employee revises and resubmits — is implemented. Remaining work is email notification and PDF generation.
 
 ---
 
@@ -630,9 +651,9 @@ getTeammates(teamName: string | null, pmTeamNames?: string[]): Promise<TeamSumma
 - ✅ Project name mapping
 - ✅ Team grouping by teamName and pmTeams
 - ✅ Routing: `/team-summary`
+- ✅ Real backend API endpoints (`get-teammates.js` for non-admins, `get-teams-admin.js` for admins); no more mock data
 
 **What is NOT implemented:**
-- ❌ Backend API endpoints (using mock data via UserApiService stubs)
 - ❌ Real-time team updates
 - ❌ Search/filter functionality
 - ❌ Export team roster to CSV/PDF
@@ -640,23 +661,83 @@ getTeammates(teamName: string | null, pmTeamNames?: string[]): Promise<TeamSumma
 
 ---
 
-## 13. Referenced but Not Yet Implemented Pages
+## 13. Certification & Training Page
 
-These are **required from a product/navigation perspective** (links exist on Home or Daily Status) but have **no routes or components** yet. The redesign should account for them.
+**Route:** `/certification-training`
+**Component:** `CertificationTrainingComponent`
+**Access:** All authenticated users.
 
-| Route | Description (intent) |
-|-------|------------------------|
-| `/profile/:uuid` | User profile (view/edit own or others' profile). |
-| `/time-off` | Time-off (PTO/sick) submission. |
-| `/dashboard` | Projects list/dashboard. |
-| `/certification` | Certification and training — view/manage. |
-| `/team/team-daily-status` | Lead view of team daily status. |
-| `/admin/admin-daily-status` | Admin view of daily status. |
-| `/pm/pm-daily-status` | PM view of daily status. |
+This page allows employees to view and manage their certifications and training records. Backend Lambda functions and DynamoDB tables have been created; the frontend currently displays stub data (real API integration is pending).
+
+### 13.1 Page-level requirements
+
+| Requirement | Description |
+|------------|-------------|
+| **Title** | "Certification & Training". |
+| **Search** | Filter list by name/keyword (client-side). |
+| **Add button** | "Add" button in header; opens a form dialog to add a new certification or training record. *Dialog not yet implemented.* |
+| **List view** | Table/card list showing all certifications and training items for the current user. |
+| **Empty state** | When user has no records, show friendly message. |
+
+### 13.2 Record Structure
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier |
+| `name` | string | Certification or training name |
+| `type` | string | "Certification" or "Course" |
+| `icon` | string | Material icon name |
+| `status` | string | "Active", "Completed", "Due soon", etc. |
+
+### 13.3 Backend Implementation
+
+**DynamoDB Tables:** Separate tables for certifications and trainings (defined in `serverless.yml`).
+
+**Lambda Functions (implemented in `backend/src/handlers/`):**
+
+| Handler | Method | Path |
+|---------|--------|------|
+| `get-certifications.js` | GET | `/certifications/{userId}` |
+| `create-certification.js` | POST | `/certifications` |
+| `get-trainings.js` | GET | `/trainings/{userId}` |
+| `create-training.js` | POST | `/trainings` |
+
+### 13.4 Current Implementation Status
+
+**What is implemented:**
+- ✅ Routing: `/certification-training`
+- ✅ Basic page UI with search filter and Add button
+- ✅ List/card display of items with icon, name, type, and status
+- ✅ Backend Lambda functions for get and create (certifications and trainings)
+- ✅ DynamoDB tables defined in `serverless.yml`
+
+**What is NOT implemented:**
+- ❌ Frontend service integration — component shows hardcoded stub data; real API calls not wired
+- ❌ Add/edit dialog for creating new records through the UI
+- ❌ Delete functionality
+- ❌ Status management (e.g. renew, mark complete)
+- ❌ Update Lambda functions (PUT)
+- ❌ Delete Lambda functions (DELETE)
 
 ---
 
-## 14. Shared Components & Global Behavior
+## 14. Referenced but Not Yet Implemented Pages
+
+These are **required from a product/navigation perspective** (links exist on Home or Daily Status) but have **no routes or components** yet (or exist only as stubs). The redesign should account for them.
+
+| Route | Description (intent) | Status |
+|-------|------------------------|--------|
+| `/profile/:uuid` | User profile (view/edit own or others' profile). | ❌ No route/component. |
+| `/time-off` | Time-off (PTO/sick) submission. | ❌ No route/component. |
+| `/projects` | Projects list/dashboard. | ❌ No route/component. |
+| `/certification-training` | Certification and training — view/manage. | ⚠️ Route and basic UI exist; backend ready but not wired (see Section 13). |
+| `/team/team-daily-status` | Lead view of team daily status. | ❌ No route/component. |
+| `/admin/admin-daily-status` | Admin view of daily status. | ❌ No route/component. |
+| `/pm/pm-daily-status` | PM view of daily status. | ❌ No route/component. |
+
+---
+
+## 15. Shared Components & Global Behavior
 
 ### 14.1 Dialogs (DialogService)
 
@@ -682,36 +763,40 @@ These are **required from a product/navigation perspective** (links exist on Hom
 
 ---
 
-## 15. Data & API Summary
+## 16. Data & API Summary
 
-### 15.1 Backend (existing)
+### 16.1 Backend (existing)
 
 - **Login:** POST with `{ username, password }`; validates against DynamoDB `users` (key `username` in login handler; note: import-data uses `uuid` for users table — confirm key alignment).
 - **Import data:** POST to seed users, projects, and daily reports.
-- **Tables:** `users`, `projects`, `dailyStatus` (see serverless.yml).
+- **Tables:** `users`, `projects`, `dailyStatus`, `personalDevelopmentTraining`, plus tables for certifications and trainings (see serverless.yml).
 
-### 15.2 Frontend services (intended API surface)
+### 16.2 Frontend services (API surface — real vs stub)
 
-- **Auth:** Login, logout, getUser, role checks (stub/mock in places).
-- **Daily reports:** getReportsNew, createReport, deleteReport, addUserToReportsTable, getMonthlyList, sendEmail; **getAllProjects**.
-- **Projects:** getProjects, getProjectInfo, addProject, editProject, deleteProject.
-- **Users:** getUserInfo(uuid), getUsers (for leads/admins), **getTeamsForAdmin()** (returns organizational and PM teams), **getTeammates(teamName, pmTeamNames)** (returns user's teammates).
-- **PDT:** getPDTRecords, createPDT, updatePDT, deletePDT, submitPDTForApproval, approvePDT, requestPDTChanges, sendPDTApprovalEmail, getPendingApprovals, auditDevelopments.
+| Service area | Methods | Status |
+|---|---|---|
+| **Auth** | login, logout, getUser, role checks | ✅ Real |
+| **Daily reports** | getReportsNew, createReport, deleteReport, getMonthlyList, sendEmail, getAllProjects | ✅ Real (wired to new Lambda endpoints for daily status CRUD and email workflows). |
+| **Projects** | getProjects, getProjectInfo, addProject, editProject, deleteProject | ✅ Real |
+| **Users** | getUserInfo, getUsers, updateUser, deleteUser | ✅ Real |
+| **Team Summary** | getTeamsForAdmin(), getTeammates(teamName, pmTeamNames) | ✅ Real (real backend endpoints) |
+| **PDT** | getPDTRecords, createPDT, updatePDT, deletePDT, submitPDTForApproval, getPendingApprovals, approvePDT, requestPDTChanges | ✅ Real |
+| **PDT** | sendPDTApprovalEmail, auditDevelopments | ❌ Not yet implemented |
+| **Certifications/Trainings** | get, create | ❌ Backend exists; frontend service not wired (component shows stub data) |
 
-Many of these currently return **mock data** or `of([])`; the redesign should assume real endpoints will be implemented to match these contracts.
+### 16.3 Key entities
 
-### 15.3 Key entities
-
-- **User:** uuid, name, email, roles, assignments, teamName, pmTeams, requestedPTO, etc.
+- **User:** uuid, name, email, roles, assignments, teamName, pmTeams, supervisorId, requestedPTO, maxHours, maxSickHours, etc.
 - **Project:** uuid, projectName, projectFullName, status (Active/Inactive), etc.
-- **Daily report:** uuid, userId, date, projects: [{ projectId, reportText, reportStatus }], reportStatus (boolean submitted flag).
-- **PDT:** id, empName, shortTermGoals, mediumTermGoals, longTermGoals, developmentNeeds, actionPlan, empSignature, superSignature, createdDate, createdTimestamp, status, supervisorComments.
+- **Daily report:** uuid, userId, date (string, e.g. `YYYY/MM/DD` in storage), projects: [{ projectId, reportText, reportStatus }], reportStatus (string flag `"DRAFT"` or `"SUBMITTED"` used to derive UI status), updatedBy, updatedAt, submittedAt.
+- **PDT:** id, empName, shortTermGoals, mediumTermGoals, longTermGoals, developmentNeeds, actionPlan, empSignature, superSignature, createdDate, createdTimestamp, status, supervisorComments, supervisorId, userId.
 - **OrgTeamGroup:** teamName (string | null), users (TeamSummaryUser[]) — represents an organizational team.
 - **PmTeamGroup:** teamId (string), teamName (string), users (TeamSummaryUser[]) — represents a PM team.
+- **CertItem:** id, name, type ("Certification" | "Course"), icon, status.
 
 ---
 
-## 16. Roles & Permissions (Summary)
+## 17. Roles & Permissions (Summary)
 
 | Role | Typical capabilities |
 |------|-----------------------|
@@ -729,7 +814,7 @@ Many of these currently return **mock data** or `of([])`; the redesign should as
 
 ---
 
-## 17. Non-Functional / Redesign Notes
+## 18. Non-Functional / Redesign Notes
 
 - **Responsive:** Daily Status and Report Review have explicit mobile behavior (column hiding, modal for date range). Header uses a hamburger menu. All new pages should be responsive.
 - **Accessibility:** Use semantic HTML and ARIA where appropriate; ensure keyboard and screen-reader support for dialogs and forms.
@@ -738,4 +823,4 @@ Many of these currently return **mock data** or `of([])`; the redesign should as
 
 ---
 
-*This document reflects the behavior and structure present in the codebase and backend as of the last review. Gaps between “required” behavior and current implementation (e.g. stub auth, missing routes) are called out so the redesign can prioritize and implement them.*
+*This document reflects the behavior and structure present in the codebase and backend as of March 2026. Gaps between “required” behavior and current implementation are called out so the team can prioritize and implement them.*

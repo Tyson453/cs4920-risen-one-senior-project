@@ -3,7 +3,8 @@
     "start": "source .env.local && export $(cat .env.local | grep -v '^#' | xargs) && serverless offline start",
     "start:local": "DYNAMODB_ENDPOINT=http://localhost:8000 serverless offline start",
     "import-data": "curl -X POST http://localhost:3000/dev/import-data",
-    "setup": "npm install && serverless dynamodb install"
+    "setup": "npm install && serverless dynamodb install",
+    "db:reset": "node scripts/reset-db.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

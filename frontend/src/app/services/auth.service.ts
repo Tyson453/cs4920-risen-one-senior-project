@@ -23,6 +23,11 @@ export class AuthService {
           if (response?.token && response?.user) {
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('currentUser', JSON.stringify(response.user));
+            if (response.user.temporaryPassword) {
+              this.router.navigate(['/set-password']);
+            } else {
+              this.router.navigate(['/home']);
+            }
             return true;
           }
           return false;
@@ -58,6 +63,26 @@ export class AuthService {
     return !!localStorage.getItem('authToken');
   }
 
+  getCurrentUserSnapshot(): any | null {
+    try {
+      const stored = localStorage.getItem('currentUser');
+      if (!stored) return null;
+
+      const user = JSON.parse(stored);
+      if (user?.uuid && !user?.id) {
+        user.id = user.uuid;
+      }
+      return user;
+    } catch (err) {
+      console.log('Auth parse error:', err);
+      return null;
+    }
+  }
+
+  hasTemporaryPassword(): boolean {
+    return !!this.getCurrentUserSnapshot()?.temporaryPassword;
+  }
+
   // ✅ keep BOTH names so nothing breaks
   logout() {
     this.signOut();
@@ -81,5 +106,20 @@ export class AuthService {
   async pmCheck() {
     const user = await this.getUser();
     return !!user?.roles?.includes('PM');
+  }
+
+  /**
+   * Replace the current session user in localStorage.
+   * Use after login and when the logged-in user is updated by an admin.
+   */
+  setCurrentUser(user: any | null): void {
+    if (!user) {
+      localStorage.removeItem('currentUser');
+      return;
+    }
+    if (user.uuid && !user.id) {
+      user.id = user.uuid;
+    }
+    localStorage.setItem('currentUser', JSON.stringify(user));
   }
 }

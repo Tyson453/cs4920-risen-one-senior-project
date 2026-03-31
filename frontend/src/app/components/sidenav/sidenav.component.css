@@ -1,0 +1,49 @@
+.sidenav-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-list-item {
+  cursor: pointer;
+}
+
+mat-list-item mat-icon {
+  color: #ffffff !important;
+  margin-right: 12px;
+}
+
+mat-list-item .mdc-list-item__primary-text,
+mat-list-item span {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  white-space: nowrap;
+}
+
+mat-list-item:hover {
+  background-color: rgba(255, 193, 7, 0.15);
+}
+
+.active-nav-item {
+  background-color: rgba(255, 193, 7, 0.25) !important;
+  border-left: 3px solid #ffc107;
+}
+
+.sidenav-links {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.logout-item {
+  flex-shrink: 0;
+  background-color: #121212; /* prevents content from showing through when sticking */
+}
+
+.logout-item .mdc-list-item__primary-text,
+.logout-item span,
+.logout-icon {
+  color: #ffc107 !important;
+}
+mat-list-item span {
+  white-space: nowrap;
+}

@@ -1,97 +1,29 @@
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Risen One Consulting</title>
-  </head>
+<app-auth-shell pageTitle="Login">
+  <form class="auth-form" ngNoForm (submit)="$event.preventDefault()">
+    <div class="error-message" *ngIf="loginError">
+      {{ errorMessage }}
+    </div>
 
-  <!--Body of Home page-->
-  <body>
-    <!--Main Content of Page (Hero)-->
-    <main class="login-page">
-      <mat-grid-list id="grid" cols="2" rowHeight="90vh">
-        <!--Grid Tile Hero images-->
-        <mat-grid-tile>
-          <div id="hero-img">
-            <!--Employee Image Container-->
-            <div id="img-container">
-              <div id="logo">
-                <div></div>
-              </div>
-            </div>
-            <!--Risen One Logo Container-->
-            <div id="img-container2">
-              <div id="logo2">
-                <div></div>
-              </div>
-            </div>
-          </div>
-        </mat-grid-tile>
-        <!--Grid Tile call to action-->
-        <mat-grid-tile>
-          <div class="login-container">
-            <mat-card class="cta-card">
-              <mat-card-content>
-                <h1>
-                  <span
-                    >Risen One Consulting <span id="yellow">|</span> Employee
-                    Portal</span
-                  >
-                </h1>
-                <h2>Login</h2>
-                <form
-                  class="login-form"
-                  ngNoForm
-                  (submit)="$event.preventDefault()"
-                >
-                  <div class="error-message" *ngIf="loginError">
-                    {{ errorMessage }}
-                  </div>
-                    <mat-form-field
-                      appearance="outline"
-                      class="form-field"
-                      [class.error-field]="loginError"
-                    >
-                      <input
-                        matInput
-                        id="username"
-                        name="username"
-                        type="text"
-                        placeholder="username*"
-                        required
-                        [(ngModel)]="username"
-                      />
-                    </mat-form-field>
-                    <mat-form-field
-                      appearance="outline"
-                      class="form-field"
-                      [class.error-field]="loginError"
-                    >
-                      <input
-                        matInput
-                        id="password"
-                        name="password"
-                        type="password"
-                        placeholder="password*"
-                        required
-                        [(ngModel)]="password"
-                      />
-                    </mat-form-field>
-                  <button
-                    mat-raised-button
-                    type="button"
-                    class="login-button"
-                    (click)="login()"
-                  >
-                    Login
-                  </button>
-                </form>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </mat-grid-tile>
-      </mat-grid-list>
-    </main>
-  </body>
-</html>
+    <mat-form-field appearance="outline" class="form-field" [class.error-field]="loginError">
+      <input matInput id="username" name="username" type="text" placeholder="username*" required [(ngModel)]="username" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="form-field" [class.error-field]="loginError">
+      <input
+        matInput
+        id="password"
+        name="password"
+        type="password"
+        placeholder="password*"
+        required
+        [(ngModel)]="password"
+      />
+    </mat-form-field>
+
+    <button mat-raised-button type="button" class="primary-button" (click)="login()">
+      Login
+    </button>
+
+    <a class="forgot-password-link" routerLink="/forgot-password">Forgot password?</a>
+  </form>
+</app-auth-shell>
