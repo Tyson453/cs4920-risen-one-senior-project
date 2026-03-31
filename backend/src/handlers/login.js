@@ -1,4 +1,5 @@
 'use strict';
+require('dotenv').config();
 
 const AWS = require('aws-sdk');
 const bcrypt = require('bcryptjs');

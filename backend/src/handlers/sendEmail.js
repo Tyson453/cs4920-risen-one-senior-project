@@ -3,18 +3,17 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: 'email-smtp.us-east-2.amazonaws.com',
-  port: 587,
-  secure: false,
+  host: process.env.SES_SMTP_HOST || 'email-smtp.us-east-2.amazonaws.com',
+  port: process.env.SES_SMTP_PORT || 587,
   auth: {
-    user: 'YOUR_SMTP_USERNAME',
-    pass: 'YOUR_SMTP_PASSWORD',
+    user: process.env.SES_SMTP_USER,
+    pass: process.env.SES_SMTP_PASS,
   },
 });
 
 async function sendEmail(to, subject, text) {
-  return transporter.sendMail({
-    from: 'YOUR_VERIFIED_EMAIL',
+  await transporter.sendMail({
+    from: process.env.SES_FROM_EMAIL,
     to,
     subject,
     text,
