@@ -1,72 +1,72 @@
 <mat-nav-list class="sidenav-container">
   <div class="sidenav-links">
-    <mat-list-item [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
+    <mat-list-item matTooltip="Home" matTooltipPosition="right" [routerLink]="'/home'" routerLinkActive="active-nav-item" [routerLinkActiveOptions]="{ exact: true }">
       <mat-icon>dashboard</mat-icon>
       <span>Home</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/daily-status'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Daily Status" matTooltipPosition="right" [routerLink]="'/daily-status'" routerLinkActive="active-nav-item">
       <mat-icon>update</mat-icon>
       <span>Daily Status</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/time-off'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Time Off" matTooltipPosition="right" [routerLink]="'/time-off'" routerLinkActive="active-nav-item">
       <mat-icon>calendar_month</mat-icon>
       <span>Time Off</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/projects'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Projects" matTooltipPosition="right" [routerLink]="'/projects'" routerLinkActive="active-nav-item">
       <mat-icon>list</mat-icon>
       <span>Projects</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/team-summary'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Team" matTooltipPosition="right" [routerLink]="'/team-summary'" routerLinkActive="active-nav-item">
       <mat-icon>group</mat-icon>
       <span>Team</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/game'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Game" matTooltipPosition="right" [routerLink]="'/game'" routerLinkActive="active-nav-item">
       <mat-icon>sports_esports</mat-icon>
       <span>Game</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/reports/personal-dev'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Employee Development" matTooltipPosition="right" [routerLink]="'/reports/personal-dev'" routerLinkActive="active-nav-item">
       <mat-icon>summarize</mat-icon>
       <span>Employee Development</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/certification-training'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Certification & Training" matTooltipPosition="right" [routerLink]="'/certification-training'" routerLinkActive="active-nav-item">
       <mat-icon>keyboard_double_arrow_up</mat-icon>
       <span>Certification & Training</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/history'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="History" matTooltipPosition="right" [routerLink]="'/history'" routerLinkActive="active-nav-item">
       <mat-icon>history</mat-icon>
       <span>History</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/profile-page'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Profile" matTooltipPosition="right" [routerLink]="'/profile-page'" routerLinkActive="active-nav-item">
       <mat-icon>person</mat-icon>
       <span>Profile</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/settings'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Settings" matTooltipPosition="right" [routerLink]="'/settings'" routerLinkActive="active-nav-item">
       <mat-icon>settings</mat-icon>
       <span>Settings</span>
     </mat-list-item>
 
-    <mat-list-item [routerLink]="'/notifications'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Notifications" matTooltipPosition="right" [routerLink]="'/notifications'" routerLinkActive="active-nav-item">
       <mat-icon>notifications</mat-icon>
       <span>Notifications</span>
     </mat-list-item>
 
-    <mat-list-item *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Admin" matTooltipPosition="right" *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item">
       <mat-icon>security</mat-icon>
       <span>Admin</span>
     </mat-list-item>
   </div>
 
-  <mat-list-item class="logout-item" (click)="logout()">
+  <mat-list-item matTooltip="Logout" matTooltipPosition="right" class="logout-item" (click)="logout()">
     <mat-icon class="logout-icon">logout</mat-icon>
     <span>Logout</span>
   </mat-list-item>

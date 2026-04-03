@@ -1,49 +1,125 @@
-.sidenav-container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+.mat-mdc-list-base {
+    color: var(--primary-text) !important;
+    height: 100%;
+    background-color: var(--primary-surface);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
 }
 
-mat-list-item {
-  cursor: pointer;
-}
-
-mat-list-item mat-icon {
-  color: #ffffff !important;
-  margin-right: 12px;
-}
-
-mat-list-item .mdc-list-item__primary-text,
-mat-list-item span {
-  color: #ffffff !important;
-  opacity: 1 !important;
-  white-space: nowrap;
-}
-
-mat-list-item:hover {
-  background-color: rgba(255, 193, 7, 0.15);
-}
-
-.active-nav-item {
-  background-color: rgba(255, 193, 7, 0.25) !important;
-  border-left: 3px solid #ffc107;
-}
-
-.sidenav-links {
-  flex: 1;
-  overflow-y: auto;
+.sidenav-spacer {
+    flex: 1;
 }
 
 .logout-item {
-  flex-shrink: 0;
-  background-color: #121212; /* prevents content from showing through when sticking */
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    z-index: 2;
+    background-color: var(--primary-surface);
+    border-top: 2px solid var(--primary-accent) !important;
+    color: var(--primary-accent) !important;
+    cursor: pointer;
 }
 
-.logout-item .mdc-list-item__primary-text,
-.logout-item span,
-.logout-icon {
-  color: #ffc107 !important;
+.logout-item .logout-icon {
+    color: var(--primary-accent);
 }
-mat-list-item span {
-  white-space: nowrap;
+
+.logout-item ::ng-deep .mdc-list-item__primary-text {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.home-item ::ng-deep .mdc-list-item__primary-text {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.daily-status-item ::ng-deep .mdc-list-item__primary-text {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.team-item ::ng-deep .mdc-list-item__primary-text {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.admin-item ::ng-deep .mdc-list-item__primary-text {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.profile-item ::ng-deep .mdc-list-item__primary-text {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.mat-mdc-list-item {
+    color: var(--primary-text) !important;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    list-style-type: none;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.mat-mdc-list-item:hover {
+    cursor: pointer;
+    background-color: var(--primary-surface-hover);
+}
+
+.mat-mdc-list-item.active-nav-item {
+    background: var(--color-overlay-accent-26);
+    border-left: 4px solid var(--primary-accent);
+}
+
+.mat-mdc-list-item.active-nav-item:hover {
+    background-color: var(--color-overlay-accent-32);
+}
+
+.content-container {
+    display: block;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.subList {
+    border-left: 15px solid var(--primary-accent);
+}
+
+.sidenav-container  {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    ::ng-deep .mdc-list-item__primary-text.mdc-list-item__primary-text {
+        color: var(--primary-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+::ng-deep .mdc-list-item__primary-text {
+    display: flex;
+    line-height: 20px !important;
+    place-content: center space-between;
+    align-items: center;
+    overflow: hidden;
+}
+
+::ng-deep .mdc-list-item__primary-text span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
