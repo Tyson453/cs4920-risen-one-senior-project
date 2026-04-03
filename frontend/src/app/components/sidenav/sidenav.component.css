@@ -115,7 +115,12 @@
     line-height: 20px !important;
     place-content: center space-between;
     align-items: center;
+    gap: 0.5rem;
     overflow: hidden;
+}
+
+::ng-deep .mdc-list-item__primary-text mat-icon {
+    flex-shrink: 0;
 }
 
 ::ng-deep .mdc-list-item__primary-text span {
