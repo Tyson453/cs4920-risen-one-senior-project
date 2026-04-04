@@ -1,0 +1,123 @@
+'use strict';
+
+const AWS = require('aws-sdk');
+
+const dynamoDbClientConfig = {};
+if (process.env.DYNAMODB_ENDPOINT) {
+  dynamoDbClientConfig.region = 'us-east-2';
+  dynamoDbClientConfig.endpoint = process.env.DYNAMODB_ENDPOINT;
+  dynamoDbClientConfig.sslEnabled = false;
+  dynamoDbClientConfig.credentials = new AWS.Credentials({
+    accessKeyId: 'local',
+    secretAccessKey: 'local'
+  });
+}
+const dynamoDb = new AWS.DynamoDB.DocumentClient(dynamoDbClientConfig);
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Credentials': true,
+  'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'POST,OPTIONS',
+  'Content-Type': 'application/json'
+};
+
+const VALID_DIFFICULTIES = ['easy', 'medium', 'hard'];
+
+module.exports.handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify({ message: 'OK' }) };
+  }
+
+  const tableName = process.env.LEADERBOARD_TABLE;
+  if (!tableName) {
+    console.error('Missing LEADERBOARD_TABLE env var');
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Internal server error' })
+    };
+  }
+
+  const userId = event.requestContext.authorizer.uuid;
+  const displayName = event.requestContext.authorizer.name || 'Unknown';
+
+  let body;
+  try {
+    body = JSON.parse(event.body || '{}');
+  } catch {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Invalid JSON body' })
+    };
+  }
+
+  const { score, difficulty, turn } = body;
+
+  if (typeof score !== 'number' || !Number.isFinite(score)) {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'score must be a finite number' })
+    };
+  }
+  if (!VALID_DIFFICULTIES.includes(difficulty)) {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'difficulty must be one of: easy, medium, hard' })
+    };
+  }
+  if (typeof turn !== 'number' || !Number.isInteger(turn) || turn < 0) {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'turn must be a non-negative integer' })
+    };
+  }
+
+  try {
+    const existing = await dynamoDb.get({
+      TableName: tableName,
+      Key: { userId }
+    }).promise();
+
+    const existingEntry = existing.Item;
+
+    if (existingEntry && score <= existingEntry.score) {
+      return {
+        statusCode: 200,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ entry: existingEntry, isNewHighScore: false })
+      };
+    }
+
+    const entry = {
+      userId,
+      displayName,
+      score,
+      difficulty,
+      turn,
+      date: new Date().toISOString()
+    };
+
+    await dynamoDb.put({
+      TableName: tableName,
+      Item: entry
+    }).promise();
+
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ entry, isNewHighScore: true })
+    };
+  } catch (err) {
+    console.error('submit-score error:', err);
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Internal server error' })
+    };
+  }
+};

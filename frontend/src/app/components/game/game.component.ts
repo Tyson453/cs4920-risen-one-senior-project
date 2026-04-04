@@ -170,31 +170,33 @@ export class GameComponent implements OnDestroy {
 
   // --- Game Over & Leaderboard ---
 
-  private onGameOver(): void {
+  private async onGameOver(): Promise<void> {
     if (!this.gameState) return;
 
     const user = this.authService.getCurrentUserSnapshot();
     if (!user) return;
 
-    const userId: string = user.uuid ?? user.id;
-    const displayName: string = user.name ?? `${user.firstName} ${user.lastName}`;
-
-    if (this.leaderboardService.isPersonalBest(userId, this.gameState.score, this.gameState.difficulty)) {
-      this.isPersonalBest = true;
-      this.leaderboardService.addScore({
-        userId,
-        displayName,
-        score: this.gameState.score,
-        difficulty: this.gameState.difficulty,
-        turn: this.gameState.turn,
-        date: Date.now(),
-      });
-      this.loadLeaderboard();
+    try {
+      const result = await this.leaderboardService.submitScore(
+        this.gameState.score,
+        this.gameState.difficulty,
+        this.gameState.turn,
+      );
+      this.isPersonalBest = result.isNewHighScore;
+      if (result.isNewHighScore) {
+        this.loadLeaderboard();
+      }
+    } catch {
+      // Don't let leaderboard errors block the game-over screen
     }
   }
 
-  private loadLeaderboard(): void {
-    this.leaderboard = this.leaderboardService.getScores();
+  private async loadLeaderboard(): Promise<void> {
+    try {
+      this.leaderboard = await this.leaderboardService.getScores();
+    } catch {
+      this.leaderboard = [];
+    }
   }
 
   get isPlanning(): boolean {

@@ -53,7 +53,12 @@ export interface LeaderboardEntry {
   score: number;
   difficulty: Difficulty;
   turn: number;
-  date: number;
+  date: string;
+}
+
+export interface SubmitScoreResponse {
+  entry: LeaderboardEntry;
+  isNewHighScore: boolean;
 }
 
 export interface DifficultyConfig {
