@@ -8,10 +8,6 @@
     min-width: 150px;
 }
 
-.sidenav-spacer {
-    flex: 1;
-}
-
 .logout-item {
     position: sticky;
     bottom: 0;
@@ -25,42 +21,6 @@
 
 .logout-item .logout-icon {
     color: var(--primary-accent);
-}
-
-.logout-item ::ng-deep .mdc-list-item__primary-text {
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.home-item ::ng-deep .mdc-list-item__primary-text {
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.daily-status-item ::ng-deep .mdc-list-item__primary-text {
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.team-item ::ng-deep .mdc-list-item__primary-text {
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.admin-item ::ng-deep .mdc-list-item__primary-text {
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.profile-item ::ng-deep .mdc-list-item__primary-text {
-    justify-content: flex-start;
-    align-items: center;
-    gap: 0.4rem;
 }
 
 .mat-mdc-list-item {
@@ -86,18 +46,7 @@
     background-color: var(--color-overlay-accent-32);
 }
 
-.content-container {
-    display: block;
-    height: 100%;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.subList {
-    border-left: 15px solid var(--primary-accent);
-}
-
-.sidenav-container  {
+.sidenav-container {
     height: 100%;
     display: flex;
     flex-direction: column;
