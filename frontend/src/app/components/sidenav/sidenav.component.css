@@ -128,3 +128,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.sidenav-links {
+    flex: 1;
+    overflow-y: auto;
+}
