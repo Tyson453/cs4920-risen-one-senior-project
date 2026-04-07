@@ -18,7 +18,12 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
 import { tempPasswordGuard } from './guards/temp-password.guard';
 import { setPasswordAccessGuard } from './guards/set-password-access.guard';
-import { GameComponent } from './components/game/game.component'; // ✅ ADDED
+import { GameComponent } from './components/game/game.component';
+import { HowToPlayComponent } from './components/how-to-play/how-to-play.component';
+import { HistoryComponent } from './components/history/history.component';
+import { SettingsComponent } from './components/settings/settings.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
+import { ProfilePageComponent } from './components/profile-page/profile-page.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -45,9 +50,12 @@ export const routes: Routes = [
       { path: 'projects', component: ProjectsComponent },
       { path: 'team-summary', component: TeamSummaryComponent },
       { path: 'time-off', component: TimeOffComponent },
-
-      { path: 'game', component: GameComponent }, // ✅ ADDED
-
+      { path: 'game', component: GameComponent },
+      { path: 'how-to-play', component: HowToPlayComponent },
+      { path: 'history', component: HistoryComponent },
+      { path: 'profile-page', component: ProfilePageComponent },
+      { path: 'settings', component: SettingsComponent },
+      { path: 'notifications', component: NotificationsComponent },
       { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
       { path: 'certification-training', component: CertificationTrainingComponent },
       { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent },

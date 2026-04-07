@@ -15,15 +15,16 @@
             *ngFor="let d of ['easy', 'medium', 'hard']"
             [class.active]="selectedDifficulty === d"
             (click)="selectedDifficulty = $any(d)"
+            [matTooltip]="d === 'easy' ? '6x6 grid' : d === 'medium' ? '8x8 grid' : '10x10 grid'"
           >
             {{ d | titlecase }}
-            <span class="diff-size">
-              {{ d === 'easy' ? '6x6' : d === 'medium' ? '8x8' : '10x10' }}
-            </span>
           </button>
         </div>
       </div>
 
+      <button mat-flat-button class="start-btn how-to-play-btn" routerLink="/how-to-play">
+        How to Play
+      </button>
       <button mat-flat-button class="start-btn" (click)="startGame()">
         Start Game
       </button>
@@ -37,7 +38,7 @@
     <mat-card-content>
       <div class="lb-entry" *ngFor="let entry of leaderboard; let i = index">
         <span class="lb-rank">{{ i + 1 }}.</span>
-        <span class="lb-name">{{ entry.name }}</span>
+        <span class="lb-name">{{ entry.displayName }}</span>
         <span class="lb-diff">{{ entry.difficulty }}</span>
         <span class="lb-score">{{ entry.score }}</span>
       </div>
@@ -102,18 +103,7 @@
       </div>
     </div>
 
-    <div *ngIf="showNameInput" class="name-input-section">
-      <p class="high-score-msg">🏆 New high score! Enter your name:</p>
-      <div class="name-input-row">
-        <mat-form-field appearance="outline">
-          <input matInput [(ngModel)]="playerName" placeholder="Your name" maxlength="20"
-                 (keyup.enter)="submitScore()" />
-        </mat-form-field>
-        <button mat-flat-button class="submit-btn" (click)="submitScore()" [disabled]="!playerName.trim()">
-          Submit
-        </button>
-      </div>
-    </div>
+    <p *ngIf="isPersonalBest" class="high-score-msg">🏆 New personal best!</p>
 
     <div class="game-over-actions">
       <button mat-flat-button class="play-again-btn" (click)="startGame()">

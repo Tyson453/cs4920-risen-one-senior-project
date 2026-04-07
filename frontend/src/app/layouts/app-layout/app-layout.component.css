@@ -1,24 +1,30 @@
 .content-div {
-    width: 100%;
-    display: flex;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
 }
 
-.content {
-    width: 90vw;
-    min-height: 80vh;
-}
-
+/* SIDEBAR WIDTH FIX */
 app-sidenav {
-    width: 10vw;
-    min-width: 120px;
+  width: 240px;
+  min-width: 240px;
+  background-color: #121212;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+/* MAIN CONTENT */
+.content {
+  flex: 1;
 }
 
 @media screen and (max-width: 575px) {
-    app-sidenav {
-        display: none;
-    }
+  app-sidenav {
+    display: none;
+  }
 
-    .content {
-        width: 100%;
-    }
+  .content {
+    width: 100%;
+  }
 }

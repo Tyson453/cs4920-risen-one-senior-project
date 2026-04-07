@@ -1,0 +1,79 @@
+<div class="how-to-play-container">
+  <div class="how-to-play-card">
+    <h1>How to Play</h1>
+
+    <p class="intro">
+      Fire Planner is a turn-based strategy game. Contain spreading wildfires before they burn too much of the forest.
+    </p>
+
+    <h2>Objective</h2>
+    <p>
+      Keep burned tiles below ~40–50% of the grid. Preserve as much forest (🌲) as possible and extinguish fires to maximize your score.
+    </p>
+
+    <h2>The Grid</h2>
+    <p>Each tile is one of three states:</p>
+    <ul>
+      <li>🌲 <strong>Safe</strong> – healthy forest</li>
+      <li>🔥 <strong>Fire</strong> – burning at intensity 1–3; the tile color deepens as intensity increases, so brighter/darker fire tiles are more dangerous and harder to extinguish</li>
+      <li>⬛ <strong>Burned</strong> – lost forever</li>
+    </ul>
+
+    <h2>Each Turn</h2>
+    <p>Each turn has two phases:</p>
+    <ol>
+      <li><strong>Planning</strong> – spend your actions to place units, then click <em>Next Turn</em>.</li>
+      <li><strong>Resolution</strong> – actions apply, firefighters work, then fire spreads automatically.</li>
+    </ol>
+
+    <h2>Your Units</h2>
+    <ul>
+      <li>
+        🚒 <strong>Firefighter</strong> – place on a fire tile to reduce its intensity each turn.
+        Persists for ~3 turns, then expires.
+      </li>
+      <li>
+        ✈️ <strong>Air Tanker</strong> – targets a 3×3 area and instantly reduces or removes fire.
+        Great for covering a cluster quickly.
+      </li>
+    </ul>
+
+    <h2>Actions &amp; Economy</h2>
+    <ul>
+      <li>You get a fixed number of actions each turn.</li>
+      <li>Only one unit can occupy a tile at a time.</li>
+      <li>One unused action carries over to the next turn — use them wisely!</li>
+    </ul>
+
+    <h2>Scoring</h2>
+    <ul>
+      <li>✅ Forest tiles preserved and fires extinguished earn points.</li>
+      <li>❌ Burned tiles cost points.</li>
+      <li>⭐ Bonus points for efficiency (unused actions) and surviving longer.</li>
+    </ul>
+
+    <h2>Game Over</h2>
+    <p>The game ends if burned tiles exceed the threshold or the 5-minute time limit is reached.</p>
+
+    <h2>Difficulty</h2>
+    <ul>
+      <li><strong>Easy</strong> – 6×6 grid</li>
+      <li><strong>Medium</strong> – 8×8 grid</li>
+      <li><strong>Hard</strong> – 10×10 grid, faster fire spread</li>
+    </ul>
+
+    <h2>Tips</h2>
+    <ul>
+      <li>Watch tile colors — darker fire tiles are higher intensity and spread faster. Prioritize them before they get out of hand.</li>
+      <li>Use the air tanker on fire clusters; use firefighters to hold individual tiles.</li>
+      <li>Fire intensity grows each turn — act early before it reaches level 3.</li>
+      <li>Carrying over an action can save you in a critical turn.</li>
+    </ul>
+
+    <div class="button-row">
+      <button mat-raised-button color="primary" routerLink="/game">
+        Back to Game
+      </button>
+    </div>
+  </div>
+</div>

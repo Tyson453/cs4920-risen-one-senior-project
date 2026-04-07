@@ -22,6 +22,16 @@
   text-align: center;
 }
 
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 20px 0;
+  cursor: pointer;
+  background-color: #ffc107;
+  border: none;
+  border-radius: 5px;
+}
+
 .game-header h1 {
   font-size: 2rem;
   font-weight: 700;
@@ -40,6 +50,11 @@
   background: var(--primary-surface) !important;
   border: 1px solid var(--primary-surface-hover);
   color: var(--primary-text);
+}
+
+.start-card mat-card-content,
+.leaderboard-card mat-card-content {
+  padding: 28px 32px !important;
 }
 
 .difficulty-select {
@@ -79,10 +94,6 @@
   border-color: var(--primary-accent);
 }
 
-.diff-size {
-  font-size: 0.7rem;
-  color: var(--muted-text);
-}
 
 .start-btn {
   width: 100%;
@@ -91,6 +102,11 @@
   font-weight: 600;
   background: var(--primary-accent) !important;
   color: #121212 !important;
+}
+
+.how-to-play-btn {
+  background: var(--primary-surface-hover) !important;
+  color: var(--primary-text) !important;
 }
 
 /* ═══════ Leaderboard ═══════ */
@@ -214,47 +230,11 @@
   color: var(--primary-accent);
 }
 
-.name-input-section {
-  margin-bottom: 16px;
-}
-
 .high-score-msg {
   font-size: 1rem;
   font-weight: 600;
   color: var(--primary-accent);
   margin-bottom: 12px;
-}
-
-.name-input-row {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.name-input-row mat-form-field {
-  width: 200px;
-}
-
-.name-input-row mat-form-field ::ng-deep .mat-mdc-text-field-wrapper {
-  background: var(--primary-bg);
-}
-
-.name-input-row mat-form-field ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__leading,
-.name-input-row mat-form-field ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__notch,
-.name-input-row mat-form-field ::ng-deep .mdc-text-field--outlined .mdc-notched-outline__trailing {
-  border-color: var(--primary-surface-hover);
-}
-
-.name-input-row mat-form-field ::ng-deep input.mat-mdc-input-element {
-  color: var(--primary-text);
-}
-
-.submit-btn {
-  background: var(--primary-accent) !important;
-  color: #121212 !important;
-  font-weight: 600;
-  margin-top: 4px;
 }
 
 .game-over-actions {
