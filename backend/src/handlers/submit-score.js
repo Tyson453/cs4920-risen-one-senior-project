@@ -39,8 +39,16 @@ module.exports.handler = async (event) => {
     };
   }
 
-  const userId = event.requestContext.authorizer.uuid;
-  const displayName = event.requestContext.authorizer.name || 'Unknown';
+  const authorizer = event.requestContext && event.requestContext.authorizer;
+  const userId = authorizer && authorizer.uuid;
+  if (!userId) {
+    return {
+      statusCode: 401,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Unauthorized' })
+    };
+  }
+  const displayName = authorizer.name || 'Unknown';
 
   let body;
   try {

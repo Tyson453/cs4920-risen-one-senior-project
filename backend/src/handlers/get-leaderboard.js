@@ -40,11 +40,22 @@ module.exports.handler = async (event) => {
   }
 
   try {
-    const result = await dynamoDb.scan({ TableName: tableName }).promise();
-    const entries = (result.Items || [])
-      .sort((a, b) => b.score - a.score)
-      .slice(0, MAX_ENTRIES);
+    const scanParams = { TableName: tableName };
+    const entries = [];
+    let lastEvaluatedKey;
 
+    do {
+      const result = await dynamoDb.scan({
+        ...scanParams,
+        ExclusiveStartKey: lastEvaluatedKey
+      }).promise();
+
+      entries.push(...(result.Items || []));
+      entries.sort((a, b) => b.score - a.score);
+      entries.splice(MAX_ENTRIES);
+
+      lastEvaluatedKey = result.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
     return {
       statusCode: 200,
       headers: CORS_HEADERS,

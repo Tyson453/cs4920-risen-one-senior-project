@@ -51,7 +51,6 @@ provider:
             - arn:aws:dynamodb:${self:provider.region}:*:table/ptoRequests
             - arn:aws:dynamodb:${self:provider.region}:*:table/ptoRequests/index/*
             - arn:aws:dynamodb:${self:provider.region}:*:table/leaderboard
-            - arn:aws:dynamodb:${self:provider.region}:*:table/leaderboard/index/*
         - Effect: Allow
           Action:
             - dynamodb:ConditionCheckItem
