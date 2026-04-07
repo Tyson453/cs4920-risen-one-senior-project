@@ -41,6 +41,7 @@ export class GameComponent implements OnDestroy {
   tankerPreviewTiles = new Set<string>();
   leaderboard: LeaderboardEntry[] = [];
   isPersonalBest = false;
+  isNewLeaderboardRecord = false;
 
   private timerInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -66,6 +67,7 @@ export class GameComponent implements OnDestroy {
     this.tankerPreviewTiles.clear();
     this.currentMode = 'firefighter';
     this.isPersonalBest = false;
+    this.isNewLeaderboardRecord = false;
     this.startTimer();
   }
 
@@ -176,13 +178,19 @@ export class GameComponent implements OnDestroy {
     const user = this.authService.getCurrentUserSnapshot();
     if (!user) return;
 
+    const finalScore = this.gameState.score;
+    const priorTopScore =
+      this.leaderboard.length > 0 ? this.leaderboard[0].score : Number.NEGATIVE_INFINITY;
+
     try {
       const result = await this.leaderboardService.submitScore(
-        this.gameState.score,
+        finalScore,
         this.gameState.difficulty,
         this.gameState.turn,
       );
       this.isPersonalBest = result.isNewHighScore;
+      this.isNewLeaderboardRecord =
+        result.isNewHighScore && finalScore > priorTopScore;
       if (result.isNewHighScore) {
         this.loadLeaderboard();
       }

@@ -105,7 +105,8 @@
       </div>
     </div>
 
-    <p *ngIf="isPersonalBest" class="high-score-msg">🏆 New personal best!</p>
+    <p *ngIf="isNewLeaderboardRecord" class="high-score-msg">🏆 New record!</p>
+    <p *ngIf="isPersonalBest && !isNewLeaderboardRecord" class="high-score-msg">🏆 New personal best!</p>
 
     <div class="game-over-actions">
       <button mat-flat-button class="play-again-btn" (click)="startGame()">
