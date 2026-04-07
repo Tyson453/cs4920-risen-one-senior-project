@@ -15,11 +15,9 @@
             *ngFor="let d of ['easy', 'medium', 'hard']"
             [class.active]="selectedDifficulty === d"
             (click)="selectedDifficulty = $any(d)"
+            [matTooltip]="d === 'easy' ? '6x6 grid' : d === 'medium' ? '8x8 grid' : '10x10 grid'"
           >
             {{ d | titlecase }}
-            <span class="diff-size">
-              {{ d === 'easy' ? '6x6' : d === 'medium' ? '8x8' : '10x10' }}
-            </span>
           </button>
         </div>
       </div>

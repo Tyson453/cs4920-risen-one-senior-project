@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { GameBoardComponent } from './game-board/game-board.component';
 import { ControlPanelComponent } from './control-panel/control-panel.component';
@@ -25,6 +26,7 @@ import {
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MatTooltipModule,
     GameBoardComponent,
     ControlPanelComponent,
     ScoreDisplayComponent,
