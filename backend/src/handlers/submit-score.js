@@ -77,35 +77,27 @@ module.exports.handler = async (event) => {
     };
   }
 
+  const entry = {
+    userId,
+    displayName,
+    score,
+    difficulty,
+    turn,
+    date: new Date().toISOString()
+  };
+
   try {
-    const existing = await dynamoDb.get({
-      TableName: tableName,
-      Key: { userId }
-    }).promise();
-
-    const existingEntry = existing.Item;
-
-    if (existingEntry && score <= existingEntry.score) {
-      return {
-        statusCode: 200,
-        headers: CORS_HEADERS,
-        body: JSON.stringify({ entry: existingEntry, isNewHighScore: false })
-      };
-    }
-
-    const entry = {
-      userId,
-      displayName,
-      score,
-      difficulty,
-      turn,
-      date: new Date().toISOString()
-    };
-
-    await dynamoDb.put({
-      TableName: tableName,
-      Item: entry
-    }).promise();
+    // Single atomic write: only succeeds if no row yet or stored score is strictly lower.
+    await dynamoDb
+      .put({
+        TableName: tableName,
+        Item: entry,
+        ConditionExpression: 'attribute_not_exists(userId) OR score < :newScore',
+        ExpressionAttributeValues: {
+          ':newScore': score
+        }
+      })
+      .promise();
 
     return {
       statusCode: 200,
@@ -113,6 +105,39 @@ module.exports.handler = async (event) => {
       body: JSON.stringify({ entry, isNewHighScore: true })
     };
   } catch (err) {
+    if (err.code === 'ConditionalCheckFailedException') {
+      try {
+        const current = await dynamoDb
+          .get({
+            TableName: tableName,
+            Key: { userId }
+          })
+          .promise();
+        if (!current.Item) {
+          console.error('submit-score: conditional failed but row missing');
+          return {
+            statusCode: 500,
+            headers: CORS_HEADERS,
+            body: JSON.stringify({ message: 'Internal server error' })
+          };
+        }
+        return {
+          statusCode: 200,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({
+            entry: current.Item,
+            isNewHighScore: false
+          })
+        };
+      } catch (getErr) {
+        console.error('submit-score get after condition failure:', getErr);
+        return {
+          statusCode: 500,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({ message: 'Internal server error' })
+        };
+      }
+    }
     console.error('submit-score error:', err);
     return {
       statusCode: 500,
