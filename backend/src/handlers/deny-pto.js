@@ -1,6 +1,7 @@
 'use strict';
 
 const AWS = require('aws-sdk');
+const sendEmail = require('./sendEmail');
 
 const dynamoDbClientConfig = {};
 if (process.env.DYNAMODB_ENDPOINT) {
@@ -22,11 +23,6 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json'
 };
 
-/**
- * POST /pto/{ptoId}/deny
- * Transitions a PTO request from PENDING to DENIED with an optional denialReason.
- * Body: { reason?: string }
- */
 module.exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify({ message: 'OK' }) };
@@ -49,15 +45,44 @@ module.exports.handler = async (event) => {
     // body is optional for deny
   }
 
+  let existing;
   try {
-    const existing = await dynamoDb.get({ TableName: tableName, Key: { ptoId } }).promise();
-    if (!existing.Item) {
-      return { statusCode: 404, headers: CORS_HEADERS, body: JSON.stringify({ message: 'PTO request not found' }) };
-    }
-    if (existing.Item.status !== 'PENDING') {
-      return { statusCode: 409, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Only PENDING PTO requests can be denied' }) };
-    }
+    const result = await dynamoDb.get({ TableName: tableName, Key: { ptoId } }).promise();
+    existing = result.Item;
+  } catch (error) {
+    console.error('deny-pto fetch error:', error);
+    return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Internal server error' }) };
+  }
 
+  if (!existing) {
+    return { statusCode: 404, headers: CORS_HEADERS, body: JSON.stringify({ message: 'PTO request not found' }) };
+  }
+
+  if (existing.status !== 'PENDING') {
+    return {
+      statusCode: 409,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'Only PENDING PTO requests can be denied' })
+    };
+  }
+
+  let employee = null;
+  const usersTable = process.env.USERS_TABLE;
+
+  if (usersTable && existing.userId) {
+    try {
+      const userResult = await dynamoDb.get({
+        TableName: usersTable,
+        Key: { uuid: existing.userId }
+      }).promise();
+
+      employee = userResult.Item || null;
+    } catch (e) {
+      console.warn('deny-pto: could not fetch employee record', existing.userId, e.message);
+    }
+  }
+
+  try {
     await dynamoDb.update({
       TableName: tableName,
       Key: { ptoId },
@@ -68,6 +93,34 @@ module.exports.handler = async (event) => {
         ':reason': body.reason || ''
       }
     }).promise();
+
+    if (employee?.email) {
+      const employeeName =
+        employee?.name ||
+        [employee?.firstName, employee?.lastName].filter(Boolean).join(' ') ||
+        existing.userId;
+
+      const subject = 'PTO Request Denied';
+      const text = `Hello ${employeeName},
+
+Your PTO request has been denied.
+
+PTO ID: ${ptoId}
+Status: DENIED
+Reason: ${body.reason || 'No reason provided.'}
+
+Please log in if you need more details.`;
+
+      try {
+        await sendEmail(employee.email, subject, text);
+      } catch (emailError) {
+        console.error('deny-pto email error:', emailError);
+      }
+    } else {
+      console.warn('deny-pto: employee email not found, skipping email send', {
+        userId: existing.userId
+      });
+    }
 
     return {
       statusCode: 200,

@@ -1,6 +1,7 @@
 'use strict';
 
 const AWS = require('aws-sdk');
+const sendEmail = require('./sendEmail');
 
 const dynamoDbClientConfig = {};
 if (process.env.DYNAMODB_ENDPOINT) {
@@ -26,7 +27,6 @@ const CORS_HEADERS = {
 const SUBMITTABLE_STATUSES = ['DRAFT', 'CHANGES_REQUESTED'];
 
 module.exports.handler = async (event) => {
-
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -64,9 +64,7 @@ module.exports.handler = async (event) => {
     }).promise();
 
     existing = result.Item;
-
   } catch (error) {
-
     console.error('submit-pdt fetch error:', error);
 
     return {
@@ -94,53 +92,85 @@ module.exports.handler = async (event) => {
     };
   }
 
-  // Look up the employee's supervisorId
   let supervisorId = '';
+  let employee = null;
+  let supervisor = null;
 
   const usersTable = process.env.USERS_TABLE;
 
   if (usersTable && existing.userId) {
     try {
-
       const userResult = await dynamoDb.get({
         TableName: usersTable,
         Key: { uuid: existing.userId }
       }).promise();
 
-      supervisorId = userResult.Item?.supervisorId || '';
-
+      employee = userResult.Item || null;
+      supervisorId = employee?.supervisorId || '';
     } catch (e) {
       console.warn('submit-pdt: could not fetch supervisorId for user', existing.userId, e.message);
     }
   }
 
-  // ⭐ DEV FALLBACK (important)
-  // If supervisorId wasn't found, use the logged-in user's uuid
   if (!supervisorId && event.requestContext?.authorizer?.uuid) {
     supervisorId = event.requestContext.authorizer.uuid;
   }
 
+  if (usersTable && supervisorId) {
+    try {
+      const supervisorResult = await dynamoDb.get({
+        TableName: usersTable,
+        Key: { uuid: supervisorId }
+      }).promise();
+
+      supervisor = supervisorResult.Item || null;
+    } catch (e) {
+      console.warn('submit-pdt: could not fetch supervisor user record', supervisorId, e.message);
+    }
+  }
+
   try {
-
     await dynamoDb.update({
-
       TableName: tableName,
-
       Key: { pdtId },
-
       UpdateExpression: 'SET #status = :status, supervisorComments = :empty, supervisorId = :supervisorId',
-
       ExpressionAttributeNames: {
         '#status': 'status'
       },
-
       ExpressionAttributeValues: {
         ':status': 'PENDING_APPROVAL',
         ':empty': '',
         ':supervisorId': supervisorId
       }
-
     }).promise();
+
+    if (supervisor?.email) {
+      const employeeName =
+        employee?.name ||
+        [employee?.firstName, employee?.lastName].filter(Boolean).join(' ') ||
+        existing.userId;
+
+      const subject = 'PDT Request Submitted';
+      const text = `Hello,
+
+A PDT request has been submitted and is awaiting your review.
+
+Employee: ${employeeName}
+PDT ID: ${pdtId}
+Status: PENDING_APPROVAL
+
+Please log in to review the request.`;
+
+      try {
+        await sendEmail(supervisor.email, subject, text);
+      } catch (emailError) {
+        console.error('submit-pdt email error:', emailError);
+      }
+    } else {
+      console.warn('submit-pdt: supervisor email not found, skipping email send', {
+        supervisorId
+      });
+    }
 
     return {
       statusCode: 200,
@@ -150,9 +180,7 @@ module.exports.handler = async (event) => {
         message: 'PDT submitted for approval'
       })
     };
-
   } catch (error) {
-
     console.error('submit-pdt error:', error);
 
     return {

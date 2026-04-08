@@ -13,6 +13,15 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendEmail(to, subject, text) {
+  if (process.env.DYNAMODB_ENDPOINT) {
+    console.log('\n📧 EMAIL (DEV MODE)');
+    console.log('To:', to);
+    console.log('Subject:', subject);
+    console.log('Message:\n', text);
+    console.log('------------------------\n');
+    return;
+  }
+
   return transporter.sendMail({
     from: process.env.SES_FROM_EMAIL,
     to,

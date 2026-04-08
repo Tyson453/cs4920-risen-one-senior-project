@@ -14,17 +14,20 @@ if (process.env.DYNAMODB_ENDPOINT) {
     secretAccessKey: 'local',
   });
 }
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient(dynamoDbClientConfig);
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Credentials': true,
-  'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Headers':
+    'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
   'Access-Control-Allow-Methods': 'POST,OPTIONS',
   'Content-Type': 'application/json',
 };
 
-const GENERIC_MESSAGE = 'If an account with that username exists, a recovery code has been sent.';
+const GENERIC_MESSAGE =
+  'If an account with that username exists, a recovery code has been sent.';
 
 function generateSixDigitCode() {
   const num = crypto.randomInt(0, 1000000);
@@ -33,38 +36,23 @@ function generateSixDigitCode() {
 
 async function sendResetEmail(toEmail, username, code, appBaseUrl) {
   const loginUrl = `${appBaseUrl || 'http://localhost:4200'}/forgot-password`;
-  const body = `A password reset was requested for your account.\n\nYour recovery code is: ${code}\n\nEnter this code at: ${loginUrl}\n\nThis code expires in 15 minutes. If you did not request this, you can safely ignore this email.`;
 
-  const isLocal = !!process.env.DYNAMODB_ENDPOINT;
-  const allowLocalSend = process.env.ALLOW_SEND_EMAIL_LOCAL === 'true';
+  console.log('RESET CODE:', code);
+  console.log('[DEV] Password reset email skipped in local mode');
+  console.log('To:', toEmail);
+  console.log('Username:', username);
+  console.log('Reset page:', loginUrl);
 
-  if (process.env.SEND_PASSWORD_RESET_EMAIL === 'true' && (!isLocal || allowLocalSend)) {
-    try {
-      const ses = new AWS.SES({ region: process.env.AWS_REGION || 'us-east-2' });
-      await ses.sendEmail({
-        Source: process.env.SES_FROM_EMAIL || 'noreply@example.com',
-        Destination: { ToAddresses: [toEmail] },
-        Message: {
-          Subject: { Data: 'Password Reset – Risen One' },
-          Body: { Text: { Data: body } },
-        },
-      }).promise();
-      return { success: true, actuallySent: true };
-    } catch (err) {
-      console.error('SES send failed:', err);
-      return { success: false, error: err.message };
-    }
-  }
-
-  if (isLocal) {
-    console.log('[DEV] Password reset code (not sent — local):', { to: toEmail, username, code });
-  }
   return { success: true, actuallySent: false };
 }
 
 module.exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify({ message: 'OK' }) };
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'OK' }),
+    };
   }
 
   let body;
@@ -79,6 +67,7 @@ module.exports.handler = async (event) => {
   }
 
   const { username } = body;
+
   if (!username) {
     return {
       statusCode: 400,
@@ -98,7 +87,6 @@ module.exports.handler = async (event) => {
   }
 
   try {
-    // Use scan to be resilient to non-unique usernames in local/dev data.
     const data = await dynamoDb
       .scan({
         TableName: tableName,
@@ -117,27 +105,33 @@ module.exports.handler = async (event) => {
     }
 
     const user = data.Items[0];
+
     if (data.Items.length > 1) {
       console.warn(
         'request-password-reset: multiple users found for username; using first',
         { username, count: data.Items.length }
       );
     }
+
     const code = generateSixDigitCode();
     const codeHash = await bcrypt.hash(code, 10);
     const now = new Date().toISOString();
 
-    await dynamoDb.update({
-      TableName: tableName,
-      Key: { uuid: user.uuid },
-      UpdateExpression: 'SET passwordResetCodeHash = :hash, passwordResetRequestedAt = :ts',
-      ExpressionAttributeValues: {
-        ':hash': codeHash,
-        ':ts': now,
-      },
-    }).promise();
+    await dynamoDb
+      .update({
+        TableName: tableName,
+        Key: { uuid: user.uuid },
+        UpdateExpression:
+          'SET passwordResetCodeHash = :hash, passwordResetRequestedAt = :ts',
+        ExpressionAttributeValues: {
+          ':hash': codeHash,
+          ':ts': now,
+        },
+      })
+      .promise();
 
     const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:4200';
+
     await sendResetEmail(user.email, username, code, appBaseUrl);
 
     return {
