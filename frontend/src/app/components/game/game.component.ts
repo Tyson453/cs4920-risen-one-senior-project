@@ -43,6 +43,7 @@ export class GameComponent implements OnDestroy {
   tankerPreviewTiles = new Set<string>();
   leaderboard: LeaderboardEntry[] = [];
   isPersonalBest = false;
+  isNewLeaderboardRecord = false;
 
   private timerInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -68,6 +69,7 @@ export class GameComponent implements OnDestroy {
     this.tankerPreviewTiles.clear();
     this.currentMode = 'firefighter';
     this.isPersonalBest = false;
+    this.isNewLeaderboardRecord = false;
     this.startTimer();
   }
 
@@ -172,31 +174,39 @@ export class GameComponent implements OnDestroy {
 
   // --- Game Over & Leaderboard ---
 
-  private onGameOver(): void {
+  private async onGameOver(): Promise<void> {
     if (!this.gameState) return;
 
     const user = this.authService.getCurrentUserSnapshot();
     if (!user) return;
 
-    const userId: string = user.uuid ?? user.id;
-    const displayName: string = user.name ?? `${user.firstName} ${user.lastName}`;
+    const finalScore = this.gameState.score;
+    const priorTopScore =
+      this.leaderboard.length > 0 ? this.leaderboard[0].score : Number.NEGATIVE_INFINITY;
 
-    if (this.leaderboardService.isPersonalBest(userId, this.gameState.score, this.gameState.difficulty)) {
-      this.isPersonalBest = true;
-      this.leaderboardService.addScore({
-        userId,
-        displayName,
-        score: this.gameState.score,
-        difficulty: this.gameState.difficulty,
-        turn: this.gameState.turn,
-        date: Date.now(),
-      });
-      this.loadLeaderboard();
+    try {
+      const result = await this.leaderboardService.submitScore(
+        finalScore,
+        this.gameState.difficulty,
+        this.gameState.turn,
+      );
+      this.isPersonalBest = result.isNewHighScore;
+      this.isNewLeaderboardRecord =
+        result.isNewHighScore && finalScore > priorTopScore;
+      if (result.isNewHighScore) {
+        this.loadLeaderboard();
+      }
+    } catch {
+      // Don't let leaderboard errors block the game-over screen
     }
   }
 
-  private loadLeaderboard(): void {
-    this.leaderboard = this.leaderboardService.getScores();
+  private async loadLeaderboard(): Promise<void> {
+    try {
+      this.leaderboard = await this.leaderboardService.getScores();
+    } catch {
+      this.leaderboard = [];
+    }
   }
 
   get isPlanning(): boolean {
