@@ -188,6 +188,10 @@ export class GameComponent implements OnDestroy {
   private async onGameOver(): Promise<void> {
     if (!this.gameState) return;
 
+    this.pendingActions = [];
+    this.highlightedTiles.clear();
+    this.tankerPreviewTiles.clear();
+
     const user = this.authService.getCurrentUserSnapshot();
     if (!user) return;
 
