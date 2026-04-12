@@ -68,7 +68,7 @@ export interface DifficultyConfig {
 }
 
 export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
-  easy:   { gridSize: 6,  initialFires: 2, initialHighIntensity: 0 },
+  easy:   { gridSize: 6,  initialFires: 3, initialHighIntensity: 0 },
   medium: { gridSize: 8,  initialFires: 3, initialHighIntensity: 1 },
   hard:   { gridSize: 10, initialFires: 4, initialHighIntensity: 2 },
 };

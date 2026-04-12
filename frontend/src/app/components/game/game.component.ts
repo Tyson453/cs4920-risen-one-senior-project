@@ -153,6 +153,13 @@ export class GameComponent implements OnDestroy {
     this.highlightedTiles.delete(`${removed.x},${removed.y}`);
   }
 
+  forceEndGame(): void {
+    if (!this.gameState) return;
+    this.gameState.phase = 'GAME_OVER';
+    this.stopTimer();
+    this.onGameOver();
+  }
+
   // --- Timer ---
 
   private startTimer(): void {

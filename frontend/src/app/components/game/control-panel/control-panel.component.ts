@@ -22,9 +22,26 @@ export class ControlPanelComponent {
   @Output() modeChange = new EventEmitter<ActionMode>();
   @Output() nextTurn = new EventEmitter<void>();
   @Output() undoAction = new EventEmitter<void>();
+  @Output() triggerEndGame = new EventEmitter<void>();
+
+  isConfirmingEndGame = false;
+  private confirmEndGameTimeout: any;
 
   setMode(mode: ActionMode): void {
     this.modeChange.emit(mode);
+  }
+
+  onEndGameClick(): void {
+    if (this.isConfirmingEndGame) {
+      clearTimeout(this.confirmEndGameTimeout);
+      this.isConfirmingEndGame = false;
+      this.triggerEndGame.emit();
+    } else {
+      this.isConfirmingEndGame = true;
+      this.confirmEndGameTimeout = setTimeout(() => {
+        this.isConfirmingEndGame = false;
+      }, 5000);
+    }
   }
 
   onNextTurn(): void {
