@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,7 +12,7 @@ import { ActionMode, PlayerAction } from '../../../models/game.model';
   templateUrl: './control-panel.component.html',
   styleUrl: './control-panel.component.css',
 })
-export class ControlPanelComponent {
+export class ControlPanelComponent implements OnDestroy {
   @Input() actionsRemaining = 0;
   @Input() carriedOver = 0;
   @Input() currentMode: ActionMode = 'firefighter';
@@ -33,7 +33,10 @@ export class ControlPanelComponent {
 
   onEndGameClick(): void {
     if (this.isConfirmingEndGame) {
-      clearTimeout(this.confirmEndGameTimeout);
+      if (this.confirmEndGameTimeout !== null) {
+        clearTimeout(this.confirmEndGameTimeout);
+        this.confirmEndGameTimeout = null;
+      }
       this.isConfirmingEndGame = false;
       this.triggerEndGame.emit();
     } else {
@@ -50,5 +53,13 @@ export class ControlPanelComponent {
 
   onUndo(): void {
     this.undoAction.emit();
+  }
+
+  ngOnDestroy(): void {
+    if (this.confirmEndGameTimeout !== null) {
+      clearTimeout(this.confirmEndGameTimeout);
+      this.confirmEndGameTimeout = null;
+    }
+    this.isConfirmingEndGame = false;
   }
 }
