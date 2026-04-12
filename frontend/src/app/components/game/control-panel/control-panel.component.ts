@@ -25,7 +25,7 @@ export class ControlPanelComponent {
   @Output() triggerEndGame = new EventEmitter<void>();
 
   isConfirmingEndGame = false;
-  private confirmEndGameTimeout: any;
+  private confirmEndGameTimeout: ReturnType<typeof setTimeout> | null = null;
 
   setMode(mode: ActionMode): void {
     this.modeChange.emit(mode);
