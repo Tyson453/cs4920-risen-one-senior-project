@@ -38,6 +38,75 @@ const UPDATABLE_FIELDS = [
   'maxSickHours',
 ];
 
+const RELATED_SUPERVISOR_TABLES = [
+  { envVar: 'PTO_TABLE', keyName: 'ptoId' },
+  { envVar: 'PDT_TABLE', keyName: 'pdtId' }
+];
+
+async function getUserById(tableName, uuid) {
+  const result = await dynamoDb.get({
+    TableName: tableName,
+    Key: { uuid }
+  }).promise();
+
+  return result.Item;
+}
+
+async function getAllItemsForUser(tableName, userId) {
+  const items = [];
+  let exclusiveStartKey;
+
+  do {
+    const result = await dynamoDb.query({
+      TableName: tableName,
+      IndexName: 'UserIdIndex',
+      KeyConditionExpression: 'userId = :userId',
+      ExpressionAttributeValues: {
+        ':userId': userId
+      },
+      ExclusiveStartKey: exclusiveStartKey
+    }).promise();
+
+    items.push(...(result.Items || []));
+    exclusiveStartKey = result.LastEvaluatedKey;
+  } while (exclusiveStartKey);
+
+  return items;
+}
+
+async function syncSupervisorIdForUserRecords(userId, supervisorId) {
+  const syncResults = [];
+
+  for (const { envVar, keyName } of RELATED_SUPERVISOR_TABLES) {
+    const tableName = process.env[envVar];
+    if (!tableName) {
+      continue;
+    }
+
+    const items = await getAllItemsForUser(tableName, userId);
+    await Promise.all(items.map((item) => dynamoDb.update({
+      TableName: tableName,
+      Key: { [keyName]: item[keyName] },
+      UpdateExpression: 'SET #supervisorId = :supervisorId',
+      ConditionExpression: 'attribute_exists(#recordKey)',
+      ExpressionAttributeNames: {
+        '#supervisorId': 'supervisorId',
+        '#recordKey': keyName
+      },
+      ExpressionAttributeValues: {
+        ':supervisorId': supervisorId
+      }
+    }).promise()));
+
+    syncResults.push({
+      tableName,
+      updatedCount: items.length
+    });
+  }
+
+  return syncResults;
+}
+
 /**
  * PUT /users/{uuid}
  *
@@ -107,6 +176,29 @@ module.exports.handler = async (event) => {
 
   const updateExpression = 'SET ' + expressionParts.join(', ');
 
+  let supervisorIdChanged = false;
+  if (Object.prototype.hasOwnProperty.call(updates, 'supervisorId')) {
+    try {
+      const existingUser = await getUserById(tableName, uuid);
+      if (!existingUser) {
+        return {
+          statusCode: 404,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({ message: 'User not found' })
+        };
+      }
+
+      supervisorIdChanged = existingUser.supervisorId !== updates.supervisorId;
+    } catch (error) {
+      console.error('update-user prefetch error:', error);
+      return {
+        statusCode: 500,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ message: 'Internal server error' })
+      };
+    }
+  }
+
   try {
     await dynamoDb.update({
       TableName: tableName,
@@ -117,10 +209,27 @@ module.exports.handler = async (event) => {
       ExpressionAttributeValues: expressionAttributeValues,
     }).promise();
 
+    let relatedUpdates = [];
+    if (supervisorIdChanged) {
+      try {
+        relatedUpdates = await syncSupervisorIdForUserRecords(uuid, updates.supervisorId);
+      } catch (error) {
+        console.error('update-user supervisor sync error:', error);
+        return {
+          statusCode: 500,
+          headers: CORS_HEADERS,
+          body: JSON.stringify({
+            message: 'User updated, but failed to sync related supervisor records',
+            uuid
+          })
+        };
+      }
+    }
+
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'User updated', uuid, updates })
+      body: JSON.stringify({ message: 'User updated', uuid, updates, relatedUpdates })
     };
   } catch (error) {
     if (error.code === 'ConditionalCheckFailedException') {
