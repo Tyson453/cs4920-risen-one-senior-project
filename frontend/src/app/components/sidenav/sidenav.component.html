@@ -40,19 +40,9 @@
       <span>Certification & Training</span>
     </mat-list-item>
 
-    <mat-list-item matTooltip="History" matTooltipPosition="right" [routerLink]="'/history'" routerLinkActive="active-nav-item">
-      <mat-icon>history</mat-icon>
-      <span>History</span>
-    </mat-list-item>
-
-    <mat-list-item matTooltip="Profile" matTooltipPosition="right" [routerLink]="'/profile-page'" routerLinkActive="active-nav-item">
+    <mat-list-item matTooltip="Profile" matTooltipPosition="right" [routerLink]="['/profile', user?.id]" routerLinkActive="active-nav-item">
       <mat-icon>person</mat-icon>
       <span>Profile</span>
-    </mat-list-item>
-
-    <mat-list-item matTooltip="Settings" matTooltipPosition="right" [routerLink]="'/settings'" routerLinkActive="active-nav-item">
-      <mat-icon>settings</mat-icon>
-      <span>Settings</span>
     </mat-list-item>
 
     <mat-list-item matTooltip="Notifications" matTooltipPosition="right" [routerLink]="'/notifications'" routerLinkActive="active-nav-item">

@@ -102,24 +102,28 @@ export class GameComponent implements OnDestroy {
 
   onTileClick(tile: Tile): void {
     if (!this.gameState || this.gameState.phase !== 'PLANNING') return;
-    if (this.gameState.actionsRemaining <= 0) return;
 
     const coordKey = `${tile.x},${tile.y}`;
 
+    const existingActionIndex = this.pendingActions.findIndex(
+      a => a.x === tile.x && a.y === tile.y
+    );
+
+    if (existingActionIndex !== -1) {
+      this.pendingActions.splice(existingActionIndex, 1);
+      this.gameState.actionsRemaining++;
+      this.highlightedTiles.delete(coordKey);
+      return;
+    }
+
+    if (this.gameState.actionsRemaining <= 0) return;
+
     if (this.currentMode === 'firefighter') {
-      const alreadyPlanned = this.pendingActions.some(
-        a => a.type === 'place_firefighter' && a.x === tile.x && a.y === tile.y,
-      );
-      if (alreadyPlanned) return;
       if (!this.engine.canPlaceFirefighter(this.gameState, tile.x, tile.y)) return;
       this.pendingActions.push({ type: 'place_firefighter', x: tile.x, y: tile.y });
       this.gameState.actionsRemaining--;
       this.highlightedTiles.add(coordKey);
     } else {
-      const alreadyPlanned = this.pendingActions.some(
-        a => a.type === 'air_tanker' && a.x === tile.x && a.y === tile.y,
-      );
-      if (alreadyPlanned) return;
       if (!this.engine.canPlaceAirTanker(this.gameState, tile.x, tile.y)) return;
       this.pendingActions.push({ type: 'air_tanker', x: tile.x, y: tile.y });
       this.gameState.actionsRemaining--;
@@ -149,6 +153,13 @@ export class GameComponent implements OnDestroy {
     this.highlightedTiles.delete(`${removed.x},${removed.y}`);
   }
 
+  forceEndGame(): void {
+    if (!this.gameState) return;
+    this.gameState.phase = 'GAME_OVER';
+    this.stopTimer();
+    this.onGameOver();
+  }
+
   // --- Timer ---
 
   private startTimer(): void {
@@ -176,6 +187,10 @@ export class GameComponent implements OnDestroy {
 
   private async onGameOver(): Promise<void> {
     if (!this.gameState) return;
+
+    this.pendingActions = [];
+    this.highlightedTiles.clear();
+    this.tankerPreviewTiles.clear();
 
     const user = this.authService.getCurrentUserSnapshot();
     if (!user) return;

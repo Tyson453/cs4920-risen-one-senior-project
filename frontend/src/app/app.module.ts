@@ -84,7 +84,6 @@ import { AuthShellComponent } from './components/auth-shell/auth-shell.component
 import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { HowToPlayComponent } from './components/how-to-play/how-to-play.component';
-import { HistoryComponent } from './components/history/history.component';
 import { SettingsComponent } from './components/settings/settings.component';
 import { NotificationsComponent } from './components/notifications/notifications.component';
 import { ProfilePageComponent } from './components/profile-page/profile-page.component';
@@ -114,7 +113,6 @@ import { ProfilePageComponent } from './components/profile-page/profile-page.com
     AppLayoutComponent,
     AuthLayoutComponent,
     HowToPlayComponent,
-    HistoryComponent,
     SettingsComponent,
     NotificationsComponent,
     ProfilePageComponent,
