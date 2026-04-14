@@ -1,8 +1,11 @@
 'use strict';
 
+require('dotenv').config();
+
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const AWS = require('aws-sdk');
+const sendEmail = require('./sendEmail');
 
 const USER_FIELDS = [
   'uuid',
@@ -70,7 +73,9 @@ function generateTemporaryPassword() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   let s = '';
   const bytes = crypto.randomBytes(14);
-  for (let i = 0; i < 14; i++) s += chars[bytes[i] % chars.length];
+  for (let i = 0; i < 14; i++) {
+    s += chars[bytes[i] % chars.length];
+  }
   return s;
 }
 
@@ -79,39 +84,53 @@ function sanitizeForResponse(user) {
   return { ...rest, id: rest.uuid };
 }
 
-/** Send onboarding email. When DYNAMODB_ENDPOINT is set (local), log only unless ALLOW_SEND_EMAIL_LOCAL=true.
- *  Set ALLOW_SEND_EMAIL_LOCAL=true and valid AWS credentials to test real SES from serverless-offline. */
 async function sendOnboardingEmail(toEmail, username, temporaryPassword, appBaseUrl) {
   const loginUrl = `${appBaseUrl || 'http://localhost:4200'}/login`;
-  const body = `Welcome! Your account has been created.\n\nUsername: ${username}\nTemporary password: ${temporaryPassword}\n\nSign in here: ${loginUrl}\n\nYou will be prompted to set a new password on first sign-in.`;
+  const subject = 'Your account – Risen One';
+  const body = `Welcome! Your account has been created.
+
+Username: ${username}
+Temporary password: ${temporaryPassword}
+
+Sign in here: ${loginUrl}
+
+You will be prompted to set a new password on first sign-in.`;
+
   const isLocal = !!process.env.DYNAMODB_ENDPOINT;
   const allowLocalSend = process.env.ALLOW_SEND_EMAIL_LOCAL === 'true';
-  if (process.env.SEND_ONBOARDING_EMAIL === 'true' && (!isLocal || allowLocalSend)) {
+
+  if (!process.env.SES_SMTP_USER || !process.env.SES_SMTP_PASS || !process.env.SES_FROM_EMAIL) {
+    console.warn('SES environment variables are missing. Skipping onboarding email.');
+    return { success: false, actuallySent: false, error: 'Missing SES environment variables' };
+  }
+
+  if (!isLocal || allowLocalSend) {
     try {
-      const ses = new AWS.SES({ region: process.env.AWS_REGION || 'us-east-2' });
-      await ses.sendEmail({
-        Source: process.env.SES_FROM_EMAIL || 'noreply@example.com',
-        Destination: { ToAddresses: [toEmail] },
-        Message: {
-          Subject: { Data: 'Your account – Risen One' },
-          Body: { Text: { Data: body } },
-        },
-      }).promise();
+      await sendEmail(toEmail, subject, body);
       return { success: true, actuallySent: true };
     } catch (err) {
-      console.error('SES send failed:', err);
-      return { success: false, error: err.message };
+      console.error('Failed to send onboarding email:', err);
+      return { success: false, actuallySent: false, error: err.message };
     }
   }
-  if (isLocal) {
-    console.log('[DEV] Onboarding email (not sent — local). Use this temp password to sign in:', { to: toEmail, username, loginUrl, tempPassword: temporaryPassword });
-  }
+
+  console.log('[DEV] Onboarding email not sent in local mode. Use this temp password to sign in:', {
+    to: toEmail,
+    username,
+    loginUrl,
+    tempPassword: temporaryPassword,
+  });
+
   return { success: true, actuallySent: false };
 }
 
 module.exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify({ message: 'OK' }) };
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ message: 'OK' }),
+    };
   }
 
   let payload;
@@ -141,7 +160,9 @@ module.exports.handler = async (event) => {
         return {
           statusCode: 422,
           headers: CORS_HEADERS,
-          body: JSON.stringify({ message: 'Failed to create user: payload missing required fields for onboarding' }),
+          body: JSON.stringify({
+            message: 'Failed to create user: payload missing required fields for onboarding',
+          }),
         };
       }
     } else {
@@ -157,6 +178,7 @@ module.exports.handler = async (event) => {
 
     const tableName = process.env.USERS_TABLE;
     const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:4200';
+
     if (!tableName) {
       return {
         statusCode: 500,
@@ -165,23 +187,12 @@ module.exports.handler = async (event) => {
       };
     }
 
+    let temporaryPasswordPlain = null;
+
     if (sendOnboardingEmailFlag) {
-      const temporaryPasswordPlain = generateTemporaryPassword();
+      temporaryPasswordPlain = generateTemporaryPassword();
       user.password = await bcrypt.hash(temporaryPasswordPlain, 10);
       user.temporaryPassword = true;
-      let emailResult = { success: true };
-      try {
-        emailResult = await sendOnboardingEmail(
-          user.email,
-          user.username,
-          temporaryPasswordPlain,
-          appBaseUrl
-        );
-      } catch (emailErr) {
-        console.error('Onboarding email error:', emailErr);
-        emailResult = { success: false };
-      }
-      user.onboardingStatus = emailResult.actuallySent ? 'email_sent' : (emailResult.success ? 'email_skipped' : 'email_failed');
     }
 
     try {
@@ -198,6 +209,41 @@ module.exports.handler = async (event) => {
       };
     }
 
+    if (sendOnboardingEmailFlag) {
+      let emailResult = { success: true, actuallySent: false };
+
+      try {
+        emailResult = await sendOnboardingEmail(
+          user.email,
+          user.username,
+          temporaryPasswordPlain,
+          appBaseUrl
+        );
+      } catch (emailErr) {
+        console.error('Onboarding email error:', emailErr);
+        emailResult = { success: false, actuallySent: false };
+      }
+
+      user.onboardingStatus = emailResult.actuallySent
+        ? 'email_sent'
+        : emailResult.success
+          ? 'email_skipped'
+          : 'email_failed';
+
+      try {
+        await dynamoDb.update({
+          TableName: tableName,
+          Key: { uuid: user.uuid },
+          UpdateExpression: 'SET onboardingStatus = :status',
+          ExpressionAttributeValues: {
+            ':status': user.onboardingStatus,
+          },
+        }).promise();
+      } catch (updateErr) {
+        console.error('Failed to update onboarding status:', updateErr);
+      }
+    }
+
     return {
       statusCode: 200,
       headers: CORS_HEADERS,
@@ -208,7 +254,10 @@ module.exports.handler = async (event) => {
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
-      body: JSON.stringify({ message: 'Failed to create user', error: (e && e.message) || String(e) }),
+      body: JSON.stringify({
+        message: 'Failed to create user',
+        error: (e && e.message) || String(e),
+      }),
     };
   }
 };

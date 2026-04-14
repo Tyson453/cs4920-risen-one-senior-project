@@ -1,6 +1,7 @@
 'use strict';
 
 const AWS = require('aws-sdk');
+const sendEmail = require('./sendEmail');
 
 const dynamoDbClientConfig = {};
 if (process.env.DYNAMODB_ENDPOINT) {
@@ -22,12 +23,6 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json'
 };
 
-/**
- * POST /pdt/{pdtId}/request-changes
- * Supervisor requests changes on a PDT record.
- * Body: { comments: string }
- * Transitions PENDING_APPROVAL → CHANGES_REQUESTED and records supervisor comments.
- */
 module.exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify({ message: 'OK' }) };
@@ -50,7 +45,6 @@ module.exports.handler = async (event) => {
     return { statusCode: 400, headers: CORS_HEADERS, body: JSON.stringify({ message: 'Invalid JSON body' }) };
   }
 
-  // Fetch existing record to validate status
   let existing;
   try {
     const result = await dynamoDb.get({ TableName: tableName, Key: { pdtId } }).promise();
@@ -72,6 +66,22 @@ module.exports.handler = async (event) => {
     };
   }
 
+  let employee = null;
+  const usersTable = process.env.USERS_TABLE;
+
+  if (usersTable && existing.userId) {
+    try {
+      const userResult = await dynamoDb.get({
+        TableName: usersTable,
+        Key: { uuid: existing.userId }
+      }).promise();
+
+      employee = userResult.Item || null;
+    } catch (e) {
+      console.warn('request-pdt-changes: could not fetch employee record', existing.userId, e.message);
+    }
+  }
+
   try {
     await dynamoDb.update({
       TableName: tableName,
@@ -83,6 +93,34 @@ module.exports.handler = async (event) => {
         ':comments': body.comments || ''
       }
     }).promise();
+
+    if (employee?.email) {
+      const employeeName =
+        employee?.name ||
+        [employee?.firstName, employee?.lastName].filter(Boolean).join(' ') ||
+        existing.userId;
+
+      const subject = 'PDT Request Needs Changes';
+      const text = `Hello ${employeeName},
+
+Your PDT request needs changes before it can be approved.
+
+PDT ID: ${pdtId}
+Status: CHANGES_REQUESTED
+Supervisor Comments: ${body.comments || 'No comments provided.'}
+
+Please log in to review and update your request.`;
+
+      try {
+        await sendEmail(employee.email, subject, text);
+      } catch (emailError) {
+        console.error('request-pdt-changes email error:', emailError);
+      }
+    } else {
+      console.warn('request-pdt-changes: employee email not found, skipping email send', {
+        userId: existing.userId
+      });
+    }
 
     return {
       statusCode: 200,

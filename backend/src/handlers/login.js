@@ -1,8 +1,11 @@
 'use strict';
+require('dotenv').config({ path: '.env.local' });
+require('dotenv').config();
 
 const AWS = require('aws-sdk');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const sendEmail = require('./sendEmail');
 
 // Configure DynamoDB client for local development
 const dynamoDbClientConfig = {};
@@ -15,6 +18,7 @@ if (process.env.DYNAMODB_ENDPOINT) {
     secretAccessKey: 'local'
   });
 }
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient(dynamoDbClientConfig);
 
 const CORS_HEADERS = {
@@ -40,7 +44,6 @@ function toResponseUser(user) {
 }
 
 module.exports.handler = async (event) => {
-  // Handle OPTIONS preflight request
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -52,7 +55,7 @@ module.exports.handler = async (event) => {
   console.log('=== Login attempt ===');
   console.log('Event body:', event.body);
   console.log('Event body type:', typeof event.body);
-  
+
   let requestBody;
   try {
     requestBody = JSON.parse(event.body || '{}');
@@ -68,6 +71,7 @@ module.exports.handler = async (event) => {
 
   const { username, password } = requestBody;
   console.log('Username:', username, 'Password length:', password?.length);
+
   if (!username || !password) {
     return {
       statusCode: 400,
@@ -78,6 +82,7 @@ module.exports.handler = async (event) => {
 
   const tableName = process.env.USERS_TABLE;
   const jwtSecret = process.env.JWT_SECRET;
+
   if (!tableName || !jwtSecret) {
     console.error('Missing USERS_TABLE or JWT_SECRET');
     return {
@@ -109,6 +114,7 @@ module.exports.handler = async (event) => {
 
     const user = data.Items[0];
     console.log('User found:', user.username);
+
     const passwordMatch = await bcrypt.compare(password, user.password);
     console.log('Password match:', passwordMatch);
 
@@ -131,7 +137,23 @@ module.exports.handler = async (event) => {
 
     const token = jwt.sign(claims, jwtSecret, { expiresIn: '7d' });
     const responseUser = toResponseUser(user);
+
     console.log('Login successful for user:', username);
+
+    if (user.email) {
+      try {
+        await sendEmail(
+          user.email,
+          'Login Notification',
+          `Hello ${user.name || user.username},\n\nYou have successfully logged in to the system.\n\nIf this was not you, please contact support immediately.`
+        );
+        console.log('Login email sent successfully to:', user.email);
+      } catch (emailError) {
+        console.error('Failed to send login email:', emailError);
+      }
+    } else {
+      console.warn('User has no email address. Skipping login email.');
+    }
 
     return {
       statusCode: 200,
