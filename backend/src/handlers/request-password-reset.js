@@ -35,15 +35,54 @@ function generateSixDigitCode() {
 }
 
 async function sendResetEmail(toEmail, username, code, appBaseUrl) {
-  const loginUrl = `${appBaseUrl || 'http://localhost:4200'}/forgot-password`;
+  const resetUrl = `${appBaseUrl || 'http://localhost:4200'}/forgot-password`;
 
-  console.log('RESET CODE:', code);
-  console.log('[DEV] Password reset email skipped in local mode');
+  const body = `
+Hello ${username},
+
+We received a request to reset your password.
+
+Your recovery code: ${code}
+
+Go here to reset your password:
+${resetUrl}
+
+This code expires in 15 minutes.
+
+If you did not request this, ignore this email.
+
+— Risen One Team
+`;
+
+  console.log('\n📧 [DEV MODE] Password Reset Email');
   console.log('To:', toEmail);
   console.log('Username:', username);
-  console.log('Reset page:', loginUrl);
+  console.log('Code:', code);
+  console.log('Reset URL:', resetUrl);
+  console.log('------------------------\n');
 
-  return { success: true, actuallySent: false };
+  if (process.env.SEND_PASSWORD_RESET_EMAIL === 'true' && !process.env.DYNAMODB_ENDPOINT) {
+    try {
+      const ses = new AWS.SES({ region: process.env.AWS_REGION || 'us-east-2' });
+
+      await ses.sendEmail({
+        Source: process.env.SES_FROM_EMAIL || 'noreply@example.com',
+        Destination: { ToAddresses: [toEmail] },
+        Message: {
+          Subject: { Data: 'Password Reset – Risen One' },
+          Body: {
+            Text: { Data: body },
+          },
+        },
+      }).promise();
+
+      console.log('[EMAIL SENT]');
+    } catch (err) {
+      console.error('[EMAIL ERROR]:', err);
+    }
+  }
+
+  return { success: true };
 }
 
 module.exports.handler = async (event) => {
@@ -67,6 +106,7 @@ module.exports.handler = async (event) => {
   }
 
   const { username } = body;
+  console.log('🔥 FUNCTION HIT - USERNAME:', username);
 
   if (!username) {
     return {
@@ -78,7 +118,6 @@ module.exports.handler = async (event) => {
 
   const tableName = process.env.USERS_TABLE;
   if (!tableName) {
-    console.error('Missing USERS_TABLE');
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
@@ -96,6 +135,8 @@ module.exports.handler = async (event) => {
       })
       .promise();
 
+    console.log('🔥 DB RESULT:', data.Items);
+
     if (!data.Items || data.Items.length === 0) {
       return {
         statusCode: 200,
@@ -105,14 +146,6 @@ module.exports.handler = async (event) => {
     }
 
     const user = data.Items[0];
-
-    if (data.Items.length > 1) {
-      console.warn(
-        'request-password-reset: multiple users found for username; using first',
-        { username, count: data.Items.length }
-      );
-    }
-
     const code = generateSixDigitCode();
     const codeHash = await bcrypt.hash(code, 10);
     const now = new Date().toISOString();
@@ -132,6 +165,7 @@ module.exports.handler = async (event) => {
 
     const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:4200';
 
+    console.log('🔥 ABOUT TO CALL EMAIL FUNCTION');
     await sendResetEmail(user.email, username, code, appBaseUrl);
 
     return {

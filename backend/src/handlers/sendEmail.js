@@ -12,6 +12,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Generic email sender
 async function sendEmail(to, subject, text) {
   if (process.env.DYNAMODB_ENDPOINT) {
     console.log('\n📧 EMAIL (DEV MODE)');
@@ -30,4 +31,33 @@ async function sendEmail(to, subject, text) {
   });
 }
 
-module.exports = sendEmail;
+// ✅ NEW FUNCTION: Forgot Password Email
+async function sendResetEmail(to, username, code, appBaseUrl) {
+  const subject = 'Password Reset Request';
+
+  const message = `
+Hello ${username},
+
+We received a request to reset your password.
+
+Your reset code is:
+${code}
+
+You can use this code to reset your password in the application.
+
+Or visit:
+${appBaseUrl}
+
+If you did not request this, please ignore this email.
+
+Thanks,
+Team
+`;
+
+  return sendEmail(to, subject, message);
+}
+
+module.exports = {
+  sendEmail,
+  sendResetEmail,
+};
