@@ -54,14 +54,14 @@ If you did not request this, ignore this email.
 — Risen One Team
 `;
 
-  console.log('\n📧 [DEV MODE] Password Reset Email');
+  console.log('\n📧 Password Reset Email');
   console.log('To:', toEmail);
   console.log('Username:', username);
   console.log('Code:', code);
   console.log('Reset URL:', resetUrl);
   console.log('------------------------\n');
 
-  if (process.env.SEND_PASSWORD_RESET_EMAIL === 'true' && !process.env.DYNAMODB_ENDPOINT) {
+  if (process.env.SEND_PASSWORD_RESET_EMAIL === 'true') {
     try {
       const ses = new AWS.SES({ region: process.env.AWS_REGION || 'us-east-2' });
 
