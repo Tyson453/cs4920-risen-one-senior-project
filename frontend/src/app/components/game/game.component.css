@@ -52,6 +52,11 @@ button {
   color: var(--primary-text);
 }
 
+.start-card mat-card-content,
+.leaderboard-card mat-card-content {
+  padding: 28px 32px !important;
+}
+
 .difficulty-select {
   display: flex;
   flex-direction: column;
@@ -89,10 +94,6 @@ button {
   border-color: var(--primary-accent);
 }
 
-.diff-size {
-  font-size: 0.7rem;
-  color: var(--muted-text);
-}
 
 .start-btn {
   width: 100%;

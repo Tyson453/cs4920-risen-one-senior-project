@@ -50,6 +50,7 @@ provider:
             - arn:aws:dynamodb:${self:provider.region}:*:table/certifications/index/*
             - arn:aws:dynamodb:${self:provider.region}:*:table/ptoRequests
             - arn:aws:dynamodb:${self:provider.region}:*:table/ptoRequests/index/*
+            - arn:aws:dynamodb:${self:provider.region}:*:table/leaderboard
         - Effect: Allow
           Action:
             - dynamodb:ConditionCheckItem
@@ -246,6 +247,18 @@ resources:
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
+
+    LeaderboardTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: leaderboard
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
 
 functions:
   login:
@@ -556,6 +569,8 @@ functions:
     handler: src/handlers/update-user.handler
     environment:
       USERS_TABLE: users
+      PTO_TABLE: ptoRequests
+      PDT_TABLE: personalDevelopmentTraining
       DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
     events:
       - http:
@@ -1123,6 +1138,71 @@ functions:
           path: pto/{ptoId}/deny
           method: post
           authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  # ── Leaderboard ──────────────────────────────────────────────────────────────
+
+  submitScore:
+    handler: src/handlers/submit-score.handler
+    environment:
+      LEADERBOARD_TABLE: leaderboard
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: leaderboard/scores
+          method: post
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  getLeaderboard:
+    handler: src/handlers/get-leaderboard.handler
+    environment:
+      LEADERBOARD_TABLE: leaderboard
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: leaderboard/scores
+          method: get
+          authorizer: jwtAuthorizer
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+
+  deleteScore:
+    handler: src/handlers/delete-score.handler
+    environment:
+      LEADERBOARD_TABLE: leaderboard
+      DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    events:
+      - http:
+          path: leaderboard/scores/{userId}
+          method: delete
+          authorizer: adminJwtAuthorizer
           cors:
             origin: '*'
             headers:

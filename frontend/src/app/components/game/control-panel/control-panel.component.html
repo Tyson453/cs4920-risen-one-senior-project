@@ -36,6 +36,14 @@
   <div class="action-buttons">
     <button
       mat-stroked-button
+      color="warn"
+      (click)="onEndGameClick()"
+      [disabled]="disabled"
+    >
+      {{ isConfirmingEndGame ? 'Are You Sure?' : 'End Game' }}
+    </button>
+    <button
+      mat-stroked-button
       (click)="onUndo()"
       [disabled]="disabled || pendingActions.length === 0"
     >

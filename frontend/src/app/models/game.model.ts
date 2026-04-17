@@ -53,7 +53,12 @@ export interface LeaderboardEntry {
   score: number;
   difficulty: Difficulty;
   turn: number;
-  date: number;
+  date: string;
+}
+
+export interface SubmitScoreResponse {
+  entry: LeaderboardEntry;
+  isNewHighScore: boolean;
 }
 
 export interface DifficultyConfig {
@@ -63,9 +68,9 @@ export interface DifficultyConfig {
 }
 
 export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
-  easy:   { gridSize: 6,  initialFires: 2, initialHighIntensity: 0 },
-  medium: { gridSize: 8,  initialFires: 3, initialHighIntensity: 1 },
-  hard:   { gridSize: 10, initialFires: 4, initialHighIntensity: 2 },
+  easy:   { gridSize: 6,  initialFires: 3, initialHighIntensity: 0 },
+  medium: { gridSize: 8,  initialFires: 4, initialHighIntensity: 1 },
+  hard:   { gridSize: 10, initialFires: 5, initialHighIntensity: 2 },
 };
 
 export const GAME_CONSTANTS = {
