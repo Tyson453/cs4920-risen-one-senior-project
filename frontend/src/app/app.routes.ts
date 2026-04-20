@@ -21,7 +21,6 @@ import { setPasswordAccessGuard } from './guards/set-password-access.guard';
 import { GameComponent } from './components/game/game.component';
 import { HowToPlayComponent } from './components/how-to-play/how-to-play.component';
 import { SettingsComponent } from './components/settings/settings.component';
-import { NotificationsComponent } from './components/notifications/notifications.component';
 import { ProfilePageComponent } from './components/profile-page/profile-page.component';
 
 export const routes: Routes = [
@@ -53,7 +52,6 @@ export const routes: Routes = [
       { path: 'how-to-play', component: HowToPlayComponent },
       { path: 'profile-page', component: ProfilePageComponent },
       { path: 'settings', component: SettingsComponent },
-      { path: 'notifications', component: NotificationsComponent },
       { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
       { path: 'certification-training', component: CertificationTrainingComponent },
       { path: 'reports/personal-dev', component: EmployeeDevelopmentComponent },

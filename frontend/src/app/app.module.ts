@@ -85,7 +85,6 @@ import { AppLayoutComponent } from './layouts/app-layout/app-layout.component';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component';
 import { HowToPlayComponent } from './components/how-to-play/how-to-play.component';
 import { SettingsComponent } from './components/settings/settings.component';
-import { NotificationsComponent } from './components/notifications/notifications.component';
 import { ProfilePageComponent } from './components/profile-page/profile-page.component';
 
 @NgModule({
@@ -114,7 +113,6 @@ import { ProfilePageComponent } from './components/profile-page/profile-page.com
     AuthLayoutComponent,
     HowToPlayComponent,
     SettingsComponent,
-    NotificationsComponent,
     ProfilePageComponent,
   ],
   imports: [

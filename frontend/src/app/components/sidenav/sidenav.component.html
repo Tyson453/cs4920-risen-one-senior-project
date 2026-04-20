@@ -45,11 +45,6 @@
       <span>Profile</span>
     </mat-list-item>
 
-    <mat-list-item matTooltip="Notifications" matTooltipPosition="right" [routerLink]="'/notifications'" routerLinkActive="active-nav-item">
-      <mat-icon>notifications</mat-icon>
-      <span>Notifications</span>
-    </mat-list-item>
-
     <mat-list-item matTooltip="Admin" matTooltipPosition="right" *ngIf="isAdmin" [routerLink]="'/admin'" routerLinkActive="active-nav-item">
       <mat-icon>security</mat-icon>
       <span>Admin</span>
